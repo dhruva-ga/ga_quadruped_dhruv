@@ -1,0 +1,284 @@
+<mujoco model="quadruped">
+    <compiler angle="radian" balanceinertia="true" meshdir="meshes"/>
+
+    <default>
+        <default class="visualgeom">
+            <geom material="visualgeom" condim="1" contype="0" conaffinity="0" />
+        </default>
+        <default class="x8_90">
+            <joint armature="0.0026" frictionloss="0.1" />
+            <position kp="90" kv="3.0" forcelimited="true" forcerange="-50 50"></position>
+        </default>
+    </default>
+
+    <asset>
+        <mesh name="base_link" content_type="model/stl" file="base_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="thigh_link1_1" content_type="model/stl" file="thigh_link1_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="thigh_link2_1" content_type="model/stl" file="thigh_link2_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="thigh_link4_1" content_type="model/stl" file="thigh_link4_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="thigh_link3_1" content_type="model/stl" file="thigh_link3_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="calf_link1_1" content_type="model/stl" file="calf_link1_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="calf_link4_1" content_type="model/stl" file="calf_link4_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="calf_link3_1" content_type="model/stl" file="calf_link3_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="calf_link2_1" content_type="model/stl" file="calf_link2_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_abduction4_1" content_type="model/stl" file="hip_abduction4_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_abduction3_1" content_type="model/stl" file="hip_abduction3_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_abduction2_1" content_type="model/stl" file="hip_abduction2_1.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_abduction_1" content_type="model/stl" file="hip_abduction_1.stl" scale="0.001 0.001 0.001" />
+
+        <texture name="texplane" type="2d" builtin="checker" rgb1=".0 .0 .0" rgb2=".8 .8 .8" width="100" height="100" />
+        <material name="matplane" reflectance="0." texture="texplane" texrepeat="1 1" texuniform="true" />
+        <material name="visualgeom" rgba="0.5 0.9 0.2 1" />
+        <texture name="groundplane_tex" type="2d" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="200" height="200" />
+        <material name="groundplane" texture="groundplane_tex" texuniform="true" texrepeat="4 4" reflectance="0.35" rgba="0.3 0.3 0.35 1" />
+        <material name="silver" rgba="0.6 0.6 0.6 1" specular="0.6" shininess="0.8" />
+        <material name="gray" rgba="0.1 0.1 0.1 1" specular="0.4" shininess="0.4" />
+        <material name="black" rgba="0.1 0.1 0.1 1" specular="0.0" shininess="0.2" />
+        <material name="metal" rgba="0.3 0.3 0.3 1" />
+    </asset>
+
+    <worldbody>
+    <camera name="render_cam" pos="-4.677 -0.386 1.300" xyaxes="0.082 -0.997 0.000 0.263 0.022 0.965"/>
+    <camera pos="0.057 2.955 0.751" xyaxes="-1.000 0.020 0.000 0.001 0.056 0.998" name="side_cam"/>
+
+    <!-- ground plane -->
+        <body pos="0 0 0" name="ground">
+            <geom name="floor" type="plane" size="0 0 0.1" rgba="1.0 1.0 1.0 1" contype="1"
+                conaffinity="0" priority="1" material="groundplane" friction="0.8 0.005 0.0001"/>
+        </body>
+
+        <!-- trunk -->
+        <body pos="0 0 0.5" name="robot_base_link">
+        <freejoint/>
+        <body name="trunk">
+                <site name="imu" type="sphere" size="0.01" />
+                <inertial pos="0.000000 -0.250000 0.000000" mass="5.037930"
+                        fullinertia="0.03400000 0.01566000 0.03075000 0.00000176 -0.00000000 -0.00009247"/>
+                <geom name="base_link" type="mesh" mesh="base_link" pos="0 0 0"
+                material="metal" class="visualgeom"/>
+
+                <!-- rear right hip -->
+                <body name="hip_rr" pos="0.11 -0.553 4e-06">
+                        <inertial pos="-0.002242 -0.050784 -0.000008"
+                                mass="1.017191"
+                                fullinertia="0.002062 0.001272 0.001462 -1.8927053e-05 -4.3412e-08 -2.1256e-08"/>
+                        <joint  name="hip_rr" pos="0 0 0" axis="0 1 0" class="x8_90" range="-0.78 0.78"/>
+                        <geom   pos="-0.11 0.553 -4e-06" quat="1 0 0 0"
+                                type="mesh" mesh="hip_abduction4_1"
+                                contype="1" conaffinity="0"
+                                density="0" group="1" class="visualgeom"/>
+                        <geom   type="mesh" rgba="" mesh="hip_abduction4_1"
+                                pos="-0.11 0.553 -4e-06" quat="1 0 0 0"/>
+
+                        <!-- rear right thigh -->
+                        <body name="thigh_rr" pos="0.0274 -0.058 0">
+                                <inertial pos="0.040187 -0.027106 -0.039969"
+                                        mass="1.654821"
+                                        fullinertia="0.01698 0.01277 0.0066 0.00124 0.001836 -0.00653"/>
+                                <joint  name="thigh_rr" pos="0 0 0" axis="1 0 0" class="x8_90" range="-2.1 0.52"/>
+                                <geom   pos="-0.1374 0.611 -4e-06" quat="1 0 0 0"
+                                        type="mesh" mesh="thigh_link1_1"
+                                        contype="1" conaffinity="0"
+                                        density="0" group="1" class="visualgeom"/>
+                                <geom   type="mesh" rgba="" mesh="thigh_link1_1"
+                                        pos="-0.1374 0.611 -4e-06" quat="1 0 0 0"/>
+
+                                <!-- rear right calf -->
+                                <body name="calf_rr" pos="0.0541 -0.15 -0.259808">
+                                        <inertial pos="0.012892 0.067994 -0.106770"
+                                                mass="0.392767"
+                                                fullinertia="0.004249 0.002884 0.001397 -2.36532e-07 4.56181e-07 0.001937"/>
+                                        <joint  name="calf_rr" pos="0 0 0" axis="1 0 0" class="x8_90" range="0.52 1.83"/>
+                                        <geom   pos="-0.1915 0.761 0.259804"
+                                                type="mesh" mesh="calf_link1_1"
+                                                contype="1" conaffinity="0"
+                                                density="0" group="1" class="visualgeom"/>
+                                        <geom   type="mesh" rgba="" mesh="calf_link1_1"
+                                                pos="-0.1915 0.761 0.259804"/>
+                                </body>
+                        </body>
+                </body>
+
+                <!-- rear left hip -->
+                <body name="hip_rl" pos="-0.11 -0.553 4e-06">
+                <inertial pos="0.002242 -0.050784 -0.000008"
+                        mass="1.017174"
+                        fullinertia="0.002062 0.001272 0.001462 1.8927325e-05 4.3412e-08 -2.1406e-08"/>
+                <joint  name="hip_rl" pos="0 0 0" axis="0 1 0" class="x8_90" range="-0.78 0.78"/>
+                <geom   pos="0.11 0.553 -4e-06" quat="1 0 0 0"
+                        type="mesh" mesh="hip_abduction3_1"
+                        contype="1" conaffinity="0"
+                        density="0" group="1" class="visualgeom"/>
+                <geom   type="mesh" rgba="" mesh="hip_abduction3_1"
+                        pos="0.11 0.553 -4e-06" quat="1 0 0 0"/>
+
+                <!-- rear left thigh -->
+                <body name="thigh_rl" pos="-0.0274 -0.058 0">
+                        <inertial pos="-0.040187 -0.027106 -0.039969"
+                                mass="1.654797"
+                                fullinertia="0.01698 0.01277 0.0066 -0.00124 -0.001836 -0.00653"/>
+                        <joint  name="thigh_rl" pos="0 0 0" axis="1 0 0" class="x8_90" range="-2.1 0.52"/>
+                        <geom   pos="0.1374 0.611 -4e-06"
+                                type="mesh" mesh="thigh_link3_1"
+                                contype="1" conaffinity="0"
+                                density="0" group="1" class="visualgeom"/>
+                        <geom   type="mesh" rgba="" mesh="thigh_link3_1"
+                                pos="0.1374 0.611 -4e-06" quat="1 0 0 0"/>
+
+                        <!-- rear left calf -->
+                        <body name="calf_rl" pos="-0.0541 -0.15 -0.259808">
+                        <inertial pos="-0.012892 0.067994 -0.106770"
+                                mass="0.392768"
+                                fullinertia="0.004249 0.002884 0.001397 2.36512e-07 -4.56133e-07 0.001937"/>
+                        <joint  name="calf_rl" pos="0 0 0" axis="1 0 0" class="x8_90" range="0.52 1.83"/>
+                        <geom   pos="0.1915 0.761 0.259804"
+                                type="mesh" mesh="calf_link3_1"
+                                contype="1" conaffinity="0"
+                                density="0" group="1" class="visualgeom"/>
+                        <geom   type="mesh" rgba="" mesh="calf_link3_1"
+                                pos="0.1915 0.761 0.259804"/>
+                        </body>
+                </body>
+                </body>
+
+                <!-- front left hip -->
+                <body name="hip_fl" pos="-0.11 0.053 4e-06">
+                <inertial pos="0.002242 0.050784 0.000000"
+                        mass="1.017174"
+                        fullinertia="0.002062 0.001272 0.001462 -1.8927325e-05 -4.3412e-08 -2.1406e-08"/>
+                <joint  name="hip_fl" pos="0 0 0" axis="0 1 0" class="x8_90" range="-0.78 0.78"/>
+                <geom   pos="0.11 -0.053 -4e-06" quat="1 0 0 0"
+                        type="mesh" mesh="hip_abduction2_1"
+                        contype="1" conaffinity="0"
+                        density="0" group="1" class="visualgeom"/>
+                <geom   type="mesh" rgba="" mesh="hip_abduction2_1"
+                        pos="0.11 -0.053 -4e-06" quat="1 0 0 0"/>
+
+                <!-- front left thigh -->
+                <body name="thigh_fl" pos="-0.0274 0.058 0">
+                        <inertial pos="-0.040186 -0.027106 -0.039969"
+                                mass="1.654797"
+                                fullinertia="0.01698 0.01277 0.0066 -0.00124 -0.001836 -0.00653"/>
+                        <joint  name="thigh_fl" pos="0 0 0" axis="1 0 0" class="x8_90" range="-2.1 0.52"/>
+                        <geom   pos="0.1374 -0.111 -4e-06" quat="1 0 0 0"
+                                type="mesh" mesh="thigh_link4_1"
+                                contype="1" conaffinity="0"
+                                density="0" group="1" class="visualgeom"/>
+                        <geom   type="mesh" rgba="" mesh="thigh_link4_1"
+                                pos="0.1374 -0.111 -4e-06" quat="1 0 0 0"/>
+
+                        <!-- front left calf -->
+                        <body name="calf_fl" pos="-0.0541 -0.15 -0.259808">
+                        <inertial pos="-0.012892 0.067994 -0.106770"
+                                mass="0.392768"
+                                fullinertia="0.004249 0.002884 0.001397 2.36512e-07 -4.56133e-07 0.001937"/>
+                        <joint  name="calf_fl" pos="0 0 0" axis="1 0 0" class="x8_90" range="0.52 1.83"/>
+                        <geom   pos="0.1915 0.039 0.259804"
+                                type="mesh" mesh="calf_link4_1"
+                                contype="1" conaffinity="0"
+                                density="0" group="1" class="visualgeom"/>
+                        <geom   type="mesh" rgba="" mesh="calf_link4_1"
+                                pos="0.1915 0.039 0.259804"/>
+                        </body>
+                </body>
+                </body>
+
+                <!-- front right hip -->
+                <body name="hip_fr" pos="0.11 0.053 4e-06">
+                <inertial pos="-0.002242 0.050784 0.000000"
+                        mass="1.017191"
+                        fullinertia="0.002062 0.001272 0.001462 1.8927053e-05 4.3412e-08 -2.1256e-08"/>
+                <joint  name="hip_fr" pos="0 0 0" axis="0 1 0" class="x8_90" range="-0.78 0.78"/>
+                <geom   pos="-0.11 -0.053 -4e-06" quat="1 0 0 0"
+                        type="mesh" mesh="hip_abduction_1"
+                        contype="1" conaffinity="0"
+                        density="0" group="1" class="visualgeom"/>
+                <geom   type="mesh" rgba="" mesh="hip_abduction_1"
+                        pos="-0.11 -0.053 -4e-06" quat="1 0 0 0"/>
+
+                <!-- front right thigh -->
+                <body name="thigh_fr" pos="0.0274 0.058 0">
+                        <inertial pos="0.040187 -0.027105 -0.039968"
+                                mass="1.654821"
+                                fullinertia="0.01698 0.01277 0.0066 0.00124 0.001836 -0.00653"/>
+                        <joint  name="thigh_fr" pos="0 0 0" axis="1 0 0" class="x8_90" range="-2.1 0.52"/>
+                        <geom   pos="-0.1374 -0.111 -4e-06"
+                                type="mesh" mesh="thigh_link2_1"
+                                contype="1" conaffinity="0"
+                                density="0" group="1" class="visualgeom"/>
+                        <geom   type="mesh" rgba="" mesh="thigh_link2_1"
+                                pos="-0.1374 -0.111 -4e-06"/>
+                
+                        <!-- front right calf -->
+                        <body name="calf_fr" pos="0.0765 -0.15 -0.259808">
+                        <inertial pos="-0.009508 0.067994 -0.106770"
+                                mass="0.392767"
+                                fullinertia="0.004249 0.002884 0.001397 -2.36532e-07 4.56181e-07 0.001937"/>
+                        <joint  name="calf_fr" pos="0 0 0" axis="1 0 0" class="x8_90" range="0.52 1.83"/>
+                        <geom   pos="-0.2139 0.039 0.259804"
+                                type="mesh" mesh="calf_link2_1"
+                                contype="1" conaffinity="0"
+                                density="0" group="1" class="visualgeom"/>
+                        <geom   type="mesh" rgba="" mesh="calf_link2_1"
+                                pos="-0.2139 0.039 0.259804"/>
+                        </body>
+                </body>
+                </body>
+        </body>
+        </body>
+  </worldbody>
+
+
+    <actuator>
+        <position name="hip_rr" joint="hip_rr" class="x8_90"/>
+        <position name="hip_rl" joint="hip_rl" class="x8_90"/>
+        <position name="hip_fr" joint="hip_fr" class="x8_90"/>
+        <position name="hip_fl" joint="hip_fl" class="x8_90"/>
+        <position name="thigh_rr" joint="thigh_rr" class="x8_90"/>
+        <position name="thigh_rl" joint="thigh_rl" class="x8_90"/>
+        <position name="thigh_fr" joint="thigh_fr" class="x8_90"/>
+        <position name="thigh_fl" joint="thigh_fl" class="x8_90"/>
+        <position name="calf_rr" joint="calf_rr" class="x8_90"/>
+        <position name="calf_rl" joint="calf_rl" class="x8_90"/>
+        <position name="calf_fr" joint="calf_fr" class="x8_90"/>
+        <position name="calf_fl" joint="calf_fl" class="x8_90"/>
+    </actuator>
+
+    <sensor>
+        <gyro site="imu" name="gyro" />
+        <accelerometer site="imu" name="accelerometer" />
+        <velocimeter site="imu" name="local_linvel" />
+        <framepos objtype="site" objname="imu" name="trunk_pos" />
+        <framezaxis objtype="site" objname="imu" name="gravity_vector" />
+        <framexaxis objtype="site" objname="imu" name="trunk_x_axis_vec" />
+        <framexaxis objtype="site" objname="imu" name="trunk_y_axis_vec" />
+        <framequat objtype="site" objname="imu" name="orientation" />
+        <framelinvel objtype="site" objname="imu" name="global_linvel" />
+        
+        <!-- <framelinvel objtype="site" objname="rr_foot_site" name="rr_foot_global_linvel" />
+        <framezaxis objtype="site" objname="rr_foot_site" name="rr_foot_z_axis_vec" />
+        <framexaxis objtype="site" objname="rr_foot_site" name="rr_foot_x_axis_vec" />
+        <framepos objtype="site" objname="rr_foot_site" name="rr_foot_pos" />
+
+        <framelinvel objtype="site" objname="rl_foot_site" name="rl_foot_global_linvel" />
+        <framezaxis objtype="site" objname="rl_foot_site" name="rl_foot_z_axis_vec" />
+        <framexaxis objtype="site" objname="rl_foot_site" name="rl_foot_x_axis_vec" />
+        <framepos objtype="site" objname="rl_foot_site" name="rl_foot_pos" />
+        
+        <framelinvel objtype="site" objname="fr_site" name="fr_global_linvel" />
+        <framezaxis objtype="site" objname="fr_site" name="fr_z_axis_vec" />
+        <framexaxis objtype="site" objname="fr_site" name="fr_x_axis_vec" />
+        <framepos objtype="site" objname="fr_site" name="fr_pos" />
+
+        <framelinvel objtype="site" objname="fl_site" name="fl_global_linvel" />
+        <framezaxis objtype="site" objname="fl_site" name="fl_z_axis_vec" />
+        <framexaxis objtype="site" objname="fl_site" name="fl_x_axis_vec" />
+        <framepos objtype="site" objname="fl_site" name="fl_pos" />
+
+        <force name="rr_foot_force" site="rr_foot_site"/>
+        <force name="rl_foot_force" site="rl_foot_site"/>
+        <force name="fr_foot_force" site="fr_foot_site"/>
+        <force name="fl_foot_force" site="fl_foot_site"/> -->
+    </sensor>
+    
+</mujoco>
