@@ -4,20 +4,20 @@
 <link name="base_link">
   <inertial>
     <origin xyz="-5.5420912303816296e-12 -0.2499999999961581 4.006596938116685e-06" rpy="0 0 0"/>
-    <mass value="136.10446748631816"/>
+    <mass value="5.037930"/>
     <inertia ixx="3.173265" iyy="1.230846" izz="4.15009" ixy="-0.000109" iyz="-0.0" ixz="-0.0"/>
   </inertial>
   <visual>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="base_link.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/base_link.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="base_link.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/base_link.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -31,14 +31,14 @@
   <visual>
     <origin xyz="-0.1374 0.611 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="thigh_link1_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/thigh_link1_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="-0.1374 0.611 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="thigh_link1_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/thigh_link1_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -52,14 +52,14 @@
   <visual>
     <origin xyz="-0.1374 -0.111 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="thigh_link2_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/thigh_link2_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="-0.1374 -0.111 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="thigh_link2_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/thigh_link2_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -73,14 +73,14 @@
   <visual>
     <origin xyz="0.1374 -0.111 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="thigh_link4_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/thigh_link4_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="0.1374 -0.111 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="thigh_link4_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/thigh_link4_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -94,14 +94,14 @@
   <visual>
     <origin xyz="0.1374 0.611 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="thigh_link3_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/thigh_link3_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="0.1374 0.611 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="thigh_link3_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/thigh_link3_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -115,14 +115,14 @@
   <visual>
     <origin xyz="-0.1915 0.761 0.259804" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="calf_link1_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/calf_link1_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="-0.1915 0.761 0.259804" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="calf_link1_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/calf_link1_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -136,14 +136,14 @@
   <visual>
     <origin xyz="0.1915 0.039 0.259804" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="calf_link4_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/calf_link4_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="0.1915 0.039 0.259804" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="calf_link4_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/calf_link4_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -157,14 +157,14 @@
   <visual>
     <origin xyz="0.1915 0.761 0.259804" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="calf_link3_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/calf_link3_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="0.1915 0.761 0.259804" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="calf_link3_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/calf_link3_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -178,14 +178,14 @@
   <visual>
     <origin xyz="-0.2139 0.039 0.259804" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="calf_link2_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/calf_link2_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="-0.2139 0.039 0.259804" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="calf_link2_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/calf_link2_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -199,14 +199,14 @@
   <visual>
     <origin xyz="-0.11 0.553 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="hip_abduction4_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/hip_abduction4_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="-0.11 0.553 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="hip_abduction4_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/hip_abduction4_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -220,14 +220,14 @@
   <visual>
     <origin xyz="0.11 0.553 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="hip_abduction3_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/hip_abduction3_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="0.11 0.553 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="hip_abduction3_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/hip_abduction3_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -241,14 +241,14 @@
   <visual>
     <origin xyz="0.11 -0.053 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="hip_abduction2_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/hip_abduction2_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="0.11 -0.053 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="hip_abduction2_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/hip_abduction2_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
@@ -262,100 +262,235 @@
   <visual>
     <origin xyz="-0.11 -0.053 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="hip_abduction_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/hip_abduction_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
     <origin xyz="-0.11 -0.053 -4e-06" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="hip_abduction_1.stl" scale="0.001 0.001 0.001"/>
+      <mesh filename="./meshes/hip_abduction_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
   </collision>
 </link>
 
-<joint name="Revolute_1" type="continuous">
+<!-- Foot Links and Joints -->
+<link name="FR_foot">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="0.01"/>
+    <inertia ixx="1e-6" iyy="1e-6" izz="1e-6" ixy="0" iyz="0" ixz="0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="0.015"/>
+    </geometry>
+    <material name="blue">
+      <color rgba="0 0 1 1"/>
+    </material>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="0.015"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="FR_foot_joint" type="continuous">
+  <origin xyz="-0.01 0.145 -0.24" rpy="0 0 0"/>
+  <parent link="calf_link2_1"/>
+  <child link="FR_foot"/>
+  <limit lower="0" upper="0"/>
+</joint>
+
+<link name="FL_foot">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="0.01"/>
+    <inertia ixx="1e-6" iyy="1e-6" izz="1e-6" ixy="0" iyz="0" ixz="0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="0.015"/>
+    </geometry>
+    <material name="blue">
+      <color rgba="0 0 1 1"/>
+    </material>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="0.015"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="FL_foot_joint" type="continuous">
+  <origin xyz="-0.01 0.145 -0.24" rpy="0 0 0"/>
+  <parent link="calf_link4_1"/>
+  <child link="FL_foot"/>
+  <limit lower="0" upper="0"/>
+</joint>
+
+<link name="RL_foot">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="0.01"/>
+    <inertia ixx="1e-6" iyy="1e-6" izz="1e-6" ixy="0" iyz="0" ixz="0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="0.015"/>
+    </geometry>
+    <material name="blue">
+      <color rgba="0 0 1 1"/>
+    </material>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="0.015"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="RL_foot_joint" type="continuous">
+  <origin xyz="-0.01 0.145 -0.24" rpy="0 0 0"/>
+  <parent link="calf_link3_1"/>
+  <child link="RL_foot"/>
+  <limit lower="0" upper="0"/>
+</joint>
+
+<link name="RR_foot">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="0.01"/>
+    <inertia ixx="1e-6" iyy="1e-6" izz="1e-6" ixy="0" iyz="0" ixz="0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="0.015"/>
+    </geometry>
+    <material name="blue">
+      <color rgba="0 0 1 1"/>
+    </material>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="0.015"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="RR_foot_joint" type="continuous">
+  <origin xyz="0.01 0.145 -0.24" rpy="0 0 0"/>
+  <parent link="calf_link1_1"/>
+  <child link="RR_foot"/>
+  <limit lower="0" upper="0"/>
+</joint>
+
+
+<!-- Other Joints -->
+<joint name="RR_thigh_joint" type="continuous">
   <origin xyz="0.0274 -0.058 0.0" rpy="0 0 0"/>
   <parent link="hip_abduction4_1"/>
   <child link="thigh_link1_1"/>
   <axis xyz="1.0 -0.0 0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_2" type="continuous">
+<joint name="FR_thigh_joint" type="continuous">
   <origin xyz="0.0274 0.058 0.0" rpy="0 0 0"/>
   <parent link="hip_abduction_1"/>
   <child link="thigh_link2_1"/>
   <axis xyz="1.0 -0.0 0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_3" type="continuous">
+<joint name="FL_thigh_joint" type="continuous">
   <origin xyz="-0.0274 0.058 0.0" rpy="0 0 0"/>
   <parent link="hip_abduction2_1"/>
   <child link="thigh_link4_1"/>
   <axis xyz="-1.0 0.0 -0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_4" type="continuous">
+<joint name="RL_thigh_joint" type="continuous">
   <origin xyz="-0.0274 -0.058 0.0" rpy="0 0 0"/>
   <parent link="hip_abduction3_1"/>
   <child link="thigh_link3_1"/>
   <axis xyz="-1.0 0.0 -0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_5" type="continuous">
+<joint name="RR_calf_joint" type="continuous">
   <origin xyz="0.0541 -0.15 -0.259808" rpy="0 0 0"/>
   <parent link="thigh_link1_1"/>
   <child link="calf_link1_1"/>
   <axis xyz="1.0 0.0 -0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_6" type="continuous">
+<joint name="FL_calf_joint" type="continuous">
   <origin xyz="-0.0541 -0.15 -0.259808" rpy="0 0 0"/>
   <parent link="thigh_link4_1"/>
   <child link="calf_link4_1"/>
   <axis xyz="1.0 -0.0 0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_7" type="continuous">
+<joint name="RL_calf_joint" type="continuous">
   <origin xyz="-0.0541 -0.15 -0.259808" rpy="0 0 0"/>
   <parent link="thigh_link3_1"/>
   <child link="calf_link3_1"/>
   <axis xyz="1.0 -0.0 0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_8" type="continuous">
+<joint name="FR_calf_joint" type="continuous">
   <origin xyz="0.0765 -0.15 -0.259808" rpy="0 0 0"/>
   <parent link="thigh_link2_1"/>
   <child link="calf_link2_1"/>
   <axis xyz="-1.0 -0.0 -0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_9" type="continuous">
+<joint name="RR_hip_joint" type="continuous">
   <origin xyz="0.11 -0.553 4e-06" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="hip_abduction4_1"/>
   <axis xyz="-0.0 -1.0 -0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_10" type="continuous">
+<joint name="RL_hip_joint" type="continuous">
   <origin xyz="-0.11 -0.553 4e-06" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="hip_abduction3_1"/>
   <axis xyz="-0.0 -1.0 -0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_11" type="continuous">
+<joint name="FL_hip_joint" type="continuous">
   <origin xyz="-0.11 0.053 4e-06" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="hip_abduction2_1"/>
   <axis xyz="0.0 1.0 0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
-<joint name="Revolute_12" type="continuous">
+<joint name="FR_hip_joint" type="continuous">
   <origin xyz="0.11 0.053 4e-06" rpy="0 0 0"/>
   <parent link="base_link"/>
   <child link="hip_abduction_1"/>
   <axis xyz="0.0 1.0 0.0"/>
+  <limit lower="-1.5708" upper="1.5708"/>
 </joint>
 
 </robot>

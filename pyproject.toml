@@ -1,0 +1,19 @@
+[project]
+name = "ga-quadruped"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "boros[ik]",
+    "ga-can",
+    "mujoco"
+]
+
+[tool.uv]
+prerelease = "allow"
+
+[tool.uv.sources]
+boros = {path = "../boros", editable = true}
+ga-can = {path = "../ga-can", editable = true}
+ga-quadruped = { workspace = true }
