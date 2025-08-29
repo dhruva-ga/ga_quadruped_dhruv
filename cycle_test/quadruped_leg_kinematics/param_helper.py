@@ -1,7 +1,7 @@
 from ga_can.devices.motor.motor import Motor
 from ga_can.transport.socketcan import SocketCANTransport
 from ga_can.core.device_manager import DeviceManager
-from .kinematics import GaOneArmsKinematics
+from .kinematics import ParamLegsKinematics
 from ga_can.devices.contact_sensor.contact_sensor import ContactSensor
 from ga_can.devices.imu.imu import IMU
 import numpy as np
@@ -17,13 +17,13 @@ class IMUData:
     accel: np.ndarray
     gyro: np.ndarray
 
-class ParamLeg:
+class ParamLegs:
 
     def __init__(self):
-        self.transport = SocketCANTransport("can1")
+        self.transport = SocketCANTransport("can0")
         self.transport.start()
         self.manager = DeviceManager(self.transport)
-        self.kinematics = GaOneArmsKinematics(self.manager)
+        self.kinematics = ParamLegsKinematics(self.manager)
         self.contacter = ContactSensor([0x101,0x102],self.manager)
         self.imu = IMU([0x103,0x104,0x105,0x106],self.manager)
         self.fps = 0
@@ -84,7 +84,7 @@ class ParamLeg:
 
 
 if __name__ == "__main__":
-    ga_one = GaOne()
+    ga_one = ParamLegs()
     time.sleep(2)
     ga_one.start()
     while True:

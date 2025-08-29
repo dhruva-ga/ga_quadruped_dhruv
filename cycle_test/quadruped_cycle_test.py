@@ -10,8 +10,8 @@ from scipy.spatial.transform import Rotation as R
 
 # UV Imports
 from quadruped_leg_ik.ik_client import IKSolverClient
-from quadruped_leg_kinematics.param_helper import ParamLeg
-
+from quadruped_leg_kinematics.param_helper import ParamLegs
+from param_logger import ParamLogger
 
 class LowPassFilter:
     """Simple exponential moving average low pass filter for pose data"""
@@ -54,12 +54,19 @@ class LegTeleop:
         self.home_jt_angles = np.vstack([[0, 0.0, 0.0, 0], [ 0, 0, 0, 0]]) # Leg 
         
         self.home_mat = self.solve_fk(self.home_jt_angles)
+        self.cycle_count = 1
+        self.random_cycle = 5
+        self.t_lower = 0
+        self.t_upper = np.pi
+        self.sample_lim = 10
+        self.start_time = time.time()
 
         # Initialize Param interface
-        # self.param = ParamLeg()
-        # self.param.start()
-        # time.sleep(2)
-        # self.kinematics_data = self.param.get_kinematics_data()
+        self.param = ParamLegs()
+        self.param.start()
+        time.sleep(2)
+        self.kinematics_data = self.param.get_kinematics_data()
+        self.logger = ParamLogger("logs")
 
     def solve_ik(self, prev_jnt_angles: np.ndarray, poses: np.ndarray) -> np.ndarray:
         # compute IK
@@ -74,67 +81,43 @@ class LegTeleop:
     def run_teleop(self):
         """Run the teleoperation simulation and sim2real with Mujoco viewer"""
         model = mujoco.MjModel.from_xml_path(self.xml_path)
-        data = mujoco.MjData(model)
+        # data = mujoco.MjData(model)
 
         # Launch viewer
-        viewer = mujoco.viewer.launch_passive(model, data)
+        # viewer = mujoco.viewer.launch_passive(model, data)
 
-        t = 0
-        while viewer.is_running(): 
+        t = 0.0
+        # while viewer.is_running():
+
+        while True: 
             t+= 0.05
             # Generate raw poses
             raw_poses = self._generate_pos(t)
-            
             # Apply low pass filter to poses
             filtered_poses = self.pose_filter.filter(raw_poses)
             sols = self.solve_ik(self.prev_jt_angles, filtered_poses)
             # print(sols)
-            for i in range(model.nq):
-                data.qpos[i] = sols[0][i]
+            # for i in range(model.nq):
+                # data.qpos[i] = sols[0][i]
                 # data.qpos[i] = self.home_jt_angles[0][i]
                 # Set control signals for actuators
-                # self.param.set_ctrl(np.flip(sols, axis=0).flatten())
+            self.param.set_ctrl(sols[0])
+
+            self.kinematics_data = self.param.get_kinematics_data()
+
+            if np.round(t%2.0)==0:
+                # print("Data Recorded!")
+                self.logger.log([self.cycle_count-1], sols[0], self.kinematics_data.angles, self.kinematics_data.velocity, self.kinematics_data.torque, self.kinematics_data.motor_current, self.kinematics_data.motor_temp)
                 # self.prev_jt_angles = sols.copy()
-                print(self._check_xpos(model, data, "RR_foot"))
-                print(self.solve_fk(sols))
-
-                mujoco.mj_forward(model, data) 
-                viewer.sync()
-
-        print("Exiting Mujoco viewer")
-        self.move_to_home()
-
-    # Test Function
-    def test_run_mujoco(self):
-        model = mujoco.MjModel.from_xml_path(self.xml_path)
-        data = mujoco.MjData(model)
-
-        # Launch viewer
-        viewer = mujoco.viewer.launch_passive(model, data)
-
-        self.fk_results = []
-        pose = np.tile(np.eye(4, dtype=np.float32)[None], (2, 1, 1))
-        pose = self._get_mat(np.array([[0.706, -0.031, -0.706, -0.031, 0.314, -0.35,  0.1], [0.707,  0.,   -0.707,  0.,  0.314,  0.35,  0.1]]))
-        while viewer.is_running():
-
-            sols = self.solve_ik(self.prev_jt_angles, pose)
-            for i in range(model.nq-6):
-                data.qpos[i] = sols[0][i]
-                data.qpos[i + model.nq - 6] = sols[1][i]
-                # self.ga_one.set_ctrl(np.flip(sols, axis=0).flatten())
-                mujoco.mj_forward(model, data) 
-                fk_mat = self.solve_fk(sols)
-                print(self.quat_wxyz_to_euler(fk_mat[0], degrees=True))
-                print(self.quat_wxyz_to_euler(fk_mat[1], degrees=True))
-                print(self.euler_deg_to_quat_wxyz(np.array([0,-90,-5])))
-                print(f"FK Matrices:\n{fk_mat}")
-                self.prev_jt_angles = sols.copy()
-                viewer.sync()
+                # print(self.solve_fk(sols))
+            # mujoco.mj_forward(model, data) 
+            # viewer.sync()
+        self.logger.close()
 
     def move_to_home(self):
         """Move the arms to the home position"""
         ctrl = np.flip(self.home_jt_angles, axis = 0).flatten()
-        self.ga_one.set_ctrl(ctrl)
+        self.param.set_ctrl(ctrl)
         print("Reached home position")
         while True:
             time.sleep(0.1)
@@ -180,11 +163,30 @@ class LegTeleop:
         pose = np.tile(np.eye(4, dtype=np.float32)[None], (2, 1, 1))
         
         amplitude = 0.2
-        center = -0.235
-        frequency = 0.1
-        x_pos = center + amplitude * np.sin(2 * np.pi * frequency * t)
+        center = -0.5
+        frequency_mean = 0.1
+        freq_std = 0.05
+        frequency = np.random.normal(frequency_mean, freq_std)
+        
+        if self.cycle_count%self.random_cycle == 0 and self.t_lower < t and t < self.t_upper:
+            # print("Sampling from Normal Dist..")
+            frequency_mean = frequency
+
+        sin_val = np.sin(0.5*np.pi + 2 * np.pi * frequency_mean * t)
+        x_pos = center + amplitude * sin_val
+
+        if np.round(sin_val) == 1:
+            self.cycle_count +=1
+            self.t_lower = np.random.uniform(t, t+np.pi)
+            self.sample_lim = np.random.uniform(np.pi/2)
+            self.random_cycle = np.random.randint(3,7)
+            self.t_upper = self.t_lower + self.sample_lim
+            # self.logger.log([self.cycle_count-1], None, None, None, None, None, None)
+            # print("Cycle Count: ", self.cycle_count-1)
+            # print(f"Cycle Time: {(time.time()-self.start_time):.3f}")
 
         # Apply the offsets to the home matrices
+        self.home_mat[0][2, 3] = x_pos
         pose = self.home_mat
 
         return pose
