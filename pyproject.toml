@@ -5,15 +5,32 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "boros[ik]",
     "ga-can",
     "mujoco"
 ]
+
+# [project.optional-dependencies]
+# ik = [
+#     "boros[ik]",
+# ]
 
 [tool.uv]
 prerelease = "allow"
 
 [tool.uv.sources]
-boros = {path = "../boros", editable = true}
+# boros = {path = "../boros", editable = true}
 ga-can = {path = "../ga-can", editable = true}
 ga-quadruped = { workspace = true }
+
+[dependency-groups]
+ik = [
+    "ga-quadruped[ik]",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Tell Hatch exactly what to include in the wheel
+[tool.hatch.build.targets.wheel]
+packages = ["src/ga_quadruped"]
