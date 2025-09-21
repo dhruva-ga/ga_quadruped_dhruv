@@ -1,0 +1,77 @@
+<mujoco model="quadruped_single_leg">
+  <compiler angle="radian" meshdir="./meshes" autolimits="true"/>
+  <option gravity="0 0 -9.81"/>
+
+  <asset>
+    <!-- Materials -->
+    <material name="silver" rgba="0.75 0.75 0.75 1"/>
+    <material name="blue"   rgba="0 0 1 1"/>
+
+    <!-- Meshes -->
+    <mesh name="base_link_mesh"       file="base_link.stl"       scale="0.001 0.001 0.001"/>
+    <mesh name="thigh_link1_1_mesh"   file="thigh_link1_1.stl"   scale="0.001 0.001 0.001"/>
+    <mesh name="calf_link1_1_mesh"    file="calf_link1_1.stl"    scale="0.001 0.001 0.001"/>
+    <mesh name="hip_abduction4_1_mesh" file="hip_abduction4_1.stl" scale="0.001 0.001 0.001"/>
+    <texture name="chk" type="2d" builtin="checker" width="512" height="512" rgb1="0.5 0.7 1.0" rgb2="0.05 0.1 0.2"/>
+    <material name="blue_checker" texture="chk" reflectance="0.2" shininess="0.3" specular="0.2" rgba="1 1 1 1"/>
+  </asset>
+
+  <worldbody>
+    <geom name="ground" type="plane" pos="0 0 -1" size="10 10 0.1" material="blue_checker" contype="0" conaffinity="0"/>
+    <!-- Overhead white light -->
+    <light name="light1" pos="0 0 3" dir="0 0 -1" diffuse="1 1 1" specular="0.3 0.3 0.3" directional="false" castshadow="true"/>
+
+    <!-- Root body. Add a free joint if you want the whole assembly floating. -->
+    <body name="base_link" pos="0 0 0">
+      <inertial
+        pos="-5.5420912303816296e-12 -0.2499999999961581 0.000004006596938116685"
+        mass="5.03793"
+        diaginertia="3.173265 1.230846 4.15009"/>
+      <geom name="base_link_geom" type="mesh" mesh="base_link_mesh" material="silver" pos="0 0 0"/>
+
+      <!-- hip_abduction4_1 attached via RR_hip_joint -->
+      <body name="hip_abduction4_1" pos="0.11 -0.553 0.000004" euler="0 0 0">
+        <inertial
+          pos="0.00043093322878925977 -0.04434611080961226 0.0009329537797818719"
+          mass="1.48740161574237"
+          diaginertia="0.003079 0.002006 0.002141"/>
+        <geom name="hip_abduction4_1_geom" type="mesh" mesh="hip_abduction4_1_mesh"
+              material="silver" pos="-0.11 0.553 -0.000004"/>
+
+        <joint name="RR_hip_joint" type="hinge" axis="-0 -1 -0" range="-0.7854 0.7854"/>
+
+        <!-- thigh_link1_1 attached via RR_thigh_joint -->
+        <body name="thigh_link1_1" pos="0.0274 -0.058 0.0" euler="-0.7708 0 0">
+          <inertial
+            pos="0.04502363244632551 -0.031771091037052335 -0.04857715639714248"
+            mass="3.0252112588973517"
+            diaginertia="0.029988 0.022358 0.012123"/>
+          <geom name="thigh_link1_1_geom" type="mesh" mesh="thigh_link1_1_mesh"
+                material="silver" pos="-0.1374 0.611 -0.000004"/>
+
+          <joint name="RR_thigh_joint" type="hinge" axis="1 0 0" range="-1.5708 1.5708"/>
+
+          <!-- calf_link1_1 attached via RR_calf_joint -->
+          <body name="calf_link1_1" pos="0.0541 -0.15 -0.259808" euler="1.608 0 0">
+            <inertial
+              pos="0.010992318900231252 0.08674844955210803 -0.13426644342648236"
+              mass="1.2550937841787286"
+              diaginertia="0.013917 0.009421 0.00461"/>
+            <geom name="calf_link1_1_geom" type="mesh" mesh="calf_link1_1_mesh"
+                  material="silver" pos="-0.1915 0.761 0.259804"/>
+
+            <joint name="RR_calf_joint" type="hinge" axis="1 0 0" range="-1.5708 1.5708"/>
+
+            <!-- RR_foot attached via RR_foot_joint -->
+            <body name="RR_foot" pos="0.01 0.145 -0.24" euler="-0.7 0 0">
+              <!-- limit 0..0 => effectively fixed; keeping a hinge with zero range preserves the joint name -->
+              <joint name="RR_foot_joint" type="hinge" axis="0 0 1" limited="true" range="-1.57 1.57"/>
+              <inertial pos="0 0 0" mass="0.01" diaginertia="0.000001 0.000001 0.000001"/>
+              <geom name="RR_foot_geom" type="sphere" size="0.015" material="blue" pos="0 0 0"/>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

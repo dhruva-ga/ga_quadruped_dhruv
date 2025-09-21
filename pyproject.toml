@@ -6,7 +6,15 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "ga-can",
-    "mujoco"
+    "mujoco",
+    "numpy",
+    "scipy",
+    "onnxruntime",
+    "matplotlib",
+    "opencv-contrib-python",
+    "pandas>=2.3.1",
+    "blessed>=1.21.0",
+    "tqdm>=4.67.1",
 ]
 
 # [project.optional-dependencies]
