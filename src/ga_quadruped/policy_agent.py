@@ -106,7 +106,8 @@ class PolicyAgent:
         # 4) apply scale & add to default qpos
         print("Action: ", mjc_act)
         # Clip the action
-        mjc_act = np.clip(mjc_act, -1.0, 1.0)
-        
+        mjc_act = np.clip(mjc_act, -4.0, 4.0)
+        print("Clipping action between -4 and 4")
+
         real_ctrl = self.initial_qpos + self.action_scale * mjc_act
         return real_ctrl.astype(np.float32)
