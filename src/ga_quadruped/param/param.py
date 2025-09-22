@@ -93,9 +93,9 @@ class Param:
         with self.imu._state_lock:
             # print(self.imu._st.rpy, self.imu._st.quat, self.imu._st.bno_gyro)
             return IMUData(
-                rpy=self.imu._st.rpy.copy(),
+                rpy=self.imu._st.rpy.copy() * np.pi / 180,
                 quat=self.imu._st.quat.copy(),
-                gyro=self.imu._st.bno_gyro.copy()
+                gyro=self.imu._st.bno_gyro.copy() * np.pi / 180
             )
         
     def get_kinematics_data(self):

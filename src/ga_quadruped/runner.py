@@ -182,7 +182,9 @@ if __name__ == '__main__':
                 print("current control", robot.ctrl)
                 ctrl = policy.act(obs)
                 print("setting control", ctrl)
+                # robot.set_ctrl(np.array(home_pos))
                 robot.set_ctrl(ctrl)
+                print("Gyro:", gyro)
 
                 logger.log({
                     "qpos": qpos,
