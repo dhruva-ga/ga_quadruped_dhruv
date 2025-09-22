@@ -102,7 +102,7 @@ if __name__ == '__main__':
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_gait_policy.onnx'
     
     term = Terminal()
 
@@ -159,8 +159,12 @@ if __name__ == '__main__':
 
                 print("coomand", vx, vy, w)
 
-                command = np.array([vx, vy, w], dtype=np.float32)
+                command = np.array([-vx, -vy, w], dtype=np.float32)
+                gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
+                phase = time_step * gait_command[0] * ixxxx * 2 * np.pi
+                gait_phase = np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
                 policy.set_command(command)
+                policy.set_gait_command(gait_command)
 
                 if args.sim:
                     qpos = robot.get_position().copy()
@@ -176,7 +180,7 @@ if __name__ == '__main__':
                     imu_quat = imu_data.quat
                     gyro = imu_data.gyro
 
-                obs = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro)
+                obs = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
                 print("Obs:", obs)
                 obs_arr.append(obs)
 

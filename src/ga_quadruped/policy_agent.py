@@ -31,11 +31,18 @@ class PolicyAgent:
         self.counter = 0
         self.dt = 0.005
         self.obs_length = 9 + self.num_act_joints * 3  # gyro + gravity orientation + command + qpos + qvel + last_act
-
+        
+        self.gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
         # Test
         # self.fl_test_angles = np.linspace(initial_qpos[1], initial_qpos[1]+2.5, 200)
         # self.rr_test_angles = np.linspace(initial_qpos[10], initial_qpos[10]+2.5, 200)
         # self.test_counter = 0
+
+    def set_gait_command(self, gait_command: np.ndarray):
+        """Set the gait command vector for the agent."""
+        if gait_command.shape != (5,):
+            raise ValueError("Gait command must be a 5-element vector.")
+        self.gait_command = gait_command.astype(np.float32)
 
     def set_command(self, command: np.ndarray):
         """Set the command vector for the agent."""
@@ -54,7 +61,7 @@ class PolicyAgent:
         return np.array([-gx, -gy, -gz], dtype=np.float32)
 
 
-    def compute_obs(self, qpos, qvel, contact, imu_quat, accel, gyro) -> np.ndarray:
+    def compute_obs(self, qpos, qvel, contact, imu_quat, accel, gyro, gait_phase) -> np.ndarray:
 
         z_axis = self.compute_gravity_orientation(imu_quat)
         # cos = np.cos(self.phase)
@@ -73,6 +80,8 @@ class PolicyAgent:
             gyro * self.ang_vel_scale,
             z_axis,
             self.command,
+            gait_phase,
+            self.gait_command,
             qpos,
             qvel,
             self.last_act,
