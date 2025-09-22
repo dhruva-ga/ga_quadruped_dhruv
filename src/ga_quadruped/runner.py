@@ -200,7 +200,9 @@ if __name__ == '__main__':
                     "imu_quat": imu_quat,
                     "gyro": gyro,
                     "ctrl": ctrl,
-                    "command": command
+                    "command": command,
+                    "gait_command": gait_command,
+                    "gait_phase": gait_phase,
                 })
 
                 # Need to manually step in sim
