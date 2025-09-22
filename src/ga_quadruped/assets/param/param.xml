@@ -4,7 +4,7 @@
     <default class="robot">
         <default class="x8_90_hip">
             <!-- <joint armature="0.0026" frictionloss="0.65" /> -->
-            <position kp="100" kv="2.0" forcelimited="true" forcerange="-50 50"></position>
+            <position kp="70" kv="2.0" forcelimited="true" forcerange="-50 50"></position>
         </default>
         <default class="x8_90_thigh">
             <!-- <joint armature="0.0026" frictionloss="0.65" /> -->

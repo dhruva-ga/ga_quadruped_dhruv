@@ -1,6 +1,98 @@
-import mujoco
+import mujoco as mj
 import numpy as np
 from scipy.spatial.transform import Rotation as R
+
+import yaml
+from typing import List, Literal, Dict
+
+def load_deploy_yaml(path: str) -> dict:
+    with open(path) as f:
+        return yaml.load(f, Loader=yaml.FullLoader)    # or yaml.UnsafeLoader
+
+def reorder_by_joint_ids_map(
+    src: List[float],
+    joint_ids_map: List[int],
+    map_kind: Literal["model_to_action","action_to_model"]="model_to_action",
+) -> List[float]:
+    n = len(joint_ids_map)
+    if len(src) != n:
+        raise ValueError(f"Length mismatch: len(src)={len(src)} vs len(joint_ids_map)={n}")
+    out = [0.0]*n
+    if map_kind == "model_to_action":
+        for model_idx, action_idx in enumerate(joint_ids_map):
+            out[model_idx] = float(src[action_idx])
+    else:
+        for action_idx, model_idx in enumerate(joint_ids_map):
+            out[model_idx] = float(src[action_idx])
+    return out
+
+def get_joint_names_in_model_order(model: mj.MjModel) -> List[str]:
+    """1-DoF joints in XML/model order (works for hinge/slide)."""
+    names = []
+    for j in range(model.njnt):
+        names.append(mj.mj_id2name(model, mj.mjtObj.mjOBJ_JOINT, j))
+    return names
+
+def map_joint_to_position_actuator(model: mj.MjModel) -> dict[int, int]:
+    """
+    Returns {joint_id -> actuator_id} for actuators transmitting to that joint
+    (for position servos).
+    """
+    j2a = {}
+    for a in range(model.nu):
+        print(model.actuator_trntype.shape)
+        trn0 = int(model.actuator_trnid[a, 0])       # first target of actuator a
+        trntype0 = int(model.actuator_trntype[a]) # type of that target
+        if trn0 >= 0 and trntype0 == mj.mjtTrn.mjTRN_JOINT:
+            j2a[trn0] = a
+    return j2a
+
+def set_actuator_kp(model, actuator_id: int, kp: float):
+    # gainprm has shape (nu, 10)
+    model.actuator_gainprm[actuator_id, 0] = float(kp)
+
+def set_joint_damping(model: mj.MjModel, joint_id: int, damping: float):
+    # Each joint can have 1+ DoFs; hinge/slide have 1
+    dof = model.jnt_dofadr[joint_id]
+    model.dof_damping[dof] = float(damping)
+
+def apply_pd_from_yaml(
+    model: mj.MjModel,
+    yaml_path: str,
+    map_kind: Literal["model_to_action","action_to_model"]="model_to_action",
+):
+    cfg = load_deploy_yaml(yaml_path)
+    # joint_ids_map = list(cfg["joint_ids_map"])
+    joint_ids_map = list(range(12))
+    stiffness = list(cfg["stiffness"])
+    damping   = list(cfg["damping"])
+
+    # Align gains to *model joint order*
+    kp_model = reorder_by_joint_ids_map(stiffness, joint_ids_map, map_kind)
+    kd_model = reorder_by_joint_ids_map(damping,   joint_ids_map, map_kind)
+
+    # Names (optional; useful for sanity/logging)
+    model_joint_names = get_joint_names_in_model_order(model)
+
+    # Find which actuator drives which joint
+    j2a = map_joint_to_position_actuator(model)
+
+    # Apply
+    for j_id, (kp, kd) in enumerate(zip(kp_model, kd_model)):
+        # Set joint physical damping (KD)
+        set_joint_damping(model, j_id, kd)
+
+        # If there is a position actuator for this joint, set its kp
+        a_id = j2a.get(j_id, None)
+        if a_id is not None:
+            set_actuator_kp(model, a_id, kp)
+        else:
+            # No actuator attached (or non-joint transmission) — skip
+            pass
+
+    # Recompute derived constants after structural edits
+    data = mj.MjData(model)
+    mj.mj_setConst(model, data)
 
 class Robot:
     """
@@ -32,7 +124,7 @@ class Robot:
             "gyro": 0.00,
             "imu_rpy": 0.00,
         }
-        self.spec = mujoco.MjSpec.from_file(xml_path)
+        self.spec = mj.MjSpec.from_file(xml_path)
         if randomisation:
             self.random_extent = randomisation_params if randomisation_params else {
             "gains": 0.1,
@@ -44,21 +136,22 @@ class Robot:
             "imu_rpy": 0.10}
             self.randomize()
         self.model = self.spec.compile()
-        self.data = mujoco.MjData(self.model)
+        # apply_pd_from_yaml(self.model, "/home/radon12/Documents/ga_quadruped/src/ga_quadruped/policy/deploy.yaml", map_kind="model_to_action")
+        self.data = mj.MjData(self.model)
         
         model = self.model
         joint_info = []
         for i in range(model.njnt):
-            joint_name = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_JOINT, i)
+            joint_name = mj.mj_id2name(model, mj.mjtObj.mjOBJ_JOINT, i)
             qpos_start_idx = model.jnt_qposadr[i]
             
             # Calculate number of qpos entries for this joint based on joint type
             joint_type = model.jnt_type[i]
-            if joint_type == mujoco.mjtJoint.mjJNT_FREE:
+            if joint_type == mj.mjtJoint.mjJNT_FREE:
                 qpos_size = 7  # 3 position + 4 quaternion
-            elif joint_type == mujoco.mjtJoint.mjJNT_BALL:
+            elif joint_type == mj.mjtJoint.mjJNT_BALL:
                 qpos_size = 4  # quaternion
-            elif joint_type in [mujoco.mjtJoint.mjJNT_HINGE, mujoco.mjtJoint.mjJNT_SLIDE]:
+            elif joint_type in [mj.mjtJoint.mjJNT_HINGE, mj.mjtJoint.mjJNT_SLIDE]:
                 qpos_size = 1  # single value
             else:
                 qpos_size = 1  # default
@@ -74,9 +167,9 @@ class Robot:
         actuator_info = []
     
         for i in range(self.model.nu):  # nu = number of actuators
-            actuator_name = mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_ACTUATOR, i)
+            actuator_name = mj.mj_id2name(self.model, mj.mjtObj.mjOBJ_ACTUATOR, i)
             joint_id = self.model.actuator_trnid[i, 0]  # Joint ID this actuator controls
-            joint_name = mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_JOINT, joint_id)
+            joint_name = mj.mj_id2name(self.model, mj.mjtObj.mjOBJ_JOINT, joint_id)
             
             actuator_info.append({
                 'actuator_id': i,
@@ -104,7 +197,7 @@ class Robot:
         self.data.qpos = [init_pos[0], init_pos[1], init_pos[2], quat[0], quat[1], quat[2], quat[3]] + self.default_joint_qpos
         self.model.opt.timestep = float(0.005)
         self.model.dof_armature[6:] = [0.01] * len(self.default_joint_qpos)
-        mujoco.mj_forward(self.model, self.data)
+        mj.mj_forward(self.model, self.data)
         for actuator in self.spec.actuators:
             print(type(actuator))
             print(actuator.name, actuator.gaintype, actuator.gainprm, actuator.biasprm)
@@ -131,7 +224,7 @@ class Robot:
 
     def step(self, nsteps: int = 1):
         """Advance the simulation by nsteps."""
-        mujoco.mj_step(self.model, self.data, nstep=nsteps)
+        mj.mj_step(self.model, self.data, nstep=nsteps)
 
     def set_ctrl(self, ctrl: np.ndarray):
         self.data.ctrl[:] = ctrl.copy()
@@ -218,15 +311,15 @@ class Robot:
         """Return (start, size) into qpos for a joint."""
         jt = self.model.jnt_type[jnt_id]
         start = self.model.jnt_qposadr[jnt_id]
-        if jt == mujoco.mjtJoint.mjJNT_FREE:   size = 7
-        elif jt == mujoco.mjtJoint.mjJNT_BALL: size = 4
+        if jt == mj.mjtJoint.mjJNT_FREE:   size = 7
+        elif jt == mj.mjtJoint.mjJNT_BALL: size = 4
         else:                                  size = 1  # hinge/slide
         return start, size, jt
 
     def _joint_limits(self, jnt_id: int):
         """Return (lo, hi) limits for hinge/slide joints; small safe span if unlimited."""
         jt = self.model.jnt_type[jnt_id]
-        if jt in (mujoco.mjtJoint.mjJNT_HINGE, mujoco.mjtJoint.mjJNT_SLIDE):
+        if jt in (mj.mjtJoint.mjJNT_HINGE, mj.mjtJoint.mjJNT_SLIDE):
             if int(self.model.jnt_limited[jnt_id]) == 1:
                 lo, hi = self.model.jnt_range[jnt_id]  # shape (2,)
                 lo, hi = float(lo), float(hi)
@@ -234,7 +327,7 @@ class Robot:
                 if np.isfinite(lo) and np.isfinite(hi) and hi > lo:
                     return lo, hi
             # unlimited or bad range → use a small safe sweep
-            return (-0.5, 0.5) if jt == mujoco.mjtJoint.mjJNT_HINGE else (-0.05, 0.05)
+            return (-0.5, 0.5) if jt == mj.mjtJoint.mjJNT_HINGE else (-0.05, 0.05)
         # ball/free joints aren't swept here
         return 0.0, 0.0
 
@@ -251,7 +344,7 @@ class Robot:
                 continue
 
             lo, hi = self._joint_limits(j)
-            name = mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_JOINT, j)
+            name = mj.mj_id2name(self.model, mj.mjtObj.mjOBJ_JOINT, j)
 
             # find actuator(s) driving this joint, if any
             driven_by = []
@@ -272,7 +365,7 @@ class Robot:
             for val in path:
                 self.data.qpos[:] = base_qpos
                 self.data.qpos[start] = val
-                mujoco.mj_forward(self.model, self.data)  # kinematic update only
+                mj.mj_forward(self.model, self.data)  # kinematic update only
                 if viewer is not None:
                     viewer.sync()
                     time.sleep(max(0.0, tick))
@@ -281,7 +374,7 @@ if __name__ == "__main__":
     XML_PATH = "/home/radon12/Documents/ga_quadruped/src/ga_quadruped/assets/param/scene.xml"
     theta = 0.4
     theta2 = 1.2
-    HOME_POSE = [-0.0, -0.3, theta2, 0.0, 0.3, -theta2, 0.0, -theta, theta2, -0.0, theta, -theta2]
+    HOME_POSE = [-0.0, -theta, theta2, 0.0, theta, -theta2, 0.0, -theta, theta2, -0.0, theta, -theta2]
     robot = Robot(XML_PATH, randomisation=False,
                   default_joint_pos=HOME_POSE,
                   init_pos=[0, 0, 0.4])
@@ -294,7 +387,7 @@ if __name__ == "__main__":
     from mujoco.viewer import launch_passive
     
     model = robot.model
-    body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "trunk")
+    body_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "trunk")
     data = robot.data
 
     np.set_printoptions(precision=3, suppress=True)
@@ -305,7 +398,7 @@ if __name__ == "__main__":
             robot.step(4)
             viewer.sync()
             time.sleep(0.02)
-            print(data.xpos[body_id], data.xquat[body_id])
+            # print(data.xpos[body_id], data.xquat[body_id])
             # time.sleep(1)
 
     # with launch_passive(robot.model, robot.data) as viewer:
