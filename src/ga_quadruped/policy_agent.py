@@ -77,7 +77,7 @@ class PolicyAgent:
 
         print("Z_axis: ",z_axis)
         state = np.concatenate([
-            gyro * self.ang_vel_scale,
+            # gyro * self.ang_vel_scale,
             z_axis,
             self.command,
             gait_phase,
