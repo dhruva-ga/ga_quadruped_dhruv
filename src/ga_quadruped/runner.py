@@ -179,7 +179,11 @@ if __name__ == '__main__':
                 obs = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro)
                 print("Obs:", obs)
                 obs_arr.append(obs)
-                print("current control", robot.ctrl)
+
+                if args.sim:
+                    print("current control", robot.data.ctrl)
+                else:
+                    print("current control", robot.ctrl)
                 ctrl = policy.act(obs)
                 print("setting control", ctrl)
                 # robot.set_ctrl(np.array(home_pos))

@@ -278,7 +278,7 @@ class Robot:
                     time.sleep(max(0.0, tick))
 
 if __name__ == "__main__":
-    XML_PATH = "/home/radon12/Documents/go1_temp/src/go1/assets/param/scene.xml"
+    XML_PATH = "/home/radon12/Documents/ga_quadruped/src/ga_quadruped/assets/param/scene.xml"
     theta = 0.4
     theta2 = 1.2
     HOME_POSE = [-0.0, -0.3, theta2, 0.0, 0.3, -theta2, 0.0, -theta, theta2, -0.0, theta, -theta2]
