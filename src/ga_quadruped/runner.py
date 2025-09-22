@@ -190,7 +190,7 @@ if __name__ == '__main__':
                 if args.sim:
                     print("current control", robot.data.ctrl)
                 else:
-                    print("current control", robot.ctrl)
+                    print("current control", robot.get_ctrl())
                 ctrl = policy.act(obs)
                 print("setting control", ctrl)
                 # robot.set_ctrl(np.array(home_pos))

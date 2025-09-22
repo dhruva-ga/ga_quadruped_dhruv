@@ -64,6 +64,13 @@ class Param:
     def set_ctrl(self, ctrl):
         with self.ctrl_lock:
             self.ctrl = ctrl.copy()
+    
+    def get_ctrl(self):
+        with self.ctrl_lock:
+            if self.ctrl is not None:
+                return self.ctrl.copy()
+            else:
+                return None
 
     # def read_contact(self):
     #     with self.contacter._state_lock:
