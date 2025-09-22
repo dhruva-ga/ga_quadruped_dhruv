@@ -161,7 +161,8 @@ if __name__ == '__main__':
 
                 command = np.array([-vx, -vy, w], dtype=np.float32)
                 gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
-                phase = time_step * gait_command[0] * ixxxx * 2 * np.pi
+                phase = np.remainder(time_step * gait_command[0] * ixxxx, 1.0)
+                phase = 2 * np.pi * phase
                 gait_phase = np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
                 policy.set_command(command)
                 policy.set_gait_command(gait_command)
@@ -171,6 +172,8 @@ if __name__ == '__main__':
                     qvel = robot.get_velocity().copy()
                     imu_quat = robot.get_imu_quat()
                     gyro = robot.get_gyro().copy()
+
+                    # gyro = gyro  + np.random.uniform(-0.3, 0.3, size=3)  # add noise
                 else:
                     kinematics_data = robot.get_kinematics_data()
                     imu_data = robot.get_imu_data()
