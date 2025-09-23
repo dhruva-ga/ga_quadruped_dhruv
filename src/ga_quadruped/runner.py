@@ -1,6 +1,6 @@
 from tqdm import tqdm
 # from ga_quadruped.go1.go_one import GoOne
-from ga_quadruped.logger import GaLogger
+from ga_can.core.logger import log_session
 from ga_quadruped.param.param import Param
 from ga_quadruped.policy_agent import PolicyAgent
 from ga_quadruped.sim2sim.robot import Robot
@@ -14,7 +14,7 @@ import sys
 # import csv
 from blessed import Terminal
 
-logger = GaLogger("param")
+logger = log_session.get_logger("param")
 
 ACTUATOR_NAMES = [
     "hip_abduction_fl","thigh_rotation_fl","calf_fl",

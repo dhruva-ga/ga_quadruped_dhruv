@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from threading import Lock,Thread
 from logging import debug
 
-from ga_quadruped.logger import GaLogger
 from ga_quadruped.param.kinematics import ParamLegsKinematics
 np.set_printoptions(precision=3, suppress=True)
 
@@ -86,7 +85,7 @@ class Param:
     #         accel = self.imu._st.accel.copy()
         # return accel
     
-    # def read_gyro(self):
+    # def read_gyro(self):param_imu
     #     with self.imu._state_lock:
     #         gyro = self.imu._st.gyro.copy()
     #     return gyro
