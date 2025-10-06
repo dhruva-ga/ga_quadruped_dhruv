@@ -1,0 +1,181 @@
+<mujoco model="urdf_assembly_v3">
+  
+  <default>
+    <default class="robot">
+        <default class="x8_90_hip">
+            <!-- <joint armature="0.0026" frictionloss="0.65" /> -->
+            <position kp="70" kv="1.0" forcelimited="true" forcerange="-50 50"></position>
+        </default>
+        <default class="x8_90_thigh">
+            <!-- <joint armature="0.0026" frictionloss="0.65" /> -->
+            <position kp="100" kv="1.0" forcelimited="true" forcerange="-50 50"></position>
+        </default>
+        <default class="x12_150_calf">
+            <!-- <joint armature="0.0026" frictionloss="0.65" /> -->
+            <position kp="100" kv="2.0" forcelimited="true" forcerange="-50 50"></position>
+        </default>
+      <default class="visual">
+        <geom material="visualgeom" contype="0" conaffinity="0" group="2" />
+      </default>
+      <default class="collision">
+        <geom material="collision_material" condim="3" contype="0" conaffinity="1" priority="1" group="1" solref="0.005 1" solimp="0.99 0.999 1e-05" friction="1 0.01 0.01" />
+      </default>
+    </default>
+    <default class="hard_contact">
+            <!-- Critical-damped, very fast correction -->
+            <geom solref="0.003 1" solimp="0.15 1 0.023" condim="6"
+            friction="0.8 0.02 0.01"/>
+    </default>
+  </default>
+
+  <compiler angle="radian" />
+
+  <asset>
+    <material name="silver" rgba="0.700 0.700 0.700 1.000" />
+    <material name="default_material" rgba="0.7 0.7 0.7 1" />
+    <material name="collision_material" rgba="1.0 0.28 0.1 0.9" />
+    <mesh name="trunk.stl" file="meshes/trunk.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="FL_hip.stl" file="meshes/FL_hip.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="FL_thigh.stl" file="meshes/FL_thigh.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="FL_calf.stl" file="meshes/FL_calf.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="RL_hip.stl" file="meshes/RL_hip.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="RL_thigh.stl" file="meshes/RL_thigh.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="RL_calf.stl" file="meshes/RL_calf.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="RR_hip.stl" file="meshes/RR_hip.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="RR_thigh.stl" file="meshes/RR_thigh.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="RR_calf.stl" file="meshes/RR_calf.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="FR_hip.stl" file="meshes/FR_hip.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="FR_thigh.stl" file="meshes/FR_thigh.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="FR_calf.stl" file="meshes/FR_calf.stl" scale="0.001 0.001 0.001"/>
+  </asset>
+
+  <worldbody>
+    <body name="trunk" pos="0.00000000 0.00000000 0.0" quat="1 0 0 0" childclass="robot">
+      <freejoint name="floating_base" />
+      <inertial pos="0.180036 -0.000024 -0.007962" mass="13.252419" fullinertia="0.11610000 0.26320000 0.33710000 -0.00006689 -0.00004903 0.00001886"/>
+      <!-- <geom name="trunk_collision" pos="0 0 0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="trunk.stl" class="collision" /> -->
+      <geom name="trunk_visual" pos="0 0 0" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="trunk.stl" class="visual" />
+      <body name="FL_hip" pos="-0.059 -0.098894 -0.00113" quat="1.0 0.0 0.0 0.0">
+        <joint name="FL_hip_joint" type="hinge" ref="0.0" class="x8_90_hip" axis="-1.0 0.0 0.0" range="-0.785 0.785"/>
+        <inertial pos="-0.056864 0.001156 0.001126" mass="1.008402" fullinertia="0.00123900 0.00203800 0.00147300 0.00001874 -0.00000002 0.00000005"/>
+        <!-- <geom name="FL_hip_collision" pos="0.059 0.098894 0.00113" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="FL_hip.stl" class="collision" /> -->
+        <geom name="FL_hip_visual" pos="0.059 0.098894 0.00113" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="FL_hip.stl" class="visual" />
+        <body name="FL_thigh" pos="-0.062 -0.0274 0.0" quat="1.0 0.0 0.0 0.0">
+          <joint name="FL_thigh_joint" type="hinge" ref="0.0" class="x8_90_thigh" axis="0.0 -1.0 -0.0" range="-1.5708 1.5708"/>
+          <inertial pos="0.041849 -0.047206 -0.007427" mass="2.226916" fullinertia="0.00424000 0.02273000 0.02120000 0.00242400 0.00381900 -0.00050870"/>
+          <!-- <geom name="FL_thigh_collision" pos="0.121 0.126294 0.00113" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="FL_thigh.stl" class="collision" /> -->
+          <geom name="FL_thigh_visual" pos="0.121 0.126294 0.00113" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="FL_thigh.stl" class="visual" />
+          <body name="FL_calf" pos="0.291833 -0.0812 -0.069525" quat="1.0 0.0 0.0 0.0">
+            <joint name="FL_calf_joint" type="hinge" ref="0.0" class="x12_150_calf" axis="-0.0 -1.0 0.0" range="0.0 2.3"/>
+            <inertial pos="-0.156359 0.009471 -0.003568" mass="0.403540" fullinertia="0.00006655 0.00538400 0.00534900 -0.00000815 0.00014770 0.00000100"/>
+            <!-- <geom name="FL_calf_collision" pos="-0.170833 0.207494 0.070655" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="FL_calf.stl" class="collision" /> -->
+            <geom name="FL_calf_collision" type="sphere" size="0.015" pos="-0.31 0.01 -0.02" density="0" rgba="0 0 1 1" class="hard_contact"/>
+            <geom name="FL_calf_visual" pos="-0.170833 0.207494 0.070655" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="FL_calf.stl" class="visual" />
+          </body>
+        </body>
+      </body>
+      <body name="FR_hip" pos="-0.059 0.101106 -0.00113" quat="1.0 0.0 0.0 0.0">
+        <joint name="FR_hip_joint" type="hinge" ref="0.0" class="x8_90_hip" axis="-1.0 0.0 -0.0" range="-0.785 0.785"/>
+        <inertial pos="-0.056864 -0.003368 0.001127" mass="1.008392" fullinertia="0.00123900 0.00203800 0.00147300 -0.00001874 -0.00000002 -0.00000005"/>
+        <!-- <geom name="FR_hip_collision" pos="0.059 -0.101106 0.00113" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="FR_hip.stl" class="collision" /> -->
+        <geom name="FR_hip_visual" pos="0.059 -0.101106 0.00113" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="FR_hip.stl" class="visual" />
+        <body name="FR_thigh" pos="-0.062 0.0274 0.0" quat="1.0 0.0 0.0 0.0">
+          <joint name="FR_thigh_joint" type="hinge" ref="0.0" class="x8_90_thigh" axis="0.0 1.0 -0.0" range="-1.5708 1.5708"/>
+          <inertial pos="0.041847 0.044995 -0.007447" mass="2.226976" fullinertia="0.00428900 0.02280000 0.02121000 -0.00242400 0.00381700 0.00050890"/>
+          <!-- <geom name="FR_thigh_collision" pos="0.121 -0.128506 0.00113" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="FR_thigh.stl" class="collision" /> -->
+          <geom name="FR_thigh_visual" pos="0.121 -0.128506 0.00113" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="FR_thigh.stl" class="visual" />
+          <body name="FR_calf" pos="0.291833 0.0612 -0.069525" quat="1.0 0.0 0.0 0.0">
+            <joint name="FR_calf_joint" type="hinge" ref="0.0" class="x12_150_calf" axis="0.0 1.0 -0.0" range="-2.3 0.0"/>
+            <inertial pos="-0.156359 0.008317 -0.003568" mass="0.403541" fullinertia="0.00006653 0.00538400 0.00534900 0.00000815 0.00014770 -0.00000100"/>
+            <geom name="FR_calf_visual" pos="-0.772833 0.207494 0.070655" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="FR_calf.stl" class="visual" />
+             <geom name="FR_calf_collision" type="sphere" size="0.015" pos="-0.31 0.01 -0.02" density="0" rgba="0 0 1 1" class="hard_contact"/>
+            <!-- <geom name="FR_calf_collision" pos="-0.772833 0.207494 0.070655" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="FR_calf.stl" class="collision" /> -->
+            </body>
+        </body>
+      </body>
+      <body name="RL_hip" pos="0.419 -0.098894 -0.00113" quat="1.0 0.0 0.0 0.0">
+        <joint name="RL_hip_joint" type="hinge" ref="0.0" class="x8_90_hip" axis="1.0 -0.0 -0.0" range="-0.785 0.785"/>
+        <inertial pos="0.056564 0.001156 0.001134" mass="1.008402" fullinertia="0.00123900 0.00203800 0.00147300 -0.00001874 -0.00000002 -0.00000005"/>
+        <!-- <geom name="RL_hip_collision" pos="-0.419 0.098894 0.00113" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="RL_hip.stl" class="collision" /> -->
+        <geom name="RL_hip_visual" pos="-0.419 0.098894 0.00113" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="RL_hip.stl" class="visual" />
+        <body name="RL_thigh" pos="0.062 -0.0274 0.0" quat="1.0 0.0 0.0 0.0">
+          <joint name="RL_thigh_joint" type="hinge" ref="0.0" class="x8_90_thigh" axis="-0.0 -1.0 -0.0" range="-1.5708 1.5708"/>
+          <inertial pos="0.045549 -0.047206 -0.007427" mass="2.226916" fullinertia="0.00424000 0.02273000 0.02120000 0.00242400 0.00381900 -0.00050870"/>
+          <!-- <geom name="RL_thigh_collision" pos="-0.481 0.126294 0.00113" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="RL_thigh.stl" class="collision" /> -->
+          <geom name="RL_thigh_visual" pos="-0.481 0.126294 0.00113" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="RL_thigh.stl" class="visual" />
+          <body name="RL_calf" pos="0.291833 -0.0812 -0.069525" quat="1.0 0.0 0.0 0.0">
+            <joint name="RL_calf_joint" type="hinge" ref="0.0" class="x12_150_calf" axis="-0.0 -1.0 0.0" range="0.0 2.3"/>
+            <inertial pos="-0.152659 0.009471 -0.003568" mass="0.403540" fullinertia="0.00006655 0.00538400 0.00534900 -0.00000815 0.00014770 0.00000100"/>
+            <!-- <geom name="RL_calf_collision" pos="-0.772833 0.207494 0.070655" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="RL_calf.stl" class="collision" /> -->
+            <geom name="RL_calf_collision" type="sphere" size="0.015" pos="-0.31 0.01 -0.02" density="0" rgba="0 0 1 1" class="hard_contact"/>
+            <geom name="RL_calf_visual" pos="-0.772833 0.207494 0.070655" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="RL_calf.stl" class="visual" />
+          </body>
+        </body>
+      </body>
+      <body name="RR_hip" pos="0.419 0.101106 -0.00113" quat="1.0 0.0 0.0 0.0">
+        <joint name="RR_hip_joint" type="hinge" ref="0.0" class="x8_90_thigh" axis="1.0 -0.0 0.0" range="-0.785 0.785"/>
+        <inertial pos="0.056564 -0.003368 0.001133" mass="1.008392" fullinertia="0.00123900 0.00203800 0.00147300 0.00001874 -0.00000002 0.00000005"/>
+        <!-- <geom name="RR_hip_collision" pos="-0.419 -0.101106 0.00113" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="RR_hip.stl" class="collision" /> -->
+        <geom name="RR_hip_visual" pos="-0.419 -0.101106 0.00113" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="RR_hip.stl" class="visual" />
+        <body name="RR_thigh" pos="0.062 0.0244 0.0" quat="1.0 0.0 0.0 0.0">
+          <joint name="RR_thigh_joint" type="hinge" ref="0.0" class="x8_90_thigh" axis="-0.0 1.0 0.0" range="-1.5708 1.5708"/>
+          <inertial pos="0.045547 0.047995 -0.007447" mass="2.226976" fullinertia="0.00428900 0.02280000 0.02121000 -0.00242400 0.00381700 0.00050890"/>
+          <!-- <geom name="RR_thigh_collision" pos="-0.481 -0.125506 0.00113" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="RR_thigh.stl" class="collision" /> -->
+          <geom name="RR_thigh_visual" pos="-0.481 -0.125506 0.00113" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="RR_thigh.stl" class="visual" />
+          <body name="RR_calf" pos="0.291833 0.0612 -0.069525" quat="1.0 0.0 0.0 0.0">
+            <joint name="RR_calf_joint" type="hinge" ref="0.0" class="x12_150_calf" axis="0.0 1.0 0.0" range="-2.3 0.0"/>
+            <inertial pos="-0.152659 0.011317 -0.003568" mass="0.403541" fullinertia="0.00006653 0.00538400 0.00534900 0.00000815 0.00014770 -0.00000100"/>
+            <!-- <geom name="RR_calf_collision" pos="-0.170833 0.207494 0.070655" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="RR_calf.stl" class="collision" /> -->
+            <geom name="RR_calf_collision" type="sphere" size="0.015" pos="-0.31 0.01 -0.02" density="0" rgba="0 0 1 1" class="hard_contact"/>
+            <geom name="RR_calf_visual" pos="-0.170833 0.207494 0.070655" quat="1.0 0.0 0.0 0.0" material="silver" type="mesh" mesh="RR_calf.stl" class="visual" />
+          </body>
+        </body>
+      </body>
+      <site name="imu" pos="0 0 0"/>
+      <camera name="front_camera" mode="track" fovy="90.0" quat="4.329780281177467e-17 4.329780281177466e-17 0.7071067811865475 0.7071067811865476" pos="0.0 2.0 0.5" />
+      <camera name="side_camera" mode="track" fovy="90.0" quat="-0.5 -0.4999999999999999 0.5 0.5000000000000001" pos="-2.0 0.0 0.5" />
+    </body>
+  </worldbody>
+
+  <actuator>
+    <position name="FL_hip" joint="FL_hip_joint" class="x8_90_hip" />
+    <position name="FL_thigh" joint="FL_thigh_joint" class="x8_90_thigh" />
+    <position name="FL_calf" joint="FL_calf_joint" class="x12_150_calf" />
+    <position name="FR_hip" joint="FR_hip_joint" class="x8_90_hip" />
+    <position name="FR_thigh" joint="FR_thigh_joint" class="x8_90_thigh" />
+    <position name="FR_calf" joint="FR_calf_joint" class="x12_150_calf" />
+    <position name="RL_hip" joint="RL_hip_joint" class="x8_90_hip" />
+    <position name="RL_thigh" joint="RL_thigh_joint" class="x8_90_thigh" />
+    <position name="RL_calf" joint="RL_calf_joint" class="x12_150_calf" />
+    <position name="RR_hip" joint="RR_hip_joint" class="x8_90_hip" />
+    <position name="RR_thigh" joint="RR_thigh_joint" class="x8_90_thigh" />
+    <position name="RR_calf" joint="RR_calf_joint" class="x12_150_calf" />
+  </actuator>
+
+  <contact>
+    <exclude body1="trunk" body2="FL_hip" />
+    <exclude body1="trunk" body2="RL_hip" />
+    <exclude body1="trunk" body2="RR_hip" />
+    <exclude body1="trunk" body2="FR_hip" />
+    <exclude body1="FR_hip" body2="FR_thigh" />
+    <exclude body1="RR_hip" body2="RR_thigh" />
+    <exclude body1="FL_hip" body2="FL_thigh" />
+    <exclude body1="RL_hip" body2="RL_thigh" />
+    <exclude body1="FL_thigh" body2="FL_calf" />
+    <exclude body1="RL_thigh" body2="RL_calf" />
+    <exclude body1="RR_thigh" body2="RR_calf" />
+    <exclude body1="FR_thigh" body2="FR_calf" />
+  </contact>
+
+  <sensor>
+      <gyro site="imu" name="gyro" />
+      <accelerometer site="imu" name="accelerometer" />
+      <velocimeter site="imu" name="local_linvel" />
+      <framepos objtype="site" objname="imu" name="torso_pos" />
+      <framezaxis objtype="site" objname="imu" name="gravity_vector" />
+      <framexaxis objtype="site" objname="imu" name="torso_x_axis_vec" />
+      <framexaxis objtype="site" objname="imu" name="torso_y_axis_vec" />
+      <framequat objtype="site" objname="imu" name="orientation" />
+      <framelinvel objtype="site" objname="imu" name="global_linvel" />
+  </sensor>
+</mujoco>

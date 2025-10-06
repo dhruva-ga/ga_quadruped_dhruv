@@ -1,0 +1,44 @@
+General,Unnamed: 1,Unnamed: 2,Unnamed: 3
+,Part Number,X8_X8_coupler_90deg,
+,Part Name,X8_X8_coupler_90deg v5,
+,Description,,
+,Material Name,(Various),
+,,,
+Manage,,,
+,Item Number,,
+,Lifecycle,,
+,Revision,,
+,State,,
+,Change Order,,
+,,,
+Physical,,,
+,Mass,1008.402 g,
+,Volume,1.814E+05 mm^3,
+,Density,0.006 g / mm^3,
+,Area,1.309E+05 mm^2,
+,"World X,Y,Z","-108.893 mm, 12.986 mm, 0.00 mm",
+,Center of Mass,"-115.864 mm, -97.738 mm, -0.004 mm",
+,Bounding Box,,
+,,Length,117.40 mm
+,,Width,54.261 mm
+,,Height,114.02 mm
+,Moment of Inertia at Center of Mass   (g mm^2),,
+,,Ixx,1239000
+,,Ixy,18744.752
+,,Ixz,-23.91
+,,Iyx,18744.752
+,,Iyy,2038000
+,,Iyz,50.892
+,,Izx,-23.91
+,,Izy,50.892
+,,Izz,1473000
+,Moment of Inertia at Origin   (g mm^2),,
+,,Ixx,10870000
+,,Ixy,-11400000
+,,Ixz,-440.516
+,,Iyx,-11400000
+,,Iyy,15580000
+,,Iyz,-300.539
+,,Izx,-440.516
+,,Izy,-300.539
+,,Izz,24640000

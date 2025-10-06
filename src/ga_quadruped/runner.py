@@ -9,6 +9,8 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
+from scipy.spatial.transform import Rotation as R
+
 # import cv2
 import sys
 # import csv
@@ -94,7 +96,9 @@ if __name__ == '__main__':
     else:
         robot = Param()
         robot.start()
-
+        time.sleep(1)
+        robot._sit()
+        time.sleep(2)
         print("Standing Up!")
         time.sleep(1)
         robot._stand()
@@ -102,7 +106,7 @@ if __name__ == '__main__':
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_gait_policy.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_gait_policy_gyro.onnx'
     
     term = Terminal()
 
@@ -125,7 +129,6 @@ if __name__ == '__main__':
 
     obs_arr = []
 
-
     # log_torque, close_torque = actuator_torque_logger(
     # "actuator_torques.csv", ACTUATOR_NAMES, robot.model.nu, flush_every=100
     # )
@@ -134,6 +137,8 @@ if __name__ == '__main__':
     def run_loop(viewer=None):
         vx, vy,w = 0.0, 0.0,0.0
         VEL_STEP = 0.1 
+
+        gyro_integral = np.zeros(3)
 
         with term.cbreak(), term.hidden_cursor():
             val = ''
@@ -182,10 +187,15 @@ if __name__ == '__main__':
                     qvel = kinematics_data.velocity
                     imu_quat = imu_data.quat
                     gyro = imu_data.gyro
+                    rpy = imu_data.rpy
+
 
                 obs = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
                 print("Obs:", obs)
                 obs_arr.append(obs)
+
+                gyro_integral += gyro * time_step * 180 / np.pi
+
 
                 if args.sim:
                     print("current control", robot.data.ctrl)
@@ -196,12 +206,16 @@ if __name__ == '__main__':
                 # robot.set_ctrl(np.array(home_pos))
                 robot.set_ctrl(ctrl)
                 print("Gyro:", gyro)
+                print("Gyro Integral:", gyro_integral)
 
                 logger.log({
                     "qpos": qpos,
                     "qvel": qvel,
                     "imu_quat": imu_quat,
                     "gyro": gyro,
+                    "gyro_integral": gyro_integral,
+                    "rpy": rpy * 180 / np.pi,
+                    "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
                     "ctrl": ctrl,
                     "command": command,
                     "gait_command": gait_command,

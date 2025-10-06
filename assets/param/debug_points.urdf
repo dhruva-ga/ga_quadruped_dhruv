@@ -1,0 +1,1216 @@
+<?xml version="1.0" ?>
+<robot name="urdf_assembly_v3_with_debug">
+  
+  
+  <material name="silver">
+    
+    
+    <color rgba="0.700 0.700 0.700 1.000"/>
+    
+  
+  </material>
+  
+  
+  <link name="trunk">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="0.1800021613389532 0.0011059001342642709 0.0032914802932821853"/>
+      
+      
+      <mass value="14.375726822970043"/>
+      
+      
+      <inertia ixx="0.191138" ixy="-3.4e-05" ixz="-2e-06" iyy="0.40265" iyz="-0.0" izz="0.515858"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/trunk.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/trunk.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="FL_hip">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.04712748510646356 0.0003722506842882972 -2.7333568612490904e-06"/>
+      
+      
+      <mass value="1.4229579632997589"/>
+      
+      
+      <inertia ixx="0.001778" ixy="1e-05" ixz="-0.0" iyy="0.002877" iyz="0.0" izz="0.002097"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="0.059 0.098894 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/FL_hip.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="0.059 0.098894 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/FL_hip.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="RL_hip">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="0.047127485106463585 0.0003722506842885609 2.1944325753497397e-06"/>
+      
+      
+      <mass value="1.4229579632997589"/>
+      
+      
+      <inertia ixx="0.001778" ixy="-1e-05" ixz="-0.0" iyy="0.002877" iyz="-0.0" izz="0.002097"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.419 0.098894 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/RL_hip.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.419 0.098894 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/RL_hip.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="RR_hip">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="0.047127485106463585 -0.00037238356285085317 -2.7333568615806395e-06"/>
+      
+      
+      <mass value="1.4229579632997589"/>
+      
+      
+      <inertia ixx="0.001778" ixy="1e-05" ixz="0.0" iyy="0.002877" iyz="-0.0" izz="0.002097"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.419 -0.101106 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/RR_hip.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.419 -0.101106 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/RR_hip.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="FR_hip">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.047127485106463377 -0.0003723835628505895 2.1944325754588104e-06"/>
+      
+      
+      <mass value="1.4229579632997589"/>
+      
+      
+      <inertia ixx="0.001778" ixy="-1e-05" ixz="0.0" iyy="0.002877" iyz="0.0" izz="0.002097"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="0.059 -0.101106 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/FR_hip.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="0.059 -0.101106 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/FR_hip.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="FR_thigh">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="0.0723267875785904 0.05280562735978048 -0.011617450257010158"/>
+      
+      
+      <mass value="3.186290673790848"/>
+      
+      
+      <inertia ixx="0.006003" ixy="-0.004158" ixz="0.006003" iyy="0.038807" iyz="0.000665" izz="0.037457"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="0.121 -0.128506 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/FR_thigh.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="0.121 -0.128506 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/FR_thigh.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="RR_thigh">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="0.07232678757859057 0.05280562735978023 -0.011617450257010217"/>
+      
+      
+      <mass value="3.186290673790848"/>
+      
+      
+      <inertia ixx="0.006003" ixy="-0.004158" ixz="0.006003" iyy="0.038807" iyz="0.000665" izz="0.037457"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.481 -0.125506 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/RR_thigh.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.481 -0.125506 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/RR_thigh.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="FL_thigh">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="0.07232674753619493 -0.0528058077448893 -0.011617554994350625"/>
+      
+      
+      <mass value="3.186293993152985"/>
+      
+      
+      <inertia ixx="0.006004" ixy="0.004158" ixz="0.006003" iyy="0.038808" iyz="-0.000665" izz="0.037457"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="0.121 0.126294 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/FL_thigh.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="0.121 0.126294 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/FL_thigh.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="RL_thigh">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="0.07232674753619539 -0.05280580774488977 -0.011617554994351062"/>
+      
+      
+      <mass value="3.186293993152985"/>
+      
+      
+      <inertia ixx="0.006004" ixy="0.004158" ixz="0.006003" iyy="0.038808" iyz="-0.000665" izz="0.037457"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.481 0.126294 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/RL_thigh.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.481 0.126294 0.00113"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/RL_thigh.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="RR_calf">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.18994374987583984 0.010221770184848933 -0.0024036526524070234"/>
+      
+      
+      <mass value="1.3184155959034713"/>
+      
+      
+      <inertia ixx="0.000241" ixy="3.5e-05" ixz="7.2e-05" iyy="0.016862" iyz="-6e-06" izz="0.016741"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.170833 0.207494 0.070655"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/link_12_1.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="-1.248282 -0.334712 0.117494"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/link_12_1.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="FR_calf">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.06445278680522881 -0.1414279096447857 0.00873334027918321"/>
+      
+      
+      <mass value="1.3184155959034713"/>
+      
+      
+      <inertia ixx="0.000241" ixy="3.5e-05" ixz="7.2e-05" iyy="0.016862" iyz="-6e-06" izz="0.016741"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.772833 0.207494 0.070655"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/link_11_1.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.772833 0.207494 0.070655"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/link_11_1.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="RL_calf">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.06445278680522881 -0.1414279096447857 0.00873334027918321"/>
+      
+      
+      <mass value="1.3184147451033323"/>
+      
+      
+      <inertia ixx="0.000241" ixy="-3.5e-05" ixz="7.2e-05" iyy="0.016862" iyz="6e-06" izz="0.016741"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.772833 0.207494 0.070655"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/RL_calf.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.772833 0.207494 0.070655"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/RL_calf.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <link name="FL_calf">
+    
+    
+    <inertial>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.18994374987583984 0.010221770184848933 -0.0024036526524070234"/>
+      
+      
+      <mass value="1.3184147451033323"/>
+      
+      
+      <inertia ixx="0.000241" ixy="-3.5e-05" ixz="7.2e-05" iyy="0.016862" iyz="6e-06" izz="0.016741"/>
+      
+    
+    </inertial>
+    
+    
+    <visual>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.170833 0.207494 0.070655"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/FL_calf.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+      
+      <material name="silver"/>
+      
+    
+    </visual>
+    
+    
+    <collision>
+      
+      
+      <origin rpy="0 0 0" xyz="-0.170833 0.207494 0.070655"/>
+      
+      
+      <geometry>
+        
+        
+        <mesh filename="meshes/FL_calf.stl" scale="0.001 0.001 0.001"/>
+        
+      
+      </geometry>
+      
+    
+    </collision>
+    
+  
+  </link>
+  
+  
+  <joint name="Revolute_1" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="-0.059 -0.098894 -0.00113"/>
+    
+    
+    <parent link="trunk"/>
+    
+    
+    <child link="FL_hip"/>
+    
+    
+    <axis xyz="-1.0 0.0 0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_2" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="0.419 -0.098894 -0.00113"/>
+    
+    
+    <parent link="trunk"/>
+    
+    
+    <child link="RL_hip"/>
+    
+    
+    <axis xyz="1.0 -0.0 -0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_3" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="0.419 0.101106 -0.00113"/>
+    
+    
+    <parent link="trunk"/>
+    
+    
+    <child link="RR_hip"/>
+    
+    
+    <axis xyz="1.0 -0.0 0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_4" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="-0.059 0.101106 -0.00113"/>
+    
+    
+    <parent link="trunk"/>
+    
+    
+    <child link="FR_hip"/>
+    
+    
+    <axis xyz="-1.0 0.0 -0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_5" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="-0.062 0.0274 0.0"/>
+    
+    
+    <parent link="FR_hip"/>
+    
+    
+    <child link="FR_thigh"/>
+    
+    
+    <axis xyz="0.0 1.0 -0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_6" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="0.062 0.0244 0.0"/>
+    
+    
+    <parent link="RR_hip"/>
+    
+    
+    <child link="RR_thigh"/>
+    
+    
+    <axis xyz="-0.0 1.0 0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_7" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="-0.062 -0.0274 0.0"/>
+    
+    
+    <parent link="FL_hip"/>
+    
+    
+    <child link="FL_thigh"/>
+    
+    
+    <axis xyz="0.0 -1.0 -0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_8" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="0.062 -0.0274 0.0"/>
+    
+    
+    <parent link="RL_hip"/>
+    
+    
+    <child link="RL_thigh"/>
+    
+    
+    <axis xyz="-0.0 -1.0 -0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_11" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="0.291833 -0.0812 -0.069525"/>
+    
+    
+    <parent link="FL_thigh"/>
+    
+    
+    <child link="FL_calf"/>
+    
+    
+    <axis xyz="-0.0 1.0 0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_12" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="0.291833 -0.0812 -0.069525"/>
+    
+    
+    <parent link="RL_thigh"/>
+    
+    
+    <child link="RL_calf"/>
+    
+    
+    <axis xyz="-0.0 1.0 0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_9" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="0.291833 0.0612 -0.069525"/>
+    
+    
+    <parent link="RR_thigh"/>
+    
+    
+    <child link="RR_calf"/>
+    
+    
+    <axis xyz="0.0 1.0 0.0"/>
+    
+  
+  </joint>
+  
+  
+  <joint name="Revolute_10" type="continuous">
+    
+    
+    <origin rpy="0 0 0" xyz="0.291833 0.0612 -0.069525"/>
+    
+    
+    <parent link="FR_thigh"/>
+    
+    
+    <child link="FR_calf"/>
+    
+    
+    <axis xyz="0.0 1.0 -0.0"/>
+    
+  
+  </joint>
+  
+
+  <material name="dbg_col_0">
+    <color rgba="1.000000 0.000000 0.000000 1.000000"/>
+  </material>
+  <material name="dbg_col_1">
+    <color rgba="0.000000 1.000000 0.000000 1.000000"/>
+  </material>
+  <material name="dbg_col_2">
+    <color rgba="0.000000 0.000000 1.000000 1.000000"/>
+  </material>
+  <material name="dbg_col_3">
+    <color rgba="1.000000 1.000000 0.000000 1.000000"/>
+  </material>
+  <material name="dbg_col_4">
+    <color rgba="1.000000 0.000000 1.000000 1.000000"/>
+  </material>
+  <material name="dbg_col_5">
+    <color rgba="0.000000 1.000000 1.000000 1.000000"/>
+  </material>
+  <link name="debug_points_root"/>
+  <joint name="fix_debug_points_root_to_trunk" type="fixed">
+    <parent link="trunk"/>
+    <child link="debug_points_root"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_0_trunk">
+    <visual name="vis_dbg_pt_0_trunk">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_0"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_0_trunk" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_0_trunk"/>
+    <origin xyz="0.000000000 0.000000000 0.000000000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_1_FL_hip">
+    <visual name="vis_dbg_pt_1_FL_hip">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_1"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_1_FL_hip" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_1_FL_hip"/>
+    <origin xyz="-0.059000000 -0.098894000 -0.001130000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_2_FL_thigh">
+    <visual name="vis_dbg_pt_2_FL_thigh">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_2"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_2_FL_thigh" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_2_FL_thigh"/>
+    <origin xyz="-0.121000000 -0.126294000 -0.001130000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_3_FL_calf">
+    <visual name="vis_dbg_pt_3_FL_calf">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_3"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_3_FL_calf" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_3_FL_calf"/>
+    <origin xyz="0.170833000 -0.207494000 -0.070655000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_4_RL_hip">
+    <visual name="vis_dbg_pt_4_RL_hip">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_4"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_4_RL_hip" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_4_RL_hip"/>
+    <origin xyz="0.419000000 -0.098894000 -0.001130000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_5_RL_thigh">
+    <visual name="vis_dbg_pt_5_RL_thigh">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_5"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_5_RL_thigh" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_5_RL_thigh"/>
+    <origin xyz="0.481000000 -0.126294000 -0.001130000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_6_RL_calf">
+    <visual name="vis_dbg_pt_6_RL_calf">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_0"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_6_RL_calf" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_6_RL_calf"/>
+    <origin xyz="0.772833000 -0.207494000 -0.070655000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_7_RR_hip">
+    <visual name="vis_dbg_pt_7_RR_hip">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_1"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_7_RR_hip" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_7_RR_hip"/>
+    <origin xyz="0.419000000 0.101106000 -0.001130000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_8_RR_thigh">
+    <visual name="vis_dbg_pt_8_RR_thigh">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_2"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_8_RR_thigh" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_8_RR_thigh"/>
+    <origin xyz="0.481000000 0.125506000 -0.001130000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_9_RR_calf">
+    <visual name="vis_dbg_pt_9_RR_calf">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_3"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_9_RR_calf" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_9_RR_calf"/>
+    <origin xyz="0.772833000 0.186706000 -0.070655000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_10_FR_hip">
+    <visual name="vis_dbg_pt_10_FR_hip">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_4"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_10_FR_hip" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_10_FR_hip"/>
+    <origin xyz="-0.059000000 0.101106000 -0.001130000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_11_FR_thigh">
+    <visual name="vis_dbg_pt_11_FR_thigh">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_5"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_11_FR_thigh" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_11_FR_thigh"/>
+    <origin xyz="-0.121000000 0.128506000 -0.001130000" rpy="0 0 0"/>
+  </joint>
+  <link name="dbg_pt_12_FR_calf">
+    <visual name="vis_dbg_pt_12_FR_calf">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.010000"/>
+      </geometry>
+      <material name="dbg_col_0"/>
+    </visual>
+  </link>
+  <joint name="fix_world_to_dbg_pt_12_FR_calf" type="fixed">
+    <parent link="debug_points_root"/>
+    <child link="dbg_pt_12_FR_calf"/>
+    <origin xyz="0.170833000 0.189706000 -0.070655000" rpy="0 0 0"/>
+  </joint>
+</robot>

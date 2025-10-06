@@ -66,8 +66,10 @@ class PolicyAgent:
         z_axis = self.compute_gravity_orientation(imu_quat)
         # cos = np.cos(self.phase)
         # sin = np.sin(self.phase)
+        z_axis[:2] = -z_axis[:2]
+        gyro[:2] = -gyro[:2]
+        
         # phase = np.concatenate([cos, sin], axis=0).astype(np.float32)
-
         # Policy space has different joint order
         qpos = (qpos - self.initial_qpos) * self.dof_pos_scale
         qpos = qpos[self.joint_ids]
@@ -77,7 +79,7 @@ class PolicyAgent:
 
         print("Z_axis: ",z_axis)
         state = np.concatenate([
-            # gyro * self.ang_vel_scale,
+            gyro * self.ang_vel_scale,
             z_axis,
             self.command,
             gait_phase,

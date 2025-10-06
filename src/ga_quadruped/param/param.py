@@ -154,13 +154,15 @@ if __name__ == "__main__":
     time.sleep(2)
     ga_one.start()
     time.sleep(2)
-
+    ga_one._sit()
+    time.sleep(2)
     ga_one._stand()
 
+    np.set_printoptions(precision=3, suppress=True)
     t = 10
     total = 50 * t
     for i in range(total):
-        # print(ga_one.get_imu_data())
+        print(ga_one.get_imu_data().gyro)
         time.sleep(0.02)  # Adjust the sleep time as needed
 
     ga_one._sit()
