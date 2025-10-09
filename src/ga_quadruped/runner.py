@@ -182,7 +182,7 @@ def main():
                     qpos = kinematics_data.angles
                     qvel = kinematics_data.velocity
                     imu_quat = imu_data.quat
-                    # gyro = imu_data.gyro
+                    gyro = imu_data.gyro
                     # rpy = imu_data.rpy
 
 
