@@ -106,7 +106,7 @@ if __name__ == '__main__':
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_gait_policy_gyro.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_low_com.onnx'
     
     term = Terminal()
 
@@ -164,7 +164,7 @@ if __name__ == '__main__':
 
                 print("coomand", vx, vy, w)
 
-                command = np.array([-vx, -vy, w], dtype=np.float32)
+                command = np.array([vx, vy, w], dtype=np.float32)
                 gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
                 phase = np.remainder(time_step * gait_command[0] * ixxxx, 1.0)
                 phase = 2 * np.pi * phase

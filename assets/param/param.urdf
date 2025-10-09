@@ -4,6 +4,9 @@
     <color rgba="0.700 0.700 0.700 1.000" />
   </material>
   <!-- <link name="base"/> -->
+  <!-- Fixed joint that rotates the whole robot 180° about X -->
+  <link name="world"/>
+
   <link name="trunk">
     <inertial>
       <origin xyz="0.180036 -0.000024 -0.007962"/>
@@ -283,6 +286,11 @@
     <child link="trunk"/>
     <origin xyz="0 0 0.0" rpy="0 0 0"/>
   </joint> -->
+  <joint name="world_to_base_rotX180" type="fixed">
+    <parent link="world"/>
+    <child  link="trunk"/>  <!-- your original root/base link -->
+    <origin xyz="0 0 0" rpy="0 0 3.141592653589793"/>
+  </joint>
   <joint name="FL_hip_joint" type="revolute">
     <origin rpy="0 0 0" xyz="-0.059 -0.098894 -0.00113" />
     <parent link="trunk" />

@@ -67,8 +67,11 @@ class PolicyAgent:
         # z_axis[:2] = -z_axis[:2]  # Only need the x,y components and invert
         # cos = np.cos(self.phase)
         # sin = np.sin(self.phase)
-        z_axis[:2] = -z_axis[:2]
-        gyro[:2] = -gyro[:2]
+
+        # Previously we had to invert these for the old policies for real 
+        # since the IMU in sim and real have different coordinate systems
+        # z_axis[:2] = -z_axis[:2]
+        # gyro[:2] = -gyro[:2]
         
         # phase = np.concatenate([cos, sin], axis=0).astype(np.float32)
         # Policy space has different joint order
