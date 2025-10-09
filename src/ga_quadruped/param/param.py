@@ -153,20 +153,20 @@ if __name__ == "__main__":
     ga_one = Param()
     time.sleep(2)
     ga_one.start()
-    # time.sleep(2)
-    # ga_one._sit()
-    # time.sleep(2)
-    # ga_one._stand()
+    time.sleep(2)
+    ga_one._sit()
+    time.sleep(2)
+    ga_one._stand()
 
     np.set_printoptions(precision=3, suppress=True)
-    t = 10
+    t = 100
     total = 50 * t
-    for i in range(total):
-        print(ga_one.get_kinematics_data())
-        time.sleep(0.02)  # Adjust the sleep time as needed
-
-
-    # ga_one._sit()
+    try:
+        for i in range(total):
+            print(ga_one.get_kinematics_data())
+            time.sleep(0.02)  # Adjust the sleep time as needed
+    except KeyboardInterrupt:
+        ga_one._sit()
     
 
     # exit()

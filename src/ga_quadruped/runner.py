@@ -1,11 +1,11 @@
 from tqdm import tqdm
 # from ga_quadruped.go1.go_one import GoOne
-from ga_can.core.logger import log_session
 from ga_quadruped.controller.accelerate_controller import AccelerateController
 from ga_quadruped.controller.velocity_controller import VelocityController
 from ga_quadruped.param.param import Param
 from ga_quadruped.policy_agent import PolicyAgent
 from ga_quadruped.sim2sim.robot import Robot
+from ga_can.core.ga_logging import get_logger
 
 import time
 import numpy as np
@@ -18,7 +18,6 @@ import sys
 # import csv
 from blessed import Terminal
 
-# logger = log_session.get_logger("param")
 
 ACTUATOR_NAMES = [
     "hip_abduction_fl","thigh_rotation_fl","calf_fl",
@@ -83,14 +82,15 @@ time_step = 0.02
 controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
 
 
-if __name__ == '__main__':
+def main():
     import argparse
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--sim', action='store_true', help='Sim or real robot')
     args = parser.parse_args()
+
+    logger = get_logger("runner")
                         
-    
     # home_pos = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
     theta = 0.4
     theta2 = 1.2
@@ -182,8 +182,8 @@ if __name__ == '__main__':
                     qpos = kinematics_data.angles
                     qvel = kinematics_data.velocity
                     imu_quat = imu_data.quat
-                    gyro = imu_data.gyro
-                    rpy = imu_data.rpy
+                    # gyro = imu_data.gyro
+                    # rpy = imu_data.rpy
 
 
                 obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
@@ -204,19 +204,19 @@ if __name__ == '__main__':
                 print("Gyro:", gyro)
                 print("Gyro Integral:", gyro_integral)
 
-                # logger.log({
-                #     "qpos": qpos,
-                #     "qvel": qvel,
-                #     "imu_quat": imu_quat,
-                #     "gyro": gyro,
-                #     "gyro_integral": gyro_integral,
-                #     "rpy": rpy * 180 / np.pi,
-                #     "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
-                #     "ctrl": ctrl,
-                #     "command": command,
-                #     "gait_command": gait_command,
-                #     "gait_phase": gait_phase,
-                # })
+                logger.log({
+                    "qpos": qpos,
+                    "qvel": qvel,
+                    "imu_quat": imu_quat,
+                    "gyro": gyro,
+                    # "gyro_integral": gyro_integral,
+                    # "rpy": rpy * 180 / np.pi,
+                    # "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
+                    "ctrl": ctrl,
+                    "command": command,
+                    "gait_command": gait_command,
+                    "gait_phase": gait_phase,
+                })
 
                 # Need to manually step in sim
                 if viewer is not None:
@@ -244,3 +244,8 @@ if __name__ == '__main__':
     # close_torque()
     # save_obs_to_csv(obs_arr)
 # writer.release()
+
+if __name__ == "__main__":
+    from ga_can.core.ga_logging import logging_session
+    with logging_session("param") as session:
+        main()
