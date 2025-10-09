@@ -159,7 +159,7 @@ if __name__ == "__main__":
     ga_one._stand()
 
     np.set_printoptions(precision=3, suppress=True)
-    t = 100
+    t = 1000
     total = 50 * t
     try:
         for i in range(total):
@@ -167,6 +167,9 @@ if __name__ == "__main__":
             time.sleep(0.02)  # Adjust the sleep time as needed
     except KeyboardInterrupt:
         ga_one._sit()
+
+    time.sleep(2)
+    ga_one._sit()
     
 
     # exit()
