@@ -1,6 +1,7 @@
 from tqdm import tqdm
 # from ga_quadruped.go1.go_one import GoOne
 from ga_can.core.logger import log_session
+from ga_quadruped.controller.accelerate_controller import AccelerateController
 from ga_quadruped.controller.velocity_controller import VelocityController
 from ga_quadruped.param.param import Param
 from ga_quadruped.policy_agent import PolicyAgent
@@ -76,7 +77,11 @@ def limit_effort(effort, effort_limit):
 
 VEL_STEP = 0.1  # m/s per key press
 term = Terminal()
-controller = VelocityController(term, vel_step=VEL_STEP, max_lin=None, max_ang=None)
+time_step = 0.02
+
+# controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
+controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
+
 
 if __name__ == '__main__':
     import argparse
@@ -85,7 +90,6 @@ if __name__ == '__main__':
     parser.add_argument('--sim', action='store_true', help='Sim or real robot')
     args = parser.parse_args()
                         
-    time_step = 0.02
     
     # home_pos = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
     theta = 0.4
@@ -141,18 +145,19 @@ if __name__ == '__main__':
 
     def run_loop(viewer=None):
         vx, vy,w = 0.0, 0.0,0.0
-        VEL_STEP = 0.1 
 
         gyro_integral = np.zeros(3)
 
         with term.cbreak(), term.hidden_cursor():
             val = ''
             for ixxxx in range(50 * 24 * 60 * 60):
-                if val.lower() == 'q':
+
+                key = term.inkey(timeout=0.001)
+                if key in ('q', 'Q'):
                     break
+
                 t1 = time.time()
-                
-                vx, vy, w = controller.step(timeout=0.001)
+                vx, vy, w = controller.step(key=key)
                 print("command", vx, vy, w)
 
                 command = np.array([vx, vy, w], dtype=np.float32)

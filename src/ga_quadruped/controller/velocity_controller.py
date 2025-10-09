@@ -1,6 +1,8 @@
+import warnings
+
 class VelocityController:
     """
-    Keyboard-driven velocity controller.
+    Keyboard-driven velocity controller (event-in, no polling).
 
     Keys:
       w/s : +vx / -vx
@@ -8,18 +10,19 @@ class VelocityController:
       g/h : +w  / -w
       t   : reset (vx=vy=w=0)
     """
-    def __init__(self, term, vel_step=0.05, max_lin=None, max_ang=None):
+    def __init__(self, vel_step=0.05, max_lin=None, max_ang=None, passthrough_keys=("q","Q")):
         """
         Args:
-            term: object exposing term.inkey(timeout=...) -> str|None
             vel_step: increment per key press
-            max_lin: optional abs limit applied to vx, vy (None means no limit)
-            max_ang: optional abs limit applied to w (None means no limit)
+            max_lin: optional abs limit applied to vx, vy (None = no limit)
+            max_ang: optional abs limit applied to w (None = no limit)
+            passthrough_keys: keys to ignore without warning (runner-level controls)
         """
-        self.term = term
         self.vel_step = float(vel_step)
         self.max_lin = None if max_lin is None else float(max_lin)
         self.max_ang = None if max_ang is None else float(max_ang)
+        self.passthrough_keys = set(passthrough_keys)
+
         self.vx = 0.0
         self.vy = 0.0
         self.w  = 0.0
@@ -36,15 +39,17 @@ class VelocityController:
 
     # --- public API ---------------------------------------------------------
 
-    def step(self, timeout=0.001):
-        """Poll a key once (non-blocking if timeout is small), update, and return (vx, vy, w)."""
-        val = self.term.inkey(timeout=timeout)
-        if val:
-            self.handle_key(val)
+    def step(self, key=None):
+        """
+        Apply a single key event (if provided) and return (vx, vy, w).
+        If key is None, just returns current values.
+        """
+        if key is not None:
+            self.handle_key(key)
         return self.vx, self.vy, self.w
 
     def handle_key(self, key):
-        """Apply a single key event."""
+        """Apply a single key event; warn on unrecognized keys (except passthrough)."""
         if key == 't':  # reset
             self.reset()
             return
@@ -58,6 +63,9 @@ class VelocityController:
             elif attr == 'w':
                 new_val = self.w + sign * self.vel_step
                 self.w = self._clip_ang(new_val)
+        else:
+            if key not in self.passthrough_keys:
+                warnings.warn(f"VelocityController: unrecognized key '{key}'", RuntimeWarning)
 
     def get(self):
         """Return current (vx, vy, w)."""
