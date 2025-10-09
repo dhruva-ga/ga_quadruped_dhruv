@@ -16,7 +16,7 @@ import sys
 # import csv
 from blessed import Terminal
 
-logger = log_session.get_logger("param")
+# logger = log_session.get_logger("param")
 
 ACTUATOR_NAMES = [
     "hip_abduction_fl","thigh_rotation_fl","calf_fl",
@@ -208,19 +208,19 @@ if __name__ == '__main__':
                 print("Gyro:", gyro)
                 print("Gyro Integral:", gyro_integral)
 
-                logger.log({
-                    "qpos": qpos,
-                    "qvel": qvel,
-                    "imu_quat": imu_quat,
-                    "gyro": gyro,
-                    "gyro_integral": gyro_integral,
-                    "rpy": rpy * 180 / np.pi,
-                    "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
-                    "ctrl": ctrl,
-                    "command": command,
-                    "gait_command": gait_command,
-                    "gait_phase": gait_phase,
-                })
+                # logger.log({
+                #     "qpos": qpos,
+                #     "qvel": qvel,
+                #     "imu_quat": imu_quat,
+                #     "gyro": gyro,
+                #     "gyro_integral": gyro_integral,
+                #     "rpy": rpy * 180 / np.pi,
+                #     "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
+                #     "ctrl": ctrl,
+                #     "command": command,
+                #     "gait_command": gait_command,
+                #     "gait_phase": gait_phase,
+                # })
 
                 # Need to manually step in sim
                 if viewer is not None:

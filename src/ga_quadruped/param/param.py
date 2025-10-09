@@ -162,8 +162,9 @@ if __name__ == "__main__":
     t = 10
     total = 50 * t
     for i in range(total):
-        print(ga_one.get_imu_data().gyro)
+        print(ga_one.get_kinematics_data())
         time.sleep(0.02)  # Adjust the sleep time as needed
+
 
     ga_one._sit()
     
