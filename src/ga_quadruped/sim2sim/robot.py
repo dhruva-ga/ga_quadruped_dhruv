@@ -193,7 +193,7 @@ class Robot:
         self.default_joint_qpos = default_joint_pos
         rotation = R.from_euler('x', 0, degrees=True)
         quat = rotation.as_quat(scalar_first=True)
-        # quat = [1,0,0,0]
+        quat = [1,0,0,0]
         self.data.qpos = [init_pos[0], init_pos[1], init_pos[2], quat[0], quat[1], quat[2], quat[3]] + self.default_joint_qpos
         self.model.opt.timestep = float(0.005)
         self.model.dof_armature[6:] = [0.01] * len(self.default_joint_qpos)
@@ -440,13 +440,13 @@ def add_axis_arrows(user_scn, origin, R_body, scale=0.06):
     _arrow(R_body[:, 2] * scale, [0, 0, 1, 1])  # Z
 
 if __name__ == "__main__":
-    XML_PATH = "/home/radon12/Documents/ga_quadruped/src/ga_quadruped/assets/go1/scene.xml"
+    XML_PATH = "/home/radon12/Documents/ga_quadruped/assets/param/scene.xml"
     
-    HOME_POSE = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
+    # HOME_POSE = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
    
-    # theta = 0.4
-    # theta2 = 1.2
-    # HOME_POSE = [-0.0, -theta, theta2, 0.0, theta, -theta2, 0.0, -theta, theta2, -0.0, theta, -theta2]
+    theta = 0.4
+    theta2 = 1.2
+    HOME_POSE = [-0.0, -theta, theta2, 0.0, theta, -theta2, 0.0, -theta, theta2, -0.0, theta, -theta2]
     robot = Robot(XML_PATH, randomisation=False,
                   default_joint_pos=HOME_POSE,
                   init_pos=[0, 0, 0.5])

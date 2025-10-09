@@ -91,7 +91,7 @@ if __name__ == '__main__':
     if args.sim:
         import mujoco
 
-        XML_PATH = sys.path[0] + '/assets/param/scene.xml'
+        XML_PATH = '/home/radon12/Documents/ga_quadruped/assets/param/scene.xml'
         robot = Robot(XML_PATH, randomisation=False, default_joint_pos=home_pos, init_pos=[0, 0, 0.45]) # Go1
     else:
         robot = Param()
