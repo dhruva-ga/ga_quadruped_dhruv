@@ -1,6 +1,7 @@
 from tqdm import tqdm
 # from ga_quadruped.go1.go_one import GoOne
 from ga_can.core.logger import log_session
+from ga_quadruped.controller.velocity_controller import VelocityController
 from ga_quadruped.param.param import Param
 from ga_quadruped.policy_agent import PolicyAgent
 from ga_quadruped.sim2sim.robot import Robot
@@ -72,6 +73,11 @@ def limit_effort(effort, effort_limit):
     """Limit the effort to the specified limit."""
     return np.clip(effort, -effort_limit, effort_limit)
 
+
+VEL_STEP = 0.1  # m/s per key press
+term = Terminal()
+controller = VelocityController(term, vel_step=VEL_STEP, max_lin=None, max_ang=None)
+
 if __name__ == '__main__':
     import argparse
 
@@ -108,7 +114,6 @@ if __name__ == '__main__':
         
     ONNX_PATH = sys.path[0] + '/policy/param_low_com.onnx'
     
-    term = Terminal()
 
 
     # try:
@@ -142,27 +147,13 @@ if __name__ == '__main__':
 
         with term.cbreak(), term.hidden_cursor():
             val = ''
-            for ixxxx in range(50*240):
+            for ixxxx in range(50 * 24 * 60 * 60):
                 if val.lower() == 'q':
                     break
                 t1 = time.time()
-                val = term.inkey(timeout=0.001)
-                if val == 'w':
-                    vx += VEL_STEP
-                elif val == 's':
-                    vx -= VEL_STEP
-                elif val == 'a':
-                    vy += VEL_STEP
-                elif val == 'd':
-                    vy -= VEL_STEP
-                elif val == 'g':
-                    w += VEL_STEP
-                elif val == 'h':
-                    w -= VEL_STEP
-                elif val == 't':
-                    vx, vy, w = 0.0, 0.0, 0.0
-
-                print("coomand", vx, vy, w)
+                
+                vx, vy, w = controller.step(timeout=0.001)
+                print("command", vx, vy, w)
 
                 command = np.array([vx, vy, w], dtype=np.float32)
                 gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
