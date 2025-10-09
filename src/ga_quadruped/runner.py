@@ -190,7 +190,7 @@ if __name__ == '__main__':
                     rpy = imu_data.rpy
 
 
-                obs = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
+                obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
                 print("Obs:", obs)
                 obs_arr.append(obs)
 

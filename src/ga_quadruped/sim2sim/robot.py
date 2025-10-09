@@ -191,9 +191,9 @@ class Robot:
         # self.joint_ids = [0, 3, 6, 9, 1, 4, 7, 10, 2, 5, 8, 11]
 
         self.default_joint_qpos = default_joint_pos
-        rotation = R.from_euler('y', 2, degrees=True)
+        rotation = R.from_euler('x', 0, degrees=True)
         quat = rotation.as_quat(scalar_first=True)
-        quat = [1,0,0,0]
+        # quat = [1,0,0,0]
         self.data.qpos = [init_pos[0], init_pos[1], init_pos[2], quat[0], quat[1], quat[2], quat[3]] + self.default_joint_qpos
         self.model.opt.timestep = float(0.005)
         self.model.dof_armature[6:] = [0.01] * len(self.default_joint_qpos)
@@ -370,36 +370,129 @@ class Robot:
                     viewer.sync()
                     time.sleep(max(0.0, tick))
 
+
+import numpy as np
+import mujoco as mj
+
+def _as_f64(x, n=None):
+    a = np.asarray(x, dtype=np.float64)
+    return a if n is None else a.reshape(n)
+
+def _as_mat9_f64(R3x3):
+    M = np.asarray(R3x3, dtype=np.float64)
+    return M.reshape(9) if M.shape == (3, 3) else M.astype(np.float64).reshape(9)
+
+def _as_rgba_f32(rgba):
+    a = np.asarray(rgba, dtype=np.float32)
+    return a.reshape(4)
+
+def _make_geom(user_scn, gtype, pos, size, mat=None, rgba=(1,1,1,1)) -> mj.MjvGeom:
+    # print(user_scn.geoms[0])
+    # print(user_scn.ngeom)
+    # exit()
+
+    # print(user_scn.geoms[user_scn.ngeom])
+    # exit()
+    # print(user_scn.ngeom)
+    user_scn.ngeom += 1
+    mj.mjv_initGeom(
+        user_scn.geoms[user_scn.ngeom],  # geom to initialize
+        gtype,
+        _as_f64(size, 3),        # float64 [3]
+        _as_f64(pos, 3),         # float64 [3]
+        _as_mat9_f64(mat),       # float64 [9]
+        _as_rgba_f32(rgba),      # float32 [4]
+    )
+
+
+def add_marker_sphere(user_scn, pos, size_xyz, rgba):
+    g = _make_geom(user_scn, mj.mjtGeom.mjGEOM_SPHERE, pos, size_xyz, np.eye(3).flatten(), rgba)
+    # _append_geom(user_scn, g)
+
+def _rot_from_dir(dir_vec):
+    z = np.asarray(dir_vec, dtype=np.float64)
+    z /= (np.linalg.norm(z) + 1e-9)
+    tmp = np.array([1.0, 0.0, 0.0], dtype=np.float64)
+    if abs(np.dot(tmp, z)) > 0.9:
+        tmp = np.array([0.0, 1.0, 0.0], dtype=np.float64)
+    x = np.cross(tmp, z); x /= (np.linalg.norm(x) + 1e-9)
+    y = np.cross(z, x)
+    return np.stack([x, y, z], axis=1)
+
+def add_marker_cylinder(user_scn, p0, p1, radius, rgba):
+    p0 = np.asarray(p0, dtype=np.float64); p1 = np.asarray(p1, dtype=np.float64)
+    vec  = p1 - p0
+    L    = np.linalg.norm(vec) + 1e-9
+    half = 0.5 * L
+    mid  = 0.5 * (p0 + p1)
+    R    = _rot_from_dir(vec)
+    # cylinder size = [radius, radius, half_length]
+    g = _make_geom(user_scn, mj.mjtGeom.mjGEOM_CYLINDER, mid, [radius, radius, half], R, rgba)
+
+def add_axis_arrows(user_scn, origin, R_body, scale=0.06):
+    radius = 0.003
+    half   = scale
+    def _arrow(dir_vec, rgba):
+        R = _rot_from_dir(dir_vec)
+        g = _make_geom(user_scn, mj.mjtGeom.mjGEOM_ARROW, origin, [radius, radius, half], R, rgba)
+    _arrow(R_body[:, 0] * scale, [1, 0, 0, 1])  # X
+    _arrow(R_body[:, 1] * scale, [0, 1, 0, 1])  # Y
+    _arrow(R_body[:, 2] * scale, [0, 0, 1, 1])  # Z
+
 if __name__ == "__main__":
-    XML_PATH = "/home/radon12/Documents/ga_quadruped/src/ga_quadruped/assets/param/scene.xml"
-    theta = 0.4
-    theta2 = 1.2
-    HOME_POSE = [-0.0, -theta, theta2, 0.0, theta, -theta2, 0.0, -theta, theta2, -0.0, theta, -theta2]
+    XML_PATH = "/home/radon12/Documents/ga_quadruped/src/ga_quadruped/assets/go1/scene.xml"
+    
+    HOME_POSE = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
+   
+    # theta = 0.4
+    # theta2 = 1.2
+    # HOME_POSE = [-0.0, -theta, theta2, 0.0, theta, -theta2, 0.0, -theta, theta2, -0.0, theta, -theta2]
     robot = Robot(XML_PATH, randomisation=False,
                   default_joint_pos=HOME_POSE,
-                  init_pos=[0, 0, 0.4])
-    
-    # XML_PATH = "/home/radon12/Documents/go1_temp/src/go1/assets//go1/scene.xml"
-    # robot = Robot(XML_PATH, randomisation=False,
-    #               default_joint_pos=[0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5],
-    #               init_pos=[0, 0, 0.45])
-    
-    from mujoco.viewer import launch_passive
-    
-    model = robot.model
-    body_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "trunk")
-    data = robot.data
+                  init_pos=[0, 0, 0.5])
 
-    np.set_printoptions(precision=3, suppress=True)
-    import time
-    with launch_passive(robot.model, robot.data) as viewer:
-        while True:
+    model = robot.model
+    data = robot.data
+    trunk_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "trunk")
+
+    import mujoco.viewer as mjv
+
+    # Use MuJoCo's official viewer
+    with mjv.launch_passive(model, data) as viewer:
+        # Optionally tweak UI or camera:
+        # viewer.cam.distance = 2.5
+        # viewer.cam.azimuth = 90
+        # viewer.cam.elevation = -15
+
+        while viewer.is_running():
+            # drive to your default pose if desired
             robot.set_ctrl(robot.default_joint_qpos)
-            robot.step(4)
+            mj.mj_step(model, data)
+
+            # Clear user scene each frame before adding new geoms
+            viewer.user_scn.ngeom = 0
+
+            # world poses
+            p_body = data.xpos[trunk_id].copy()           # body-frame origin (world)
+            # p_body[2] -= 0.07                          # offset above trunk for visibility2
+            p_com  = data.xipos[trunk_id].copy()          # CoM (inertial origin, world)
+            R_body = data.xmat[trunk_id].reshape(3, 3).copy()
+
+            # markers: origin (blue) and CoM (red)
+            add_marker_sphere(viewer.user_scn, p_body, [0.02, 0.02, 0.02], [0.1, 0.6, 1.0, 1.0])
+            add_marker_sphere(viewer.user_scn, p_com,  [0.025, 0.025, 0.025], [1.0, 0.3, 0.3, 1.0])
+
+            # line (thin cylinder) between them
+            add_marker_cylinder(viewer.user_scn, p_body, p_com, radius=0.004, rgba=[0.9, 0.85, 0.2, 0.8])
+
+            # local axes at the body origin
+            add_axis_arrows(viewer.user_scn, p_body, R_body, scale=0.06)
+
+            # HUD printout to console (optional)
+            print(f"trunk origin z = {p_body[2]:.3f} | CoM z = {p_com[2]:.3f} | Δz = {(p_com[2]-p_body[2]):.3f}")
+
+            # Render one frame
             viewer.sync()
-            time.sleep(0.02)
-            # print(data.xpos[body_id], data.xquat[body_id])
-            # time.sleep(1)
 
     # with launch_passive(robot.model, robot.data) as viewer:
     #     # Sweeps every hinge/slide joint, printing: joint index, qpos index, limits, and actuators.

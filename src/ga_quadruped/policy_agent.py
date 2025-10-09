@@ -64,6 +64,7 @@ class PolicyAgent:
     def compute_obs(self, qpos, qvel, contact, imu_quat, accel, gyro, gait_phase) -> np.ndarray:
 
         z_axis = self.compute_gravity_orientation(imu_quat)
+        # z_axis[:2] = -z_axis[:2]  # Only need the x,y components and invert
         # cos = np.cos(self.phase)
         # sin = np.sin(self.phase)
         z_axis[:2] = -z_axis[:2]
@@ -88,12 +89,12 @@ class PolicyAgent:
             qvel,
             self.last_act,
         ], axis=0)
-        #print(state.shape)
+        #print(state.shape) 
 
         # self.phase += self.phase_dt
         # self.phase = np.mod(self.phase + np.pi, 2 * np.pi) - np.pi  # Normalize to [-pi, pi]
 
-        return state.reshape(1, -1).astype(np.float32)
+        return state.reshape(1, -1).astype(np.float32), z_axis
         
 
     def act(self, obs: np.ndarray) -> np.ndarray:
