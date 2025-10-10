@@ -8,11 +8,11 @@
         </default>
         <default class="x8_90_thigh">
             <!-- <joint armature="0.0026" frictionloss="0.65" /> -->
-            <position kp="100" kv="1.0" forcelimited="true" forcerange="-50 50"></position>
+            <position kp="100" kv="2.0" forcelimited="true" forcerange="-50 50"></position>
         </default>
         <default class="x12_150_calf">
             <!-- <joint armature="0.0026" frictionloss="0.65" /> -->
-            <position kp="100" kv="2.0" forcelimited="true" forcerange="-50 50"></position>
+            <position kp="120" kv="2.0" forcelimited="true" forcerange="-50 50"></position>
         </default>
       <default class="visual">
         <geom material="visualgeom" contype="0" conaffinity="0" group="2" />

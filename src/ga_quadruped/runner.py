@@ -78,8 +78,8 @@ VEL_STEP = 0.1  # m/s per key press
 term = Terminal()
 time_step = 0.02
 
-# controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
-controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
+controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
+# controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
 
 
 def main():
@@ -94,6 +94,7 @@ def main():
     # home_pos = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
     theta = 0.4
     theta2 = 1.2
+    # ["FL_hip", "FL_thigh", "FL_calf", "FR_hip", "FR_thigh", "FR_calf", "RL_hip", "RL_thigh", "RL_calf", "RR_hip", "RR_thigh", "RR_calf"]
     home_pos = [-0.0, -theta, theta2, 0.0, theta, -theta2, 0.0, -theta, theta2, -0.0, theta, -theta2]
     # fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     # writer = cv2.VideoWriter(sys.path[0] + "/output.mp4", fourcc, 50, (1280,720))
@@ -102,7 +103,7 @@ def main():
         import mujoco
 
         XML_PATH = '/home/radon12/Documents/ga_quadruped/assets/param/scene.xml'
-        robot = Robot(XML_PATH, randomisation=False, default_joint_pos=home_pos, init_pos=[0, 0, 0.45]) # Go1
+        robot = Robot(XML_PATH, randomisation=False, default_joint_pos=home_pos, init_pos=[0, 0, 0.4]) # Go1
     else:
         robot = Param()
         robot.start()
@@ -116,7 +117,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_low_com.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_v2.onnx'
     
 
 
