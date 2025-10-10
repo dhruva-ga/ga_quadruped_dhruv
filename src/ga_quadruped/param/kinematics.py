@@ -16,27 +16,32 @@ class ParamLegsKinematics:
         self.manager = manager
         self.motors = []
 
-        # Front Left Leg
-        self.motors.append(Motor(1,self.manager,70,1.0,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(2,self.manager,100,1.0,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(3,self.manager,100,2.0,1.0,1.0,MotorType.X12_150,50))
+        x12_150_calf_stiffness = 120.0
+        x12_150_calf_damping = 2.0
+        x8_90_thigh_stiffness = 100.0
+        x8_90_thigh_damping = 2.0
+        x8_90_hip_stiffness = 70.0
+        x8_90_hip_damping = 1.0
 
+        # Front Left Leg
+        self.motors.append(Motor(1,self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(2,self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(3,self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,Motor.X12_150,50))
 
         # Front Right Leg
-        self.motors.append(Motor(4,self.manager,70,1.0,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(5,self.manager,100,1.0,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(6,self.manager,100,2.0,1.0,1.0,MotorType.X12_150,50))
+        self.motors.append(Motor(4,self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(5,self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(6,self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,Motor.X12_150,50))
 
         # Rear Left Leg
-        self.motors.append(Motor(7,self.manager,70,1.0,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(8,self.manager,100,1.0,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(9,self.manager,100,2.0,1.0,1.0,MotorType.X12_150,50))
-
+        self.motors.append(Motor(7,self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(8,self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(9,self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,Motor.X12_150,50))
+        
         # Rear Right Leg
-        self.motors.append(Motor(10,self.manager,70,1.0,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(11,self.manager,100,1.0,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(12,self.manager,100,2.0,1.0,1.0,MotorType.X12_150,50))
-
+        self.motors.append(Motor(10,self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(11,self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(12,self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,Motor.X12_150,50))
 
     def remap_motor_response(self, data):
         # no remap for now
