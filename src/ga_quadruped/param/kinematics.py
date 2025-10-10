@@ -16,7 +16,7 @@ class ParamLegsKinematics:
         self.manager = manager
         self.motors = []
 
-        x12_150_calf_stiffness = 120.0
+        x12_150_calf_stiffness = 100.0
         x12_150_calf_damping = 2.0
         x8_90_thigh_stiffness = 100.0
         x8_90_thigh_damping = 2.0
