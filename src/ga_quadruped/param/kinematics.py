@@ -16,12 +16,14 @@ class ParamLegsKinematics:
         self.manager = manager
         self.motors = []
 
-        x12_150_calf_stiffness = 100.0
-        x12_150_calf_damping = 2.0
-        x8_90_thigh_stiffness = 100.0
-        x8_90_thigh_damping = 1.0
         x8_90_hip_stiffness = 70.0
         x8_90_hip_damping = 1.0
+
+        x8_90_thigh_stiffness = 100.0
+        x8_90_thigh_damping = 1.0
+
+        x12_150_calf_stiffness = 100.0
+        x12_150_calf_damping = 2.0
 
         # Front Left Leg
         self.motors.append(Motor(1,self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
