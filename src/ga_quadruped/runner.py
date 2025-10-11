@@ -29,7 +29,7 @@ ACTUATOR_NAMES = [
 def actuator_torque_logger(csv_path, actuator_names, nu, flush_every=100):
     """
     Creates a CSV logger for MuJoCo actuator efforts (data.actuator_force).
-    Returns (log_fn, close_fn).
+    Returns (log_fn, close_fn). 
     - log_fn(data, step): write a row for the current step.
     - close_fn(): flush and close the CSV file.
     """
@@ -117,7 +117,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_low_com.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_v2.onnx'
     
 
 
