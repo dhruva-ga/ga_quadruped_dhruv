@@ -109,7 +109,7 @@ def main():
         robot.start()
         time.sleep(1)
         robot._sit()
-        time.sleep(2)
+        time.sleep(1)
         print("Standing Up!")
         time.sleep(1)
         robot._stand()
@@ -117,7 +117,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_v2.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_low_com.onnx'
     
 
 
@@ -194,12 +194,13 @@ def main():
                 gyro_integral += gyro * time_step * 180 / np.pi
 
 
-                if args.sim:
-                    print("current control", robot.data.ctrl)
-                else:
-                    print("current control", robot.get_ctrl())
+                # if args.sim:
+                #     print("current control", robot.data.ctrl)
+                # else:
+                #     print("current control", robot.get_ctrl())
+
                 ctrl = policy.act(obs)
-                print("setting control", ctrl)
+                # print("setting control", ctrl)
                 # robot.set_ctrl(np.array(home_pos))
                 robot.set_ctrl(ctrl)
                 print("Gyro:", gyro)

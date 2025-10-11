@@ -81,7 +81,7 @@ class PolicyAgent:
         qvel = qvel * self.dof_vel_scale
         qvel = qvel[self.joint_ids]
 
-        print("Z_axis: ",z_axis)
+        # print("Z_axis: ",z_axis)
         state = np.concatenate([
             gyro * self.ang_vel_scale,
             z_axis,
@@ -124,7 +124,7 @@ class PolicyAgent:
         # else:
         #     mjc_act = np.array([0, self.fl_test_angles[self.test_counter-1], -self.fl_test_angles[self.test_counter-1], 0, 0, 0, 0, 0, 0, 0, self.rr_test_angles[self.test_counter-1], -self.rr_test_angles[self.test_counter-1]])
         # 4) apply scale & add to default qpos
-        print("Action: ", mjc_act)
+        # print("Action: ", mjc_act)
         
         real_ctrl = self.initial_qpos + self.action_scale * mjc_act
         return real_ctrl.astype(np.float32)
