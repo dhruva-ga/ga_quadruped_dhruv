@@ -205,19 +205,19 @@ def main():
                 print("Gyro:", gyro)
                 print("Gyro Integral:", gyro_integral)
 
-                # logger.log({
-                #     "qpos": qpos,
-                #     "qvel": qvel,
-                #     "imu_quat": imu_quat,
-                #     "gyro": gyro,
-                #     # "gyro_integral": gyro_integral,
-                #     # "rpy": rpy * 180 / np.pi,
-                #     # "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
-                #     "ctrl": ctrl,
-                #     "command": command,
-                #     "gait_command": gait_command,
-                #     "gait_phase": gait_phase,
-                # })
+                logger.log({
+                    "qpos": qpos,
+                    "qvel": qvel,
+                    "imu_quat": imu_quat,
+                    "gyro": gyro,
+                    # "gyro_integral": gyro_integral,
+                    # "rpy": rpy * 180 / np.pi,
+                    # "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
+                    "ctrl": ctrl,
+                    "command": command,
+                    "gait_command": gait_command,
+                    "gait_phase": gait_phase,
+                })
 
                 # Need to manually step in sim
                 if viewer is not None:
