@@ -201,8 +201,8 @@ def main():
 
                 ctrl = policy.act(obs)
                 # print("setting control", ctrl)
-                # robot.set_ctrl(np.array(home_pos))
-                robot.set_ctrl(ctrl)
+                robot.set_ctrl(np.array(home_pos))
+                # robot.set_ctrl(ctrl)
                 print("Gyro:", gyro)
                 print("Gyro Integral:", gyro_integral)
 
@@ -249,5 +249,5 @@ def main():
 
 if __name__ == "__main__":
     from ga_can.core.ga_logging import logging_session
-    with logging_session("param") as session:
+    with logging_session("param_stand") as session:
         main()
