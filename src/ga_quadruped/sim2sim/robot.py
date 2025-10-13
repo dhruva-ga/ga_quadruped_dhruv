@@ -240,6 +240,11 @@ class Robot:
         p = self.data.qpos[7:].copy()
         p += np.random.normal(0.0, self.random_extent["position"], size=p.shape)  # Add noise
         # p = p[self.joint_ids]
+        trunk_id = mj.mj_name2id(self.model, mj.mjtObj.mjOBJ_BODY, "trunk")
+        p_body = self.data.xpos[trunk_id] 
+        p_com = self.data.xipos[trunk_id]
+        print(f"trunk origin z = {p_body[2]:.3f} | CoM z = {p_com[2]:.3f} | Δz = {(p_com[2]-p_body[2]):.3f}")
+
         return p
     
     def get_velocity(self) -> np.ndarray:
