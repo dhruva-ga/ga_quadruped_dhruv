@@ -8,8 +8,8 @@ class KinematicsData:
     velocity: np.ndarray
     torque: np.ndarray
     motor_times: np.ndarray  # Added to store motor times
-    # motor_current: np.ndarray
-    # motor_temp: np.ndarray
+    motor_current: np.ndarray
+    motor_temp: np.ndarray
 
 class ParamLegsKinematics:
     def __init__(self,manager):
