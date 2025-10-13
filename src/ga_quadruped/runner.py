@@ -117,7 +117,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_try.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_debug.onnx'
     
 
 
@@ -201,8 +201,8 @@ def main():
 
                 ctrl = policy.act(obs)
                 # print("setting control", ctrl)
-                robot.set_ctrl(np.array(home_pos))
-                # robot.set_ctrl(ctrl)
+                # robot.set_ctrl(np.array(home_pos))
+                robot.set_ctrl(ctrl)
                 print("Gyro:", gyro)
                 print("Gyro Integral:", gyro_integral)
 
