@@ -26,24 +26,24 @@ class ParamLegsKinematics:
         x12_150_calf_damping = 2.0
 
         # Front Left Leg
-        self.motors.append(Motor(1,self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(2,self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(3,self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,MotorType.X12_150,50))
+        self.motors.append(Motor(1,"FL_hip", self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(2,"FL_thigh", self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(3,"FL_calf", self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,MotorType.X12_150,50))
 
         # Front Right Leg
-        self.motors.append(Motor(4,self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(5,self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(6,self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,MotorType.X12_150,50))
+        self.motors.append(Motor(4,"FR_hip", self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(5,"FR_thigh", self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(6,"FR_calf", self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,MotorType.X12_150,50))
 
         # Rear Left Leg
-        self.motors.append(Motor(7,self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(8,self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(9,self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,MotorType.X12_150,50))
+        self.motors.append(Motor(7,"RL_hip", self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(8,"RL_thigh", self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(9,"RL_calf", self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,MotorType.X12_150,50))
         
         # Rear Right Leg
-        self.motors.append(Motor(10,self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(11,self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
-        self.motors.append(Motor(12,self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,MotorType.X12_150,50))
+        self.motors.append(Motor(10,"RR_hip", self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(11,"RR_thigh", self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
+        self.motors.append(Motor(12,"RR_calf", self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,MotorType.X12_150,50))
 
     def remap_motor_response(self, data):
         # no remap for now
@@ -84,8 +84,8 @@ class ParamLegsKinematics:
                     output_velocity[i] = self.motors[i]._st.velocity
                     output_torque[i] = self.motors[i]._st.torque
                     motor_times[i] = self.motors[i]._st.last_update_ns
-                    # motor_current[i] = self.motors[i]._st.current
-                    # motor_temp[i] = self.motors[i]._st.temperature
+                    motor_current[i] = self.motors[i]._st.current
+                    motor_temp[i] = self.motors[i]._st.temperature
             except TypeError as e:
                 print("Error in getting value")
         return KinematicsData(
@@ -93,8 +93,8 @@ class ParamLegsKinematics:
             velocity=output_velocity,
             torque=output_torque,
             motor_times=motor_times,
-            # motor_current=motor_current,
-            # motor_temp=motor_temp
+            motor_current=motor_current,
+            motor_temp=motor_temp
         )
 
 
