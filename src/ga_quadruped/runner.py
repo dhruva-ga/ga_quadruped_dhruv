@@ -1,6 +1,7 @@
 from tqdm import tqdm
 # from ga_quadruped.go1.go_one import GoOne
 from ga_quadruped.controller.accelerate_controller import AccelerateController
+from ga_quadruped.controller.sbus_controller import SbusVelocityController
 from ga_quadruped.controller.velocity_controller import VelocityController
 from ga_quadruped.param.param import Param
 from ga_quadruped.plot.publisher import SimpleZmqPublisher
@@ -81,8 +82,15 @@ VEL_STEP = 0.1  # m/s per key press
 term = Terminal()
 time_step = 0.02
 
-controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
+# controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
 # controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
+ctrl = SbusVelocityController(
+    vmax_lin=1.0,   # m/s
+    vmax_ang=1.0,   # rad/s
+    deadzone=0.05,
+    invert_left_vertical=False,
+    invert_right_vertical=False,
+)
 
 
 def main():
