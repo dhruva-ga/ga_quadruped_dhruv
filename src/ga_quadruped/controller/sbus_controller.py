@@ -8,9 +8,9 @@ class SbusVelocityController:
     ZMQ/SBUS-driven velocity controller (event-in, no polling from keyboard).
 
     Channel mapping (1-indexed in YAML, 0-indexed in payload):
-      ch2 (r_fwd_back)  -> w
-      ch3 (l_fwd_back)  -> vx
-      ch4 (l_left_right)-> vy
+      ch1 (r_left_right)  -> w   (angular)
+      ch3 (l_fwd_back)    -> vx  (forward/back)
+      ch4 (l_left_right)  -> vy  (left/right)
     """
 
     def __init__(
@@ -22,13 +22,19 @@ class SbusVelocityController:
         deadzone=0.03,
         invert_left_vertical=True,
         invert_right_vertical=True,
+        invert_left_left_right=False,   # invert left stick's horizontal axis (vy)
+        invert_right_left_right=False,  # NEW: invert right stick's horizontal axis (w)
         conflate=True,
     ):
         self.vmax_lin = float(vmax_lin)
         self.vmax_ang = float(vmax_ang)
         self.deadzone = float(deadzone)
+
+        # Axis inversion options
         self.invert_left_vertical = bool(invert_left_vertical)
-        self.invert_right_vertical = bool(invert_right_vertical)
+        self.invert_right_vertical = bool(invert_right_vertical)  # kept for future use
+        self.invert_left_left_right = bool(invert_left_left_right)
+        self.invert_right_left_right = bool(invert_right_left_right)  # NEW
 
         # state
         self.vx = 0.0
@@ -50,26 +56,30 @@ class SbusVelocityController:
         vals = struct.unpack(FMT, payload)  # tuple of 13 floats
 
         # extract channels (0-based indices for ch1..ch13)
-        r_left_right  = vals[0]  # ch1 (unused)
-        r_fwd_back    = vals[1]  # ch2 -> w
+        r_left_right  = vals[0]  # ch1 -> w
+        r_fwd_back    = vals[1]  # ch2 (unused now)
         l_fwd_back    = vals[2]  # ch3 -> vx
         l_left_right  = vals[3]  # ch4 -> vy
 
-        # optional axis inversion (common that "forward" = negative)
+        # optional axis inversion
         if self.invert_left_vertical:
             l_fwd_back = -l_fwd_back
         if self.invert_right_vertical:
-            r_fwd_back = -r_fwd_back
+            r_fwd_back = -r_fwd_back  # kept in case ch2 used later
+        if self.invert_left_left_right:
+            l_left_right = -l_left_right
+        if self.invert_right_left_right:      # NEW: invert right horizontal (affects w)
+            r_left_right = -r_left_right
 
         # deadzone
         if abs(l_fwd_back)   < self.deadzone: l_fwd_back = 0.0
         if abs(l_left_right) < self.deadzone: l_left_right = 0.0
-        if abs(r_fwd_back)   < self.deadzone: r_fwd_back = 0.0
+        if abs(r_left_right) < self.deadzone: r_left_right = 0.0
 
         # scale to commanded velocities
         self.vx = float(l_fwd_back)   * self.vmax_lin
         self.vy = float(l_left_right) * self.vmax_lin
-        self.w  = float(r_fwd_back)   * self.vmax_ang
+        self.w  = float(r_left_right) * self.vmax_ang  # angular from ch1
         self._last_msg_time = time.time()
 
     def step(self, timeout_ms=0):
@@ -77,41 +87,22 @@ class SbusVelocityController:
         Pump at most one incoming SBUS message (non-blocking by default),
         update (vx, vy, w), and return them.
         """
-        # print("step")
-        # optional timeout wait
-        # if timeout_ms and self._sub.poll(timeout_ms) == 0:
-        #     print("bwi")
-        #     # no data within timeout
-        #     if self.stale_after_s and (time.time() - self._last_msg_time) > self.stale_after_s:
-        #         self.reset()
-        #     return self.vx, self.vy, self.w
-
-        # try to read whatever is there; with CONFLATE there’s at most one
         while True:
-            # print("loop")
             try:
                 frames = self._sub.recv_multipart(flags=zmq.DONTWAIT)
-                # print("frames", frames)
             except zmq.Again:
-                # print("hwejhwejh")
                 break
 
             # Accept [topic, payload] or [topic, header, payload]
             if len(frames) == 2:
                 _, payload = frames
             elif len(frames) >= 3:
-                # take the last frame as payload; middle frames treated as headers/metadata
                 payload = frames[-1]
             else:
                 payload = b""
 
             self._apply_payload(payload)
 
-            # If you’re NOT using CONFLATE and want to ensure "latest now", keep looping.
-            # With CONFLATE, there’s at most one message queued, so we’ll break on Again.
-
-        # if self.stale_after_s and (time.time() - self._last_msg_time) > self.stale_after_s:
-        #     self.reset()
         return self.vx, self.vy, self.w
 
     def get(self):
@@ -131,6 +122,8 @@ if __name__ == "__main__":
         deadzone=0.05,
         invert_left_vertical=False,
         invert_right_vertical=False,
+        invert_left_left_right=True,
+        invert_right_left_right=True,  # set True if right horizontal feels flipped
     )
 
     while True:

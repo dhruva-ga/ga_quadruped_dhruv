@@ -80,15 +80,19 @@ VEL_STEP = 0.1  # m/s per key press
 term = Terminal()
 time_step = 0.02
 
-# controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
+pub = SimpleZmqPublisher()
+controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
 # controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
-controller = SbusVelocityController(
-    vmax_lin=0.5,   # m/s
-    vmax_ang=0.5,   # rad/s
-    deadzone=0.05,
-    invert_left_vertical=False,
-    invert_right_vertical=False,
-)
+# controller = SbusVelocityController(
+#         vmax_lin=1.0,   # m/s
+#         vmax_ang=1.0,   # rad/s
+#         deadzone=0.05,
+#         invert_left_vertical=False,
+#         invert_right_vertical=False,
+#         invert_left_left_right=True,
+#         invert_right_left_right=True,  # set True if right horizontal feels flipped
+#     )
+
 
 def main():
     import argparse
@@ -125,7 +129,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_low_com.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_action.onnx'
     
 
 
@@ -166,8 +170,8 @@ def main():
                     break
 
                 t1 = time.time()
-                vx, vy, w = controller.step(timeout_ms=1)
-                # vx, vy, w = controller.step(key=key)
+                # vx, vy, w = controller.step(timeout_ms=1)
+                vx, vy, w = controller.step(key=key)
                 print("command", vx, vy, w)
 
                 command = np.array([vx, vy, w], dtype=np.float32)
@@ -193,6 +197,12 @@ def main():
                     qvel = kinematics_data.velocity
                     imu_quat = imu_data.quat
                     gyro = imu_data.gyro
+
+                    motor_toque = kinematics_data.torque
+                    motor_temp = kinematics_data.motor_temp
+
+                    print("Motor Torque:", motor_toque)
+                    print("Motor Temp:", motor_temp)
                     # rpy = imu_data.rpy
 
 
@@ -202,24 +212,18 @@ def main():
 
                 gyro_integral += gyro * time_step * 180 / np.pi
 
-                plot_data = {
-
+                plot_data = {}
+                plot_data ={
+                    **plot_data,
+                    "GYRO_X": float(gyro[0]),
+                    "GYRO_Y": float(gyro[1]),
+                    "GYRO_Z": float(gyro[2]),
+                    "GYRO_INT_X": float(gyro_integral[0]),
+                    "GYRO_INT_Y": float(gyro_integral[1]),
+                    "GYRO_INT_Z": float(gyro_integral[2])
                 }
 
-
-                # plot_data ={
-                #     **plot_data,
-                #     **{
-                #         "GYRO_X": float(gyro[0]),
-                #         "GYRO_Y": float(gyro[1]),
-                #         "GYRO_Z": float(gyro[2]),
-                #         "GYRO_INT_X": float(gyro_integral[0]),
-                #         "GYRO_INT_Y": float(gyro_integral[1]),
-                #         "GYRO_INT_Z": float(gyro_integral[2])
-                #     }
-                # }
-                
-
+                pub.send(plot_data)
 
                 # if args.sim:
                 #     print("current control", robot.data.ctrl)
