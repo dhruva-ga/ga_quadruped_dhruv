@@ -82,6 +82,7 @@ class SbusVelocityController:
         Pump at most one incoming SBUS message (non-blocking by default),
         update (vx, vy, w), and return them.
         """
+        print("step called")
         # optional timeout wait
         if timeout_ms and self._sub.poll(timeout_ms) == 0:
             # no data within timeout
@@ -93,6 +94,7 @@ class SbusVelocityController:
         while True:
             try:
                 frames = self._sub.recv_multipart(flags=zmq.DONTWAIT)
+                print("frames", frames)
             except zmq.Again:
                 break
 
@@ -105,6 +107,7 @@ class SbusVelocityController:
             else:
                 payload = b""
 
+            print("payload", payload)
             self._apply_payload(payload)
 
             # If you’re NOT using CONFLATE and want to ensure "latest now", keep looping.
@@ -112,6 +115,7 @@ class SbusVelocityController:
 
         if self.stale_after_s and (time.time() - self._last_msg_time) > self.stale_after_s:
             self.reset()
+
         return self.vx, self.vy, self.w
 
     def get(self):
@@ -135,6 +139,6 @@ if __name__ == "__main__":
     )
 
     while True:
-        vx, vy, w = ctrl.step(timeout_ms=2)  # non-blocking-ish
+        vx, vy, w = ctrl.step(timeout_ms=1)  # non-blocking-ish
         print(vx, vy, w)
         time.sleep(0.02)
