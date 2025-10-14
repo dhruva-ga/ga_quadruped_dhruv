@@ -166,7 +166,7 @@ def main():
                     break
 
                 t1 = time.time()
-                vx, vy, w = controller.step()
+                vx, vy, w = controller.step(timeout_ms=1)
                 # vx, vy, w = controller.step(key=key)
                 print("command", vx, vy, w)
 
@@ -228,8 +228,8 @@ def main():
 
                 ctrl = policy.act(obs)
                 # print("setting control", ctrl)
-                # robot.set_ctrl(np.array(home_pos))
-                robot.set_ctrl(ctrl)
+                robot.set_ctrl(np.array(home_pos))
+                # robot.set_ctrl(ctrl)
                 # print("Gyro:", gyro)
                 # print("Gyro Integral:", gyro_integral)
 
