@@ -113,18 +113,17 @@ def main():
         XML_PATH = '/home/radon12/Documents/ga_quadruped/assets/param/scene.xml'
         robot = Robot(XML_PATH, randomisation=False, default_joint_pos=home_pos, init_pos=[0, 0, 0.4]) # Go1
     else:
-        # robot = Param()
-        # robot.start()
-        # time.sleep(1)
-        # robot._sit()
-        # time.sleep(1)
-        # print("Standing Up!")
-        # time.sleep(1)
-        # robot._stand()
+        robot = Param()
+        robot.start()
+        time.sleep(1)
+        robot._sit()
+        time.sleep(1)
+        print("Standing Up!")
+        time.sleep(1)
+        robot._stand()
 
-        # for _ in tqdm(range(5), desc="Preparing", unit="s"):
-        #     time.sleep(1)
-        pass
+        for _ in tqdm(range(5), desc="Preparing", unit="s"):
+            time.sleep(1)
         
     ONNX_PATH = sys.path[0] + '/policy/param_low_com.onnx'
     
@@ -170,8 +169,6 @@ def main():
                 vx, vy, w = controller.step()
                 # vx, vy, w = controller.step(key=key)
                 print("command", vx, vy, w)
-
-                continue
 
                 command = np.array([vx, vy, w], dtype=np.float32)
                 gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
