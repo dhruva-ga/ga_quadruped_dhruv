@@ -46,7 +46,7 @@ class ParamLegsKinematics:
         self.motors.append(Motor(11,"RR_thigh", self.manager,x8_90_thigh_stiffness,x8_90_thigh_damping,1.0,1.0,MotorType.X8_90,50))
         self.motors.append(Motor(12,"RR_calf", self.manager,x12_150_calf_stiffness,x12_150_calf_damping,1.0,1.0,MotorType.X12_150,50))
         
-        self.motor_name = [motor.name for motor in self.motors]
+        self.motor_name = [motor.motor_name for motor in self.motors]
 
     def remap_motor_response(self, data):
         # no remap for now
