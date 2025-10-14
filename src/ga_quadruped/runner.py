@@ -228,8 +228,8 @@ def main():
 
                 ctrl = policy.act(obs)
                 # print("setting control", ctrl)
-                robot.set_ctrl(np.array(home_pos))
-                # robot.set_ctrl(ctrl)
+                # robot.set_ctrl(np.array(home_pos))
+                robot.set_ctrl(ctrl)
                 # print("Gyro:", gyro)
                 # print("Gyro Integral:", gyro_integral)
 
