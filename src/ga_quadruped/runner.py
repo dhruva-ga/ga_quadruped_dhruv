@@ -76,8 +76,6 @@ def limit_effort(effort, effort_limit):
     return np.clip(effort, -effort_limit, effort_limit)
 
 
-pub = SimpleZmqPublisher()
-
 VEL_STEP = 0.1  # m/s per key press
 term = Terminal()
 time_step = 0.02
@@ -92,6 +90,10 @@ controller = SbusVelocityController(
     invert_right_vertical=False,
 )
 
+# in your control loop:
+while True:
+    vx, vy, w = controller.step(timeout_ms=0)  # non-blocking
+    print(vx, vy, w)
 
 def main():
     import argparse
