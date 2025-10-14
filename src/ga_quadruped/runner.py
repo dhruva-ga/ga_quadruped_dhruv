@@ -84,7 +84,7 @@ time_step = 0.02
 
 # controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
 # controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
-ctrl = SbusVelocityController(
+controller = SbusVelocityController(
     vmax_lin=1.0,   # m/s
     vmax_ang=1.0,   # rad/s
     deadzone=0.05,

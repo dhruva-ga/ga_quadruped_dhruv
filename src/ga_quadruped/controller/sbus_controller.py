@@ -102,15 +102,17 @@ class SbusVelocityController:
         return f"SbusVelocityController(vx={self.vx:.3f}, vy={self.vy:.3f}, w={self.w:.3f})"
 
 
-ctrl = SbusVelocityController(
-    vmax_lin=1.0,   # m/s
-    vmax_ang=1.0,   # rad/s
-    deadzone=0.05,
-    invert_left_vertical=False,
-    invert_right_vertical=False,
-)
+if __name__ == "__main__":
+    # simple test/demo
+    ctrl = SbusVelocityController(
+        vmax_lin=1.0,   # m/s
+        vmax_ang=1.0,   # rad/s
+        deadzone=0.05,
+        invert_left_vertical=False,
+        invert_right_vertical=False,
+    )
 
-# in your control loop:
-while True:
-    vx, vy, w = ctrl.step(timeout_ms=0)  # non-blocking
-    print(vx, vy, w)
+    # in your control loop:
+    while True:
+        vx, vy, w = ctrl.step(timeout_ms=0)  # non-blocking
+        print(vx, vy, w)
