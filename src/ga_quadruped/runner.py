@@ -3,6 +3,7 @@ from tqdm import tqdm
 from ga_quadruped.controller.accelerate_controller import AccelerateController
 from ga_quadruped.controller.velocity_controller import VelocityController
 from ga_quadruped.param.param import Param
+from ga_quadruped.plot.publisher import SimpleZmqPublisher
 from ga_quadruped.policy_agent import PolicyAgent
 from ga_quadruped.sim2sim.robot import Robot
 from ga_can.core.ga_logging import get_logger
@@ -74,6 +75,8 @@ def limit_effort(effort, effort_limit):
     return np.clip(effort, -effort_limit, effort_limit)
 
 
+pub = SimpleZmqPublisher()
+
 VEL_STEP = 0.1  # m/s per key press
 term = Terminal()
 time_step = 0.02
@@ -117,7 +120,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_debug.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_action.onnx'
     
 
 
@@ -192,6 +195,24 @@ def main():
                 obs_arr.append(obs)
 
                 gyro_integral += gyro * time_step * 180 / np.pi
+
+                plot_data = {
+
+                }
+
+
+                # plot_data ={
+                #     **plot_data,
+                #     **{
+                #         "GYRO_X": float(gyro[0]),
+                #         "GYRO_Y": float(gyro[1]),
+                #         "GYRO_Z": float(gyro[2]),
+                #         "GYRO_INT_X": float(gyro_integral[0]),
+                #         "GYRO_INT_Y": float(gyro_integral[1]),
+                #         "GYRO_INT_Z": float(gyro_integral[2])
+                #     }
+                # }
+                
 
 
                 # if args.sim:
