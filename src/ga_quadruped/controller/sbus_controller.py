@@ -37,6 +37,7 @@ class SbusVelocityController:
         # ZMQ sub socket
         self._ctx = zmq.Context.instance()
         self._sub = self._ctx.socket(zmq.SUB)
+        self._sub.setsockopt(zmq.CONFLATE, 1)  # ms
         self._sub.connect(endpoint)
         self._sub.setsockopt(zmq.SUBSCRIBE, topic)
 
@@ -112,7 +113,10 @@ if __name__ == "__main__":
         invert_right_vertical=False,
     )
 
+    import time
+
     # in your control loop:
     while True:
-        vx, vy, w = ctrl.step(timeout_ms=0)  # non-blocking
+        vx, vy, w = ctrl.step(timeout_ms=2)  # non-blocking
         print(vx, vy, w)
+        time.sleep(0.02)
