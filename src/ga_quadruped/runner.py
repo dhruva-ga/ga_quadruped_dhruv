@@ -188,6 +188,8 @@ def main():
                     imu_quat = robot.get_imu_quat()
                     gyro = robot.get_gyro().copy()
 
+                    rpy = R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi
+
                     # gyro = gyro  + np.random.uniform(-0.3, 0.3, size=3)  # add noise
                 else:
                     kinematics_data = robot.get_kinematics_data()
@@ -200,10 +202,11 @@ def main():
 
                     motor_toque = kinematics_data.torque
                     motor_temp = kinematics_data.motor_temp
+                    motor_name = kinematics_data.motor_name
 
                     print("Motor Torque:", motor_toque)
                     print("Motor Temp:", motor_temp)
-                    # rpy = imu_data.rpy
+                    rpy = imu_data.rpy
 
 
                 obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
@@ -212,15 +215,29 @@ def main():
 
                 gyro_integral += gyro * time_step * 180 / np.pi
 
+                if args.sim:
+                    motor_torques = {}
+                    motor_temps = {}
+                else:
+                    motor_torques = {
+                        "motor_torque_" + motor_name[i]: float(motor_toque[i]) for i in range(len(motor_name))
+                    }
+                    motor_temps = {
+                        "motor_temp_" + motor_name[i]: float(motor_temp[i]) for i in range(len(motor_name))
+                    }
+
+
                 plot_data = {}
                 plot_data ={
                     **plot_data,
+                    **motor_torques,
+                    **motor_temps,
                     "GYRO_X": float(gyro[0]),
                     "GYRO_Y": float(gyro[1]),
                     "GYRO_Z": float(gyro[2]),
-                    "GYRO_INT_X": float(gyro_integral[0]),
-                    "GYRO_INT_Y": float(gyro_integral[1]),
-                    "GYRO_INT_Z": float(gyro_integral[2])
+                    "Roll": float(rpy[0]),
+                    "Pitch": float(rpy[1]),
+                    "Yaw": float(rpy[2]),
                 }
 
                 pub.send(plot_data)
