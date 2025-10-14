@@ -200,7 +200,7 @@ def main():
 
 
                 obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
-                print("Obs:", obs)
+                # print("Obs:", obs)
                 obs_arr.append(obs)
 
                 gyro_integral += gyro * time_step * 180 / np.pi
@@ -233,8 +233,8 @@ def main():
                 # print("setting control", ctrl)
                 # robot.set_ctrl(np.array(home_pos))
                 robot.set_ctrl(ctrl)
-                print("Gyro:", gyro)
-                print("Gyro Integral:", gyro_integral)
+                # print("Gyro:", gyro)
+                # print("Gyro Integral:", gyro_integral)
 
                 logger.log({
                     "qpos": qpos,
