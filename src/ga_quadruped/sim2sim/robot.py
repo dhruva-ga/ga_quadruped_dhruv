@@ -460,8 +460,8 @@ if __name__ == "__main__":
     
 
     theta0 = 0.0
-    theta1 = 0.45
-    theta2 = 1.4
+    theta1 = 0.4
+    theta2 = 1.2
     HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     robot = Robot(XML_PATH, randomisation=False,
                   default_joint_pos=HOME_POSE,

@@ -106,10 +106,10 @@ def main():
     # home_pos = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
     # ["FL_hip", "FL_thigh", "FL_calf", "FR_hip", "FR_thigh", "FR_calf", "RL_hip", "RL_thigh", "RL_calf", "RR_hip", "RR_thigh", "RR_calf"]
     theta0 = 0.0
-    theta1 = 0.45
-    # theta1 = 0.4
-    # theta2 = 1.2
-    theta2 = 1.4
+    # theta1 = 0.45
+    theta1 = 0.4
+    theta2 = 1.2
+    # theta2 = 1.4
     HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     # fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     # writer = cv2.VideoWriter(sys.path[0] + "/output.mp4", fourcc, 50, (1280,720))
