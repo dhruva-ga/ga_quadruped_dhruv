@@ -104,10 +104,13 @@ def main():
     logger = get_logger("runner")
                         
     # home_pos = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
-    theta = 0.4
-    theta2 = 1.2
     # ["FL_hip", "FL_thigh", "FL_calf", "FR_hip", "FR_thigh", "FR_calf", "RL_hip", "RL_thigh", "RL_calf", "RR_hip", "RR_thigh", "RR_calf"]
-    home_pos = [-0.0, -theta, theta2, 0.0, theta, -theta2, 0.0, -theta, theta2, -0.0, theta, -theta2]
+    theta0 = 0.0
+    # theta1 = 0.45
+    theta1 = 0.4
+    theta2 = 1.2
+    # theta2 = 1.4
+    HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     # fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     # writer = cv2.VideoWriter(sys.path[0] + "/output.mp4", fourcc, 50, (1280,720))
     # CAMERA_NAME = "render_cam"  # Name of the camera in the XML file
@@ -115,7 +118,7 @@ def main():
         import mujoco
 
         XML_PATH = '/home/radon12/Documents/ga_quadruped/assets/param/scene.xml'
-        robot = Robot(XML_PATH, randomisation=False, default_joint_pos=home_pos, init_pos=[0, 0, 0.4]) # Go1
+        robot = Robot(XML_PATH, randomisation=False, default_joint_pos=HOME_POSE, init_pos=[0, 0, 0.4]) # Go1
     else:
         robot = Param()
         robot.start()
@@ -129,7 +132,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_action.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_low_com.onnx'
     
 
 
@@ -147,7 +150,7 @@ def main():
     # ctx.make_current()
 
     # renderer = mujoco.Renderer(robot.model,height=480, width=640)
-    policy = PolicyAgent(ONNX_PATH, initial_qpos=home_pos)
+    policy = PolicyAgent(ONNX_PATH, initial_qpos=HOME_POSE)
 
     obs_arr = []
 
@@ -252,8 +255,8 @@ def main():
 
                 ctrl = policy.act(obs)
                 # print("setting control", ctrl)
-                robot.set_ctrl(np.array(home_pos))
-                # robot.set_ctrl(ctrl)
+                # robot.set_ctrl(np.array(home_pos))
+                robot.set_ctrl(ctrl)
                 # print("Gyro:", gyro)
                 # print("Gyro Integral:", gyro_integral)
 

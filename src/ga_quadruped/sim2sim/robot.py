@@ -457,10 +457,12 @@ if __name__ == "__main__":
     XML_PATH = "/home/radon12/Documents/ga_quadruped/assets/param/scene.xml"
     
     # HOME_POSE = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
-   
-    theta = 0.4
-    theta2 = 1.2
-    HOME_POSE = [-0.0, -theta, theta2, 0.0, theta, -theta2, 0.0, -theta, theta2, -0.0, theta, -theta2]
+    
+
+    theta0 = 0.0
+    theta1 = 0.45
+    theta2 = 1.4
+    HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     robot = Robot(XML_PATH, randomisation=False,
                   default_joint_pos=HOME_POSE,
                   init_pos=[0, 0, 0.5])
@@ -471,6 +473,7 @@ if __name__ == "__main__":
 
     import mujoco.viewer as mjv
 
+    np.set_printoptions(precision=3, suppress=True)
     # Use MuJoCo's official viewer
     with mjv.launch_passive(model, data) as viewer:
         # Optionally tweak UI or camera:
@@ -488,24 +491,24 @@ if __name__ == "__main__":
             # Clear user scene each frame before adding new geoms
             # viewer.user_scn.ngeom = 0
 
-            # # world poses
-            # p_body = data.xpos[trunk_id].copy()           # body-frame origin (world)
-            # # p_body[2] -= 0.07                          # offset above trunk for visibility2
-            # p_com  = data.xipos[trunk_id].copy()          # CoM (inertial origin, world)
-            # R_body = data.xmat[trunk_id].reshape(3, 3).copy()
+            # world poses
+            p_body = data.xpos[trunk_id].copy()           # body-frame origin (world)
+            # p_body[2] -= 0.07                          # offset above trunk for visibility2
+            p_com  = data.xipos[trunk_id].copy()          # CoM (inertial origin, world)
+            R_body = data.xmat[trunk_id].reshape(3, 3).copy()
 
-            # # markers: origin (blue) and CoM (red)
-            # add_marker_sphere(viewer.user_scn, p_body, [0.02, 0.02, 0.02], [0.1, 0.6, 1.0, 1.0])
-            # add_marker_sphere(viewer.user_scn, p_com,  [0.025, 0.025, 0.025], [1.0, 0.3, 0.3, 1.0])
+            # markers: origin (blue) and CoM (red)
+            add_marker_sphere(viewer.user_scn, p_body, [0.02, 0.02, 0.02], [0.1, 0.6, 1.0, 1.0])
+            add_marker_sphere(viewer.user_scn, p_com,  [0.025, 0.025, 0.025], [1.0, 0.3, 0.3, 1.0])
 
-            # # line (thin cylinder) between them
-            # add_marker_cylinder(viewer.user_scn, p_body, p_com, radius=0.004, rgba=[0.9, 0.85, 0.2, 0.8])
+            # line (thin cylinder) between them
+            add_marker_cylinder(viewer.user_scn, p_body, p_com, radius=0.004, rgba=[0.9, 0.85, 0.2, 0.8])
 
-            # # local axes at the body origin
-            # add_axis_arrows(viewer.user_scn, p_body, R_body, scale=0.06)
+            # local axes at the body origin
+            add_axis_arrows(viewer.user_scn, p_body, R_body, scale=0.06)
 
-            # # HUD printout to console (optional)
-            # print(f"trunk origin z = {p_body[2]:.3f} | CoM z = {p_com[2]:.3f} | Δz = {(p_com[2]-p_body[2]):.3f}")
+            # HUD printout to console (optional)
+            print(f"trunk origin z = {p_body[2]:.3f} | CoM z = {p_com[2]:.3f} | Δz = {(p_com[2]-p_body[2]):.3f}")
 
             # Render one frame
             viewer.sync()
