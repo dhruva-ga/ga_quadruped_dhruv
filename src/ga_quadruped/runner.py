@@ -232,6 +232,9 @@ def main():
                     **plot_data,
                     **motor_torques,
                     **motor_temps,
+                    "Z_0": z_axis[0],
+                    "Z_1": z_axis[1],
+                    "Z_2": z_axis[2],
                     "GYRO_X": float(gyro[0]),
                     "GYRO_Y": float(gyro[1]),
                     "GYRO_Z": float(gyro[2]),
@@ -249,8 +252,8 @@ def main():
 
                 ctrl = policy.act(obs)
                 # print("setting control", ctrl)
-                # robot.set_ctrl(np.array(home_pos))
-                robot.set_ctrl(ctrl)
+                robot.set_ctrl(np.array(home_pos))
+                # robot.set_ctrl(ctrl)
                 # print("Gyro:", gyro)
                 # print("Gyro Integral:", gyro_integral)
 
