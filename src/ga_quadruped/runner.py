@@ -216,7 +216,7 @@ def main():
                 gyro_integral += gyro * time_step * 180 / np.pi
 
                 if args.sim:
-                    motor_torques = {}
+                    motor_torques = robot.get_motor_torques()
                     motor_temps = {}
                 else:
                     motor_torques = {
