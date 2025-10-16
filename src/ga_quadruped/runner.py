@@ -109,8 +109,9 @@ def main():
     # theta1 = 0.45
     theta1 = 0.4
     theta2 = 1.2
+    theta3 = 0.28
     # theta2 = 1.4
-    HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
+    HOME_POSE = [theta0, -theta3, theta2, -theta0, theta3, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     # fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     # writer = cv2.VideoWriter(sys.path[0] + "/output.mp4", fourcc, 50, (1280,720))
     # CAMERA_NAME = "render_cam"  # Name of the camera in the XML file
