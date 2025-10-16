@@ -48,7 +48,7 @@ class Param:
         theta4 = 1.24
         theta1 = 0.41
         theta2 = 1.21
-        HOME_POSE = [theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2]
+        HOME_POSE = np.array([theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2])
         self._stand_gait = HOME_POSE.copy()
         self._sit_gait = np.zeros(12)
 
