@@ -81,17 +81,17 @@ term = Terminal()
 time_step = 0.02
 
 pub = SimpleZmqPublisher()
-controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
+# controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
 # controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
-# controller = SbusVelocityController(
-#         vmax_lin=1.0,   # m/s
-#         vmax_ang=1.0,   # rad/s
-#         deadzone=0.05,
-#         invert_left_vertical=False,
-#         invert_right_vertical=False,
-#         invert_left_left_right=True,
-#         invert_right_left_right=True,  # set True if right horizontal feels flipped
-#     )
+controller = SbusVelocityController(
+        vmax_lin=0.8,   # m/s
+        vmax_ang=0.5,   # rad/s
+        deadzone=0.05,
+        invert_left_vertical=False,
+        invert_right_vertical=False,
+        invert_left_left_right=True,
+        invert_right_left_right=True,  # set True if right horizontal feels flipped
+    )
 
 
 def main():
@@ -132,7 +132,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_action.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_low_com.onnx'
     
 
 
@@ -173,8 +173,8 @@ def main():
                     break
 
                 t1 = time.time()
-                # vx, vy, w = controller.step(timeout_ms=1)
-                vx, vy, w = controller.step(key=key)
+                vx, vy, w = controller.step(timeout_ms=1)
+                # vx, vy, w = controller.step(key=key)
                 print("command", vx, vy, w)
 
                 command = np.array([vx, vy, w], dtype=np.float32)
