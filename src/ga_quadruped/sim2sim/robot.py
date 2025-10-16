@@ -457,22 +457,25 @@ if __name__ == "__main__":
     XML_PATH = "/home/radon12/Documents/ga_quadruped/assets/param/scene.xml"
     
     # HOME_POSE = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
-    
-
     theta0 = 0.0
-    theta1 = 0.4
-    theta2 = 1.2
-    theta3 = -0.28
-    HOME_POSE = [theta0, -theta3, theta2, -theta0, theta3, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
+    # FRONT legs thigh
+    theta3 = 0.32
+    # FRONT legs calf
+    theta4 = 1.24
+    theta1 = 0.41
+    theta2 = 1.21
+    HOME_POSE = [theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     robot = Robot(XML_PATH, randomisation=False,
                   default_joint_pos=HOME_POSE,
-                  init_pos=[0, 0, 0.5])
+                  init_pos=[0, 0, 0.43])
 
     model = robot.model
     data = robot.data
     trunk_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "trunk")
 
     import mujoco.viewer as mjv
+
+    import time
 
     np.set_printoptions(precision=3, suppress=True)
     # Use MuJoCo's official viewer
@@ -513,6 +516,7 @@ if __name__ == "__main__":
 
             # Render one frame
             viewer.sync()
+            # time.sleep(0.1)
 
     # with launch_passive(robot.model, robot.data) as viewer:
     #     # Sweeps every hinge/slide joint, printing: joint index, qpos index, limits, and actuators.
