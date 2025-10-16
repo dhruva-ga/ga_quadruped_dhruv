@@ -454,15 +454,16 @@ def add_axis_arrows(user_scn, origin, R_body, scale=0.06):
     _arrow(R_body[:, 2] * scale, [0, 0, 1, 1])  # Z
 
 if __name__ == "__main__":
-    XML_PATH = "/home/radon12/Documents/ga_quadruped/assets/go1/scene.xml"
+    XML_PATH = "/home/radon12/Documents/ga_quadruped/assets/param/scene.xml"
     
-    HOME_POSE = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
+    # HOME_POSE = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
     
 
-    # theta0 = 0.0
-    # theta1 = 0.4
-    # theta2 = 1.2
-    # HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
+    theta0 = 0.0
+    theta1 = 0.4
+    theta2 = 1.2
+    theta3 = -0.28
+    HOME_POSE = [theta0, -theta3, theta2, -theta0, theta3, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     robot = Robot(XML_PATH, randomisation=False,
                   default_joint_pos=HOME_POSE,
                   init_pos=[0, 0, 0.5])

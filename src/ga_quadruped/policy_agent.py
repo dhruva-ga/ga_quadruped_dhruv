@@ -105,9 +105,8 @@ class PolicyAgent:
         inp = self.session.get_inputs()[0].name
         lab_act = self.session.run(None, {inp: obs})[0].flatten().astype(np.float32)
 
-        print("Action before clipping: ", lab_act)
         # Clip the action
-        lab_act = np.clip(lab_act, -4.0, 4.0)
+        # lab_act = np.clip(lab_act, -10.0, 10.0)
         # print("Clipping action between -4 and 4")
 
         # lab_act = np.zeros(12)
@@ -125,7 +124,7 @@ class PolicyAgent:
         # else:
         #     mjc_act = np.array([0, self.fl_test_angles[self.test_counter-1], -self.fl_test_angles[self.test_counter-1], 0, 0, 0, 0, 0, 0, 0, self.rr_test_angles[self.test_counter-1], -self.rr_test_angles[self.test_counter-1]])
         # 4) apply scale & add to default qpos
-        # print("Action: ", mjc_act)
+        print("Action: ", mjc_act)
         
         real_ctrl = self.initial_qpos + self.action_scale * mjc_act
         return real_ctrl.astype(np.float32)

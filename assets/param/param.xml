@@ -4,15 +4,15 @@
     <default class="robot">
         <default class="x8_90_hip">
             <!-- <joint armature="0.0026" frictionloss="0.65" /> -->
-            <position kp="10.2" kv="0.6" forcelimited="true" forcerange="-200 200"></position>
+            <position kp="25" kv="0.5" forcelimited="true" forcerange="-200 200"></position>
         </default>
         <default class="x8_90_thigh">
             <!-- <joint armature="0.0026" frictionloss="0.65" /> -->
-            <position kp="10.2" kv="0.6" forcelimited="true" forcerange="-200 200"></position>
+            <position kp="25" kv="0.5" forcelimited="true" forcerange="-200 200"></position>
         </default>
         <default class="x12_150_calf">
             <!-- <joint armature="0.0026" frictionloss="0.65" /> -->
-            <position kp="23" kv="1.5" forcelimited="true" forcerange="-200 200"></position>
+            <position kp="25" kv="0.5" forcelimited="true" forcerange="-200 200"></position>
         </default>
       <default class="visual">
         <geom material="visualgeom" contype="0" conaffinity="0" group="2" />
@@ -23,8 +23,7 @@
     </default>
     <default class="hard_contact">
             <!-- Critical-damped, very fast correction -->
-            <geom solref="0.003 1" solimp="0.15 1 0.023" condim="6"
-            friction="0.8 0.02 0.01"/>
+            <geom condim="3" friction="1.0"/>
     </default>
   </default>
 
