@@ -386,7 +386,7 @@ class Robot:
 
 
 import numpy as np
-import mujoco as mj
+import mujoco as mjfeet_
 
 def _as_f64(x, n=None):
     a = np.asarray(x, dtype=np.float64)
