@@ -105,9 +105,10 @@ class PolicyAgent:
         inp = self.session.get_inputs()[0].name
         lab_act = self.session.run(None, {inp: obs})[0].flatten().astype(np.float32)
 
+        print("Action before clipping: ", lab_act)
         # Clip the action
         lab_act = np.clip(lab_act, -4.0, 4.0)
-        print("Clipping action between -4 and 4")
+        # print("Clipping action between -4 and 4")
 
         # lab_act = np.zeros(12)
         # 2) stash for the next obs

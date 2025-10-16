@@ -207,8 +207,8 @@ def main():
                     motor_temp = kinematics_data.motor_temp
                     motor_name = kinematics_data.motor_name
 
-                    print("Motor Torque:", motor_toque)
-                    print("Motor Temp:", motor_temp)
+                    # print("Motor Torque:", motor_toque)
+                    # print("Motor Temp:", motor_temp)
                     rpy = imu_data.rpy
 
 
@@ -229,6 +229,9 @@ def main():
                         "motor_temp_" + motor_name[i]: float(motor_temp[i]) for i in range(len(motor_name))
                     }
 
+                for k, v in motor_torques.items():
+                    print(f"{k}: {v:.2f}", end=", ")
+                # print(motor_torques)
 
                 plot_data = {}
                 plot_data ={
