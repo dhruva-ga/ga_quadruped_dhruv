@@ -17,13 +17,13 @@ class ParamLegsKinematics:
         self.manager = manager
         self.motors = []
 
-        x8_90_hip_stiffness = 30.0
-        x8_90_hip_damping = 1.0
+        x8_90_hip_stiffness = 80.0
+        x8_90_hip_damping = 2.0
 
-        x8_90_thigh_stiffness = 30.0
-        x8_90_thigh_damping = 1.0
+        x8_90_thigh_stiffness = 80.0
+        x8_90_thigh_damping = 2.0
 
-        x12_150_calf_stiffness = 65
+        x12_150_calf_stiffness = 80
         x12_150_calf_damping = 2.0
 
         # Front Left Leg
