@@ -147,8 +147,6 @@ if __name__ == "__main__":
     ga_one.start()
     time.sleep(2)
     ga_one._sit()
-    time.sleep(2)
-    ga_one._stand()
 
     np.set_printoptions(precision=3, suppress=True)
     t = 1000
