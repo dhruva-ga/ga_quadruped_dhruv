@@ -26,9 +26,10 @@ class IMUData:
 
 class Param:
 
-    def __init__(self):
+    def __init__(self, default_joint_pos: np.ndarray = None):
         self.transport = SocketCANTransport("can0")
         self.transport.start()
+        self.default_joint_pos = default_joint_pos
         self.manager = DeviceManager(self.transport)
         self.kinematics = ParamLegsKinematics(self.manager)
         # self.contacter = ContactSensor([0x101,0x102],self.manager)
@@ -41,15 +42,7 @@ class Param:
         self.ctrl_lock = Lock()
         self.ctrl = None
 
-        theta0 = 0.0
-        # FRONT legs thigh
-        theta3 = 0.32
-        # FRONT legs calf
-        theta4 = 1.24
-        theta1 = 0.41
-        theta2 = 1.21
-        HOME_POSE = np.array([theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2])
-        self._stand_gait = HOME_POSE.copy()
+        self._stand_gait = self.default_joint_pos.copy()
         self._sit_gait = np.zeros(12)
 
     def set_ctrl(self, ctrl):

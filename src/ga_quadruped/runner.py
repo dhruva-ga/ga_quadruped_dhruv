@@ -122,7 +122,7 @@ def main():
         XML_PATH = '/home/radon12/Documents/ga_quadruped/assets/param/scene.xml'
         robot = Robot(XML_PATH, randomisation=False, default_joint_pos=HOME_POSE, init_pos=[0, 0, 0.4]) # Go1
     else:
-        robot = Param()
+        robot = Param(default_joint_pos=np.array(HOME_POSE))  # Param
         robot.start()
         time.sleep(1)
         robot._sit()
