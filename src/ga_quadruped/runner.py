@@ -134,7 +134,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_alive.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/first_4k.onnx'
     
 
 
@@ -185,7 +185,7 @@ def main():
                 phase = 2 * np.pi * phase
                 gait_phase = np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
                 policy.set_command(command)
-                policy.set_gait_command(gait_command)
+                # policy.set_gait_command(gait_command)
 
                 if args.sim:
                     qpos = robot.get_position().copy()
@@ -214,7 +214,8 @@ def main():
                     rpy = imu_data.rpy
 
 
-                obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
+                # obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
+                obs = policy.compute_obs(qpos, qvel, imu_quat, gyro, None, None)
                 # print("Obs:", obs)
                 obs_arr.append(obs)
 
@@ -240,9 +241,9 @@ def main():
                     **plot_data,
                     **motor_torques,
                     **motor_temps,
-                    "Z_0": float(z_axis[0]),
-                    "Z_1": float(z_axis[1]),
-                    "Z_2": float(z_axis[2]),
+                    # "Z_0": float(z_axis[0]),
+                    # "Z_1": float(z_axis[1]),
+                    # "Z_2": float(z_axis[2]),
                     "GYRO_X": float(gyro[0]),
                     "GYRO_Y": float(gyro[1]),
                     "GYRO_Z": float(gyro[2]),
