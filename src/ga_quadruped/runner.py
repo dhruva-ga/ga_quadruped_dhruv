@@ -233,7 +233,7 @@ def main():
                     }
 
                 for k, v in motor_torques.items():
-                    print(f"{k}: {v:.2f}", end=", ")
+                    print(f"{k}: {v:.2f}")
                 # print(motor_torques)
 
                 plot_data = {}

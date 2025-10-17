@@ -23,8 +23,8 @@ class ParamLegsKinematics:
         x8_90_thigh_stiffness = 80.0
         x8_90_thigh_damping = 2.0
 
-        x12_150_calf_stiffness = 80
-        x12_150_calf_damping = 2.0
+        x12_150_calf_stiffness = 90
+        x12_150_calf_damping = 3.0
 
         # Front Left Leg
         self.motors.append(Motor(1,"FL_hip", self.manager,x8_90_hip_stiffness,x8_90_hip_damping,1.0,1.0,MotorType.X8_90,50))
