@@ -106,11 +106,13 @@ def main():
     # home_pos = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
     # ["FL_hip", "FL_thigh", "FL_calf", "FR_hip", "FR_thigh", "FR_calf", "RL_hip", "RL_thigh", "RL_calf", "RR_hip", "RR_thigh", "RR_calf"]
     theta0 = 0.0
-    # theta1 = 0.45
-    theta1 = 0.4
-    theta2 = 1.2
-    # theta2 = 1.4
-    HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
+    # FRONT legs thigh
+    theta3 = 0.32
+    # FRONT legs calf
+    theta4 = 1.24
+    theta1 = 0.41
+    theta2 = 1.21
+    HOME_POSE = [theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     # fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     # writer = cv2.VideoWriter(sys.path[0] + "/output.mp4", fourcc, 50, (1280,720))
     # CAMERA_NAME = "render_cam"  # Name of the camera in the XML file
@@ -132,7 +134,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_low_com.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/first_4k.onnx'
     
 
 
@@ -183,7 +185,7 @@ def main():
                 phase = 2 * np.pi * phase
                 gait_phase = np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
                 policy.set_command(command)
-                policy.set_gait_command(gait_command)
+                # policy.set_gait_command(gait_command)
 
                 if args.sim:
                     qpos = robot.get_position().copy()
@@ -207,12 +209,13 @@ def main():
                     motor_temp = kinematics_data.motor_temp
                     motor_name = kinematics_data.motor_name
 
-                    print("Motor Torque:", motor_toque)
-                    print("Motor Temp:", motor_temp)
+                    # print("Motor Torque:", motor_toque)
+                    # print("Motor Temp:", motor_temp)
                     rpy = imu_data.rpy
 
 
-                obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
+                # obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
+                obs = policy.compute_obs(qpos, qvel, imu_quat, gyro, None, None)
                 # print("Obs:", obs)
                 obs_arr.append(obs)
 
@@ -229,15 +232,18 @@ def main():
                         "motor_temp_" + motor_name[i]: float(motor_temp[i]) for i in range(len(motor_name))
                     }
 
+                for k, v in motor_torques.items():
+                    print(f"{k}: {v:.2f}")
+                # print(motor_torques)
 
                 plot_data = {}
                 plot_data ={
                     **plot_data,
                     **motor_torques,
                     **motor_temps,
-                    "Z_0": float(z_axis[0]),
-                    "Z_1": float(z_axis[1]),
-                    "Z_2": float(z_axis[2]),
+                    # "Z_0": float(z_axis[0]),
+                    # "Z_1": float(z_axis[1]),
+                    # "Z_2": float(z_axis[2]),
                     "GYRO_X": float(gyro[0]),
                     "GYRO_Y": float(gyro[1]),
                     "GYRO_Z": float(gyro[2]),

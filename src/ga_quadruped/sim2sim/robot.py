@@ -186,6 +186,12 @@ class Robot:
         for info in actuator_info:
             print(f"ctrl[{info['ctrl_index']}] -> Actuator '{info['actuator_name']}' -> Joint '{info['joint_name']}'")
         
+     
+        HOME_POSE = default_joint_pos.copy()
+        
+        self._stand_gait = np.array(HOME_POSE)
+        self._sit_gait = np.zeros(12)
+
         # exit()
 
         # self.joint_ids = [0, 3, 6, 9, 1, 4, 7, 10, 2, 5, 8, 11]
@@ -230,6 +236,9 @@ class Robot:
         self.data.ctrl[:] = ctrl.copy()
         # self.data.ctrl[:] = ctrl.copy()[self.joint_ids]
 
+    def get_ctrl(self) -> np.ndarray:
+        return self.data.ctrl.copy()
+        
     # def get_torque(self) -> np.ndarray:
     #     """Get joint torques (excluding root)."""
     #     t = self.data.qfrc_actuator[6:].copy()
@@ -286,7 +295,7 @@ class Robot:
         out = {}
         for i in range(self.model.nu):  # nu = number of actuators
             actuator_name = mj.mj_id2name(self.model, mj.mjtObj.mjOBJ_ACTUATOR, i)
-            out["motor_" + actuator_name] = float(t[i])
+            out["motor_toque_" + actuator_name] = float(t[i])
         return out
     
     def get_imu_quat(self) -> np.ndarray:
@@ -321,72 +330,29 @@ class Robot:
     #         contacts.append(float(colliding))
     #     return np.array(contacts, dtype=np.float32)
 
-    def _joint_qpos_slice(self, jnt_id: int):
-        """Return (start, size) into qpos for a joint."""
-        jt = self.model.jnt_type[jnt_id]
-        start = self.model.jnt_qposadr[jnt_id]
-        if jt == mj.mjtJoint.mjJNT_FREE:   size = 7
-        elif jt == mj.mjtJoint.mjJNT_BALL: size = 4
-        else:                                  size = 1  # hinge/slide
-        return start, size, jt
+def _stand(robot, viewer):
+    jnt_pos = robot.get_ctrl()
+    for i in range(200):
+        rate = min(i/200, 1)
+        des_gait = jnt_pos * (1 - rate) + robot._stand_gait * rate
+        robot.set_ctrl(des_gait)
+        robot.step(nsteps=4)
+        viewer.sync()
+        time.sleep(0.01)
 
-    def _joint_limits(self, jnt_id: int):
-        """Return (lo, hi) limits for hinge/slide joints; small safe span if unlimited."""
-        jt = self.model.jnt_type[jnt_id]
-        if jt in (mj.mjtJoint.mjJNT_HINGE, mj.mjtJoint.mjJNT_SLIDE):
-            if int(self.model.jnt_limited[jnt_id]) == 1:
-                lo, hi = self.model.jnt_range[jnt_id]  # shape (2,)
-                lo, hi = float(lo), float(hi)
-                # guard against bogus/degenerate ranges
-                if np.isfinite(lo) and np.isfinite(hi) and hi > lo:
-                    return lo, hi
-            # unlimited or bad range → use a small safe sweep
-            return (-0.5, 0.5) if jt == mj.mjtJoint.mjJNT_HINGE else (-0.05, 0.05)
-        # ball/free joints aren't swept here
-        return 0.0, 0.0
-
-    def sweep_hinge_joints(self, viewer=None, seconds_per_joint=1.0, steps=100, pause=0.01):
-        """
-        For each hinge/slide joint:
-          - sweep its qpos across limits without stepping physics
-          - print mapping: joint index → qpos slice → actuator(s)
-        """
-        hz = max(1, steps)
-        for j in range(self.model.njnt):
-            start, size, jt = self._joint_qpos_slice(j)
-            if size != 1:   # skip free/ball for clarity
-                continue
-
-            lo, hi = self._joint_limits(j)
-            name = mj.mj_id2name(self.model, mj.mjtObj.mjOBJ_JOINT, j)
-
-            # find actuator(s) driving this joint, if any
-            driven_by = []
-            for a in range(self.model.nu):
-                if self.model.actuator_trnid[a, 0] == j:
-                    driven_by.append(a)
-            print(f"[{j:02d}] Joint '{name}': qpos[{start}] in [{lo:.3f}, {hi:.3f}]  actuators={driven_by}")
-
-            # keep root pose & other joints; sweep only this joint
-            base_qpos = self.data.qpos.copy()
-            path = np.linspace(lo, hi, hz//2, endpoint=True)
-            path = np.concatenate([path, path[::-1]])  # there & back
-
-            # duration pacing
-            import time
-            tick = (seconds_per_joint / max(1, len(path)))
-
-            for val in path:
-                self.data.qpos[:] = base_qpos
-                self.data.qpos[start] = val
-                mj.mj_forward(self.model, self.data)  # kinematic update only
-                if viewer is not None:
-                    viewer.sync()
-                    time.sleep(max(0.0, tick))
+def _sit(robot, viewer):
+    jnt_pos = robot.get_ctrl()
+    for i in range(200):
+        rate = min(i/200, 1)
+        des_gait = jnt_pos * (1 - rate) + robot._sit_gait * rate
+        robot.set_ctrl(des_gait)
+        robot.step(nsteps=4)
+        viewer.sync()
+        time.sleep(0.01)
 
 
 import numpy as np
-import mujoco as mj
+import mujoco as mjfeet_
 
 def _as_f64(x, n=None):
     a = np.asarray(x, dtype=np.float64)
@@ -453,25 +419,39 @@ def add_axis_arrows(user_scn, origin, R_body, scale=0.06):
     _arrow(R_body[:, 1] * scale, [0, 1, 0, 1])  # Y
     _arrow(R_body[:, 2] * scale, [0, 0, 1, 1])  # Z
 
+
+
 if __name__ == "__main__":
     XML_PATH = "/home/radon12/Documents/ga_quadruped/assets/param/scene.xml"
     
     # HOME_POSE = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
-    
-
     theta0 = 0.0
-    theta1 = 0.4
-    theta2 = 1.2
-    HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
+    # FRONT legs thigh
+    theta3 = 0.32
+    # FRONT legs calf
+    theta4 = 1.24
+    theta1 = 0.41
+    theta2 = 1.21
+    HOME_POSE = [theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     robot = Robot(XML_PATH, randomisation=False,
                   default_joint_pos=HOME_POSE,
-                  init_pos=[0, 0, 0.5])
+                  init_pos=[0, 0, 0.3])
 
     model = robot.model
     data = robot.data
     trunk_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "trunk")
 
     import mujoco.viewer as mjv
+
+    import time
+
+    with mjv.launch_passive(model, data) as viewer:
+        _sit(robot, viewer)
+        time.sleep(1.0)
+        _stand(robot, viewer)
+        time.sleep(1.0)
+
+    exit()
 
     np.set_printoptions(precision=3, suppress=True)
     # Use MuJoCo's official viewer
@@ -489,7 +469,7 @@ if __name__ == "__main__":
             print(robot.get_motor_torques())
 
             # Clear user scene each frame before adding new geoms
-            # viewer.user_scn.ngeom = 0
+            viewer.user_scn.ngeom = 0
 
             # world poses
             p_body = data.xpos[trunk_id].copy()           # body-frame origin (world)
@@ -512,6 +492,7 @@ if __name__ == "__main__":
 
             # Render one frame
             viewer.sync()
+            # time.sleep(0.1)
 
     # with launch_passive(robot.model, robot.data) as viewer:
     #     # Sweeps every hinge/slide joint, printing: joint index, qpos index, limits, and actuators.

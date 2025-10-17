@@ -41,22 +41,14 @@ class Param:
         self.ctrl_lock = Lock()
         self.ctrl = None
 
-        theta = 0.4
-        theta2 = 1.2
-        HOME_POSE = np.array([
-            0.0,   
-            -theta,   
-            theta2, 
-            0.0,
-            theta,
-            -theta2,
-            0.0,
-            -theta,
-            theta2,
-            0.0,
-            theta,
-            -theta2
-        ])
+        theta0 = 0.0
+        # FRONT legs thigh
+        theta3 = 0.32
+        # FRONT legs calf
+        theta4 = 1.24
+        theta1 = 0.41
+        theta2 = 1.21
+        HOME_POSE = np.array([theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2])
         self._stand_gait = HOME_POSE.copy()
         self._sit_gait = np.zeros(12)
 
@@ -155,8 +147,6 @@ if __name__ == "__main__":
     ga_one.start()
     time.sleep(2)
     ga_one._sit()
-    time.sleep(2)
-    ga_one._stand()
 
     np.set_printoptions(precision=3, suppress=True)
     t = 1000
