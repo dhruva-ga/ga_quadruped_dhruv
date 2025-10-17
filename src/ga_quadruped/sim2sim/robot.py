@@ -186,15 +186,10 @@ class Robot:
         for info in actuator_info:
             print(f"ctrl[{info['ctrl_index']}] -> Actuator '{info['actuator_name']}' -> Joint '{info['joint_name']}'")
         
-        theta0 = 0.0
-        # FRONT legs thigh
-        theta3 = 0.32
-        # FRONT legs calf
-        theta4 = 1.24
-        theta1 = 0.41
-        theta2 = 1.21
-        HOME_POSE = np.array([theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2])
-        self._stand_gait = HOME_POSE.copy()
+     
+        HOME_POSE = default_joint_pos.copy()
+        
+        self._stand_gait = np.array(HOME_POSE)
         self._sit_gait = np.zeros(12)
 
         # exit()
@@ -439,8 +434,8 @@ if __name__ == "__main__":
     theta2 = 1.21
     HOME_POSE = [theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     robot = Robot(XML_PATH, randomisation=False,
-                  default_joint_pos=np.zeros(12).tolist(),
-                  init_pos=[0, 0, 0.5])
+                  default_joint_pos=HOME_POSE,
+                  init_pos=[0, 0, 0.3])
 
     model = robot.model
     data = robot.data

@@ -134,7 +134,7 @@ def main():
         for _ in tqdm(range(5), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_action.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_alive.onnx'
     
 
 

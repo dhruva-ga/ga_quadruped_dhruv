@@ -85,9 +85,9 @@ class PolicyAgent:
         state = np.concatenate([
             gyro * self.ang_vel_scale,
             z_axis,
-            self.command,
-            gait_phase,
-            self.gait_command,
+            # self.command,
+            # gait_phase,
+            # self.gait_command,
             qpos,
             qvel,
             self.last_act,
