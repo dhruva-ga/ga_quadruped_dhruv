@@ -81,7 +81,7 @@ term = Terminal()
 time_step = 0.02
 
 pub = SimpleZmqPublisher()
-controller = VelocityController(vel_step=VEL_STEP, max_lin=1.0, max_ang=1.0)
+controller = VelocityController(vel_step=VEL_STEP, max_lin_x=2.0, max_lin_y=1.0, max_ang=1.0)
 # controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
 # controller = SbusVelocityController(
 #         vmax_lin=0.8,   # m/s
@@ -106,13 +106,11 @@ def main():
     # home_pos = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
     # ["FL_hip", "FL_thigh", "FL_calf", "FR_hip", "FR_thigh", "FR_calf", "RL_hip", "RL_thigh", "RL_calf", "RR_hip", "RR_thigh", "RR_calf"]
     theta0 = 0.0
-    # FRONT legs thigh
-    theta3 = 0.32
-    # FRONT legs calf
-    theta4 = 1.24
-    theta1 = 0.41
-    theta2 = 1.21
-    HOME_POSE = [theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2]
+    # theta1 = 0.45
+    theta1 = 0.4
+    theta2 = 1.2
+    # theta2 = 1.4
+    HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
     # fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     # writer = cv2.VideoWriter(sys.path[0] + "/output.mp4", fourcc, 50, (1280,720))
     # CAMERA_NAME = "render_cam"  # Name of the camera in the XML file
@@ -131,10 +129,10 @@ def main():
         time.sleep(1)
         robot._stand()
 
-        for _ in tqdm(range(5), desc="Preparing", unit="s"):
+        for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_action.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/more_range.onnx'
     
 
 
@@ -180,12 +178,12 @@ def main():
                 print("command", vx, vy, w)
 
                 command = np.array([vx, vy, w], dtype=np.float32)
-                gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
-                phase = np.remainder(time_step * gait_command[0] * ixxxx, 1.0)
-                phase = 2 * np.pi * phase
-                gait_phase = np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
+                # gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
+                # phase = np.remainder(time_step * gait_command[0] * ixxxx, 1.0)
+                # phase = 2 * np.pi * phase
+                # gait_phase = np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
                 policy.set_command(command)
-                policy.set_gait_command(gait_command)
+                # policy.set_gait_command(gait_command)
 
                 if args.sim:
                     qpos = robot.get_position().copy()
@@ -214,8 +212,8 @@ def main():
                     rpy = imu_data.rpy
 
 
-                obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
-                # obs = policy.compute_obs(qpos, qvel, imu_quat, gyro, None, None)
+                # obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
+                obs = policy.compute_obs(qpos, qvel, imu_quat, gyro, None, None)
                 # print("Obs:", obs)
                 obs_arr.append(obs)
 
@@ -276,8 +274,8 @@ def main():
                     # "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
                     "ctrl": ctrl,
                     "command": command,
-                    "gait_command": gait_command,
-                    "gait_phase": gait_phase,
+                    # "gait_command": gait_command,
+                    # "gait_phase": gait_phase,
                 })
 
                 # Need to manually step in sim

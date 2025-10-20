@@ -10,7 +10,7 @@ class VelocityController:
       g/h : +w  / -w
       t   : reset (vx=vy=w=0)
     """
-    def __init__(self, vel_step=0.05, max_lin=None, max_ang=None, passthrough_keys=("q","Q")):
+    def __init__(self, vel_step=0.05, max_lin_x=None, max_lin_y=None, max_ang=None, passthrough_keys=("q","Q")):
         """
         Args:
             vel_step: increment per key press
@@ -19,7 +19,8 @@ class VelocityController:
             passthrough_keys: keys to ignore without warning (runner-level controls)
         """
         self.vel_step = float(vel_step)
-        self.max_lin = None if max_lin is None else float(max_lin)
+        self.max_lin_x = None if max_lin_x is None else float(max_lin_x)
+        self.max_lin_y = None if max_lin_y is None else float(max_lin_y)
         self.max_ang = None if max_ang is None else float(max_ang)
         self.passthrough_keys = set(passthrough_keys)
 
@@ -57,9 +58,12 @@ class VelocityController:
         target = self._keymap.get(key)
         if target:
             attr, sign = target
-            if attr in ('vx', 'vy'):
+            if attr == 'vx':
                 new_val = getattr(self, attr) + sign * self.vel_step
-                setattr(self, attr, self._clip_lin(new_val))
+                setattr(self, attr, self._clip_lin_x(new_val))
+            elif attr == 'vy':
+                new_val = self.vy + sign * self.vel_step
+                self.vy = self._clip_lin_y(new_val)
             elif attr == 'w':
                 new_val = self.w + sign * self.vel_step
                 self.w = self._clip_ang(new_val)
@@ -81,11 +85,18 @@ class VelocityController:
 
     # --- helpers ------------------------------------------------------------
 
-    def _clip_lin(self, x):
-        if self.max_lin is None:
+    def _clip_lin_x(self, x):
+        if self.max_lin_x is None:
             return x
-        if x >  self.max_lin: return self.max_lin
-        if x < -self.max_lin: return -self.max_lin
+        if x >  self.max_lin_x: return self.max_lin_x
+        if x < -self.max_lin_x: return -self.max_lin_x
+        return x
+
+    def _clip_lin_y(self, x):
+        if self.max_lin_y is None:
+            return x
+        if x >  self.max_lin_y: return self.max_lin_y
+        if x < -self.max_lin_y: return -self.max_lin_y
         return x
 
     def _clip_ang(self, x):

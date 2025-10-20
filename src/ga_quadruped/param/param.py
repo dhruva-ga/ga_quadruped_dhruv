@@ -1,3 +1,4 @@
+import argparse
 from ga_can.devices.motor.motor import Motor
 from ga_can.transport.socketcan import SocketCANTransport
 from ga_can.core.device_manager import DeviceManager
@@ -135,11 +136,21 @@ class Param:
 
 
 if __name__ == "__main__":
+    args = argparse.ArgumentParser()
+    args.add_argument('--zero', action='store_true', help='Start with zero joint positions')
+    # args.add_argument('--stand', action='store_true', help='Stand')
+    args = args.parse_args()
+
+
     ga_one = Param()
-    time.sleep(2)
+    time.sleep(1)
     ga_one.start()
-    time.sleep(2)
+    time.sleep(1)
+
     ga_one._sit()
+
+    if not args.zero:
+        ga_one._stand()
 
     np.set_printoptions(precision=3, suppress=True)
     t = 1000
