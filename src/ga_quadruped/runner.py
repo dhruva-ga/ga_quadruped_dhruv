@@ -132,7 +132,7 @@ def main():
         for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/more_range_5k.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/tilt_ss_1k.onnx'
     
 
 
