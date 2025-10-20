@@ -141,8 +141,14 @@ if __name__ == "__main__":
     # args.add_argument('--stand', action='store_true', help='Stand')
     args = args.parse_args()
 
-
-    ga_one = Param()
+    theta0 = 0.0
+    # theta1 = 0.45
+    theta1 = 0.4
+    theta2 = 1.2
+    # theta2 = 1.4
+    HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
+    ga_one = Param(default_joint_pos=np.array(HOME_POSE))
+    
     time.sleep(1)
     ga_one.start()
     time.sleep(1)
