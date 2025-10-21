@@ -25,11 +25,15 @@ class SbusVelocityController:
         invert_right_vertical=True,
         invert_left_left_right=False,   # invert left stick's horizontal axis (vy)
         invert_right_left_right=False,  # NEW: invert right stick's horizontal axis (w)
-        conflate=True,
+        button_threshold=0.5,           # > threshold => "pressed"
     ):
         self.vmax_lin_x = float(vmax_lin_x)
         self.vmax_lin_y = float(vmax_lin_y)
         self.vmax_ang = float(vmax_ang)
+        self.button_threshold = float(button_threshold)
+
+        self._quit_latch = False
+
         self.deadzone = float(deadzone)
 
         # Axis inversion options
@@ -62,6 +66,7 @@ class SbusVelocityController:
         r_fwd_back    = vals[1]  # ch2 (unused now)
         l_fwd_back    = vals[2]  # ch3 -> vx
         l_left_right  = vals[3]  # ch4 -> vy
+        push_c        = vals[9]  # ch10 -> quit button (-1 idle, +1 pressed)
 
         # optional axis inversion
         if self.invert_left_vertical:
@@ -82,6 +87,12 @@ class SbusVelocityController:
         self.vx = float(l_fwd_back)   * self.vmax_lin_x
         self.vy = float(l_left_right) * self.vmax_lin_y
         self.w  = float(r_left_right) * self.vmax_ang  # angular from ch1
+
+        pressed = (push_c > self.button_threshold)
+        if pressed:
+            # rising edge detected: latch quit for one step()
+            self._quit_latch = True
+
         self._last_msg_time = time.time()
 
     def step(self, timeout_ms=0):
@@ -105,7 +116,7 @@ class SbusVelocityController:
 
             self._apply_payload(payload)
 
-        return self.vx, self.vy, self.w
+        return self.vx, self.vy, self.w, self._quit_latch
 
     def get(self):
         return self.vx, self.vy, self.w

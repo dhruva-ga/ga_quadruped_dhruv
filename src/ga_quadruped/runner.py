@@ -203,7 +203,10 @@ def main():
                 if isinstance(controller, VelocityController):
                     vx, vy, w = controller.step(key=key)
                 else:
-                    vx, vy, w = controller.step(timeout_ms=1)
+                    vx, vy, w, quit = controller.step(timeout_ms=1)
+
+                    if quit:
+                        break
     
                 print("command", vx, vy, w)
 
