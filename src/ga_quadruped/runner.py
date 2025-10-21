@@ -143,7 +143,7 @@ def main():
         for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/jump_command_5000.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/jump_command_2000.onnx'
     
 
 
