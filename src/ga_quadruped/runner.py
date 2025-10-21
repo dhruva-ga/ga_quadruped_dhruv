@@ -161,176 +161,187 @@ def main():
     # ctx.make_current()
 
     # renderer = mujoco.Renderer(robot.model,height=480, width=640)
-    policy = PolicyAgent(ONNX_PATH, initial_qpos=HOME_POSE)
+    try:
+        policy = PolicyAgent(ONNX_PATH, initial_qpos=HOME_POSE)
 
-    obs_arr = []
+        obs_arr = []
 
-    # log_torque, close_torque = actuator_torque_logger(
-    # "actuator_torques.csv", ACTUATOR_NAMES, robot.model.nu, flush_every=100
-    # )
-    
-    def run_loop(viewer=None):
-        vx, vy,w = 0.0, 0.0,0.0
+        # log_torque, close_torque = actuator_torque_logger(
+        # "actuator_torques.csv", ACTUATOR_NAMES, robot.model.nu, flush_every=100
+        # )
+        
+        def run_loop(viewer=None):
+            vx, vy,w = 0.0, 0.0,0.0
 
-        steps = 0
-        is_jumping = False
+            steps = 0
+            is_jumping = False
 
-        gyro_integral = np.zeros(3)
+            gyro_integral = np.zeros(3)
 
-        with term.cbreak(), term.hidden_cursor():
-            val = ''
-            for ixxxx in range(50 * 24 * 60 * 60):
+            with term.cbreak(), term.hidden_cursor():
+                val = ''
+                for ixxxx in range(50 * 24 * 60 * 60):
 
-                key = term.inkey(timeout=0.001)
-                if key in ('q', 'Q'):
-                    break
-                
-                # print("Key pressed:", key)
-                # if key in ('y', 'Y'):
-                #     print("Jump!")
-                #     is_jumping = True
-                #     steps = 0
-
-                # if steps < JUMP_STEPS and is_jumping:
-                #     steps += 1
-                #     print(f"Jump Step: {steps}/{JUMP_STEPS}")
-                # else:
-                #     is_jumping = False
-                
-
-                t1 = time.time()
-
-                if isinstance(controller, VelocityController):
-                    vx, vy, w = controller.step(key=key)
-                else:
-                    vx, vy, w, quit = controller.step(timeout_ms=1)
-
-                    if quit:
+                    key = term.inkey(timeout=0.001)
+                    if key in ('q', 'Q'):
                         break
-    
-                print("command", vx, vy, w)
+                    
+                    # print("Key pressed:", key)
+                    # if key in ('y', 'Y'):
+                    #     print("Jump!")
+                    #     is_jumping = True
+                    #     steps = 0
 
-                command = np.array([vx, vy, w], dtype=np.float32)
-                # gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
-                # phase = np.remainder(time_step * gait_command[0] * ixxxx, 1.0)
-                # phase = 2 * np.pi * phase
-                # gait_phase = np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
-                policy.set_command(command)
-                # policy.set_gait_command(gait_command)
+                    # if steps < JUMP_STEPS and is_jumping:
+                    #     steps += 1
+                    #     print(f"Jump Step: {steps}/{JUMP_STEPS}")
+                    # else:
+                    #     is_jumping = False
+                    
 
-                if args.sim:
-                    qpos = robot.get_position().copy()
-                    qvel = robot.get_velocity().copy()
-                    imu_quat = robot.get_imu_quat()
-                    gyro = robot.get_gyro().copy()
+                    t1 = time.time()
 
-                    rpy = R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi
+                    if isinstance(controller, VelocityController):
+                        vx, vy, w = controller.step(key=key)
+                    else:
+                        vx, vy, w, quit = controller.step(timeout_ms=1)
 
-                    # gyro = gyro  + np.random.uniform(-0.3, 0.3, size=3)  # add noise
-                else:
-                    kinematics_data = robot.get_kinematics_data()
-                    imu_data = robot.get_imu_data()
+                        if quit:
+                            break
+        
+                    print("command", vx, vy, w)
 
-                    qpos = kinematics_data.angles
-                    qvel = kinematics_data.velocity
-                    imu_quat = imu_data.quat
-                    gyro = imu_data.gyro
+                    command = np.array([vx, vy, w], dtype=np.float32)
+                    # gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
+                    # phase = np.remainder(time_step * gait_command[0] * ixxxx, 1.0)
+                    # phase = 2 * np.pi * phase
+                    # gait_phase = np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
+                    policy.set_command(command)
+                    # policy.set_gait_command(gait_command)
 
-                    motor_toque = kinematics_data.torque
-                    motor_temp = kinematics_data.motor_temp
-                    motor_name = kinematics_data.motor_name
+                    if args.sim:
+                        qpos = robot.get_position().copy()
+                        qvel = robot.get_velocity().copy()
+                        imu_quat = robot.get_imu_quat()
+                        gyro = robot.get_gyro().copy()
 
-                    # print("Motor Torque:", motor_toque)
-                    # print("Motor Temp:", motor_temp)
-                    rpy = imu_data.rpy
+                        rpy = R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi
+
+                        # gyro = gyro  + np.random.uniform(-0.3, 0.3, size=3)  # add noise
+                    else:
+                        kinematics_data = robot.get_kinematics_data()
+                        imu_data = robot.get_imu_data()
+
+                        qpos = kinematics_data.angles
+                        qvel = kinematics_data.velocity
+                        imu_quat = imu_data.quat
+                        gyro = imu_data.gyro
+
+                        motor_toque = kinematics_data.torque
+                        motor_temp = kinematics_data.motor_temp
+                        motor_name = kinematics_data.motor_name
+
+                        # print("Motor Torque:", motor_toque)
+                        # print("Motor Temp:", motor_temp)
+                        rpy = imu_data.rpy
 
 
-                # obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
-                obs = policy.compute_obs(is_jumping, qpos, qvel, imu_quat, gyro, None, None)
-                # print("Obs:", obs)
-                obs_arr.append(obs)
+                    # obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
+                    obs = policy.compute_obs(is_jumping, qpos, qvel, imu_quat, gyro, None, None)
+                    # print("Obs:", obs)
+                    obs_arr.append(obs)
 
-                gyro_integral += gyro * time_step * 180 / np.pi
+                    gyro_integral += gyro * time_step * 180 / np.pi
 
-                if args.sim:
-                    motor_torques = robot.get_motor_torques()
-                    motor_temps = {}
-                else:
-                    motor_torques = {
-                        "motor_torque_" + motor_name[i]: float(motor_toque[i]) for i in range(len(motor_name))
+                    if args.sim:
+                        motor_torques = robot.get_motor_torques()
+                        motor_temps = {}
+                    else:
+                        motor_torques = {
+                            "motor_torque_" + motor_name[i]: float(motor_toque[i]) for i in range(len(motor_name))
+                        }
+                        motor_temps = {
+                            "motor_temp_" + motor_name[i]: float(motor_temp[i]) for i in range(len(motor_name))
+                        }
+
+                    for k, v in motor_torques.items():
+                        print(f"{k}: {v:.2f}")
+                    # print(motor_torques)
+
+                    plot_data = {}
+                    plot_data ={
+                        **plot_data,
+                        **motor_torques,
+                        **motor_temps,
+                        # "Z_0": float(z_axis[0]),
+                        # "Z_1": float(z_axis[1]),
+                        # "Z_2": float(z_axis[2]),
+                        "GYRO_X": float(gyro[0]),
+                        "GYRO_Y": float(gyro[1]),
+                        "GYRO_Z": float(gyro[2]),
+                        "Roll": float(rpy[0]),
+                        "Pitch": float(rpy[1]),
+                        "Yaw": float(rpy[2]),
                     }
-                    motor_temps = {
-                        "motor_temp_" + motor_name[i]: float(motor_temp[i]) for i in range(len(motor_name))
-                    }
 
-                for k, v in motor_torques.items():
-                    print(f"{k}: {v:.2f}")
-                # print(motor_torques)
+                    pub.send(plot_data)
 
-                plot_data = {}
-                plot_data ={
-                    **plot_data,
-                    **motor_torques,
-                    **motor_temps,
-                    # "Z_0": float(z_axis[0]),
-                    # "Z_1": float(z_axis[1]),
-                    # "Z_2": float(z_axis[2]),
-                    "GYRO_X": float(gyro[0]),
-                    "GYRO_Y": float(gyro[1]),
-                    "GYRO_Z": float(gyro[2]),
-                    "Roll": float(rpy[0]),
-                    "Pitch": float(rpy[1]),
-                    "Yaw": float(rpy[2]),
-                }
+                    # if args.sim:
+                    #     print("current control", robot.data.ctrl)
+                    # else:
+                    #     print("current control", robot.get_ctrl())
 
-                pub.send(plot_data)
+                    ctrl = policy.act(obs)
+                    # print("setting control", ctrl)
+                    # robot.set_ctrl(np.array(home_pos))
+                    robot.set_ctrl(ctrl)
+                    # print("Gyro:", gyro)
+                    # print("Gyro Integral:", gyro_integral)
 
-                # if args.sim:
-                #     print("current control", robot.data.ctrl)
-                # else:
-                #     print("current control", robot.get_ctrl())
+                    logger.log({
+                        "qpos": qpos,
+                        "qvel": qvel,
+                        "imu_quat": imu_quat,
+                        "gyro": gyro,
+                        # "gyro_integral": gyro_integral,
+                        # "rpy": rpy * 180 / np.pi,
+                        # "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
+                        "ctrl": ctrl,
+                        "command": command,
+                        # "gait_command": gait_command,
+                        # "gait_phase": gait_phase,
+                    })
 
-                ctrl = policy.act(obs)
-                # print("setting control", ctrl)
-                # robot.set_ctrl(np.array(home_pos))
-                robot.set_ctrl(ctrl)
-                # print("Gyro:", gyro)
-                # print("Gyro Integral:", gyro_integral)
+                    # Need to manually step in sim
+                    if viewer is not None:
+                        robot.step(nsteps=4)
+                        viewer.sync()
 
-                logger.log({
-                    "qpos": qpos,
-                    "qvel": qvel,
-                    "imu_quat": imu_quat,
-                    "gyro": gyro,
-                    # "gyro_integral": gyro_integral,
-                    # "rpy": rpy * 180 / np.pi,
-                    # "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
-                    "ctrl": ctrl,
-                    "command": command,
-                    # "gait_command": gait_command,
-                    # "gait_phase": gait_phase,
-                })
+                    t2 = time.time()
+                    if t2 - t1 < time_step:
+                        time.sleep(time_step - (t2 - t1))
+                    else:
+                        print(f"Step time {t2 - t1:.4f} exceeded {time_step}")
 
-                # Need to manually step in sim
-                if viewer is not None:
-                    robot.step(nsteps=4)
-                    viewer.sync()
+        if args.sim:
+            from mujoco.viewer import launch_passive
+            with launch_passive(robot.model, robot.data) as viewer:
+                run_loop(viewer)
+        else:
+            run_loop()
 
-                t2 = time.time()
-                if t2 - t1 < time_step:
-                    time.sleep(time_step - (t2 - t1))
-                else:
-                    print(f"Step time {t2 - t1:.4f} exceeded {time_step}")
-
-    if args.sim:
-        from mujoco.viewer import launch_passive
-        with launch_passive(robot.model, robot.data) as viewer:
-            run_loop(viewer)
-    else:
-        run_loop()
-
-    if not args.sim:
+        if not args.sim:
+            print("Sitting Down!")
+            robot._sit()
+            time.sleep(1)
+    except Exception as e:
+        print("Exception occurred:", e)
         print("Sitting Down!")
+        robot._sit()
+        time.sleep(1)
+        raise e
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt received. Sitting Down!")
         robot._sit()
         time.sleep(1)
     
