@@ -47,7 +47,7 @@ class PolicyAgent:
 
         is_jumping = np.array([is_jumping])
         state = np.concatenate([
-            is_jumping,
+            # is_jumping,
             # self.command,
             # phase,
             #linvel,

@@ -136,7 +136,7 @@ def main():
         for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/param_jump.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/tilt_ss_2k.onnx'
     
 
 
@@ -167,7 +167,7 @@ def main():
 
         steps = 0
         is_jumping = False
-        
+
         gyro_integral = np.zeros(3)
 
         with term.cbreak(), term.hidden_cursor():
