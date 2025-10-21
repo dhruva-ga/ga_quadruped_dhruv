@@ -85,7 +85,7 @@ JUMP_STEPS = 115
 
 
 pub = SimpleZmqPublisher()
-controller = VelocityController(vel_step=VEL_STEP, max_lin_x=1.0, max_lin_y=1.0, max_ang=1.0)
+controller = VelocityController(vel_step=VEL_STEP, max_lin_x=1.0, max_lin_y=0.5, max_ang=1.0)
 # controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
 # controller = SbusVelocityController(
 #         vmax_lin=0.8,   # m/s
@@ -136,7 +136,7 @@ def main():
         for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/tilt_ss_2k.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/more_range.onnx'
     
 
 
