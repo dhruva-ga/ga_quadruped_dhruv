@@ -17,7 +17,8 @@ class SbusVelocityController:
         self,
         endpoint="tcp://localhost:8011",
         topic=b"sbus",
-        vmax_lin=1.0,
+        vmax_lin_x=1.0,
+        vmax_lin_y=1.0,
         vmax_ang=1.0,
         deadzone=0.03,
         invert_left_vertical=True,
@@ -26,7 +27,8 @@ class SbusVelocityController:
         invert_right_left_right=False,  # NEW: invert right stick's horizontal axis (w)
         conflate=True,
     ):
-        self.vmax_lin = float(vmax_lin)
+        self.vmax_lin_x = float(vmax_lin_x)
+        self.vmax_lin_y = float(vmax_lin_y)
         self.vmax_ang = float(vmax_ang)
         self.deadzone = float(deadzone)
 
@@ -77,8 +79,8 @@ class SbusVelocityController:
         if abs(r_left_right) < self.deadzone: r_left_right = 0.0
 
         # scale to commanded velocities
-        self.vx = float(l_fwd_back)   * self.vmax_lin
-        self.vy = float(l_left_right) * self.vmax_lin
+        self.vx = float(l_fwd_back)   * self.vmax_lin_x
+        self.vy = float(l_left_right) * self.vmax_lin_y
         self.w  = float(r_left_right) * self.vmax_ang  # angular from ch1
         self._last_msg_time = time.time()
 
@@ -117,7 +119,7 @@ class SbusVelocityController:
 
 if __name__ == "__main__":
     ctrl = SbusVelocityController(
-        vmax_lin=1.0,   # m/s
+        vmax_lin_x=1.0,   # m/s
         vmax_ang=1.0,   # rad/s
         deadzone=0.05,
         invert_left_vertical=False,

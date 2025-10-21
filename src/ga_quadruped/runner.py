@@ -85,17 +85,7 @@ JUMP_STEPS = 115
 
 
 pub = SimpleZmqPublisher()
-controller = VelocityController(vel_step=VEL_STEP, max_lin_x=1.0, max_lin_y=0.5, max_ang=1.0)
-# controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
-# controller = SbusVelocityController(
-#         vmax_lin=0.8,   # m/s
-#         vmax_ang=0.5,   # rad/s
-#         deadzone=0.05,
-#         invert_left_vertical=False,
-#         invert_right_vertical=False,
-#         invert_left_left_right=True,
-#         invert_right_left_right=True,  # set True if right horizontal feels flipped
-#     )
+
 
 
 def main():
@@ -103,9 +93,26 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--sim', action='store_true', help='Sim or real robot')
+    parser.add_argument("--controller", type=str, default="velocity", help="Type of controller to use")
     args = parser.parse_args()
 
     logger = get_logger("runner")
+
+    # controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
+    
+    if args.controller == "velocity":
+        controller = VelocityController(vel_step=VEL_STEP, max_lin_x=1.0, max_lin_y=0.5, max_ang=1.0)
+    else:
+        controller = SbusVelocityController(
+            vmax_lin_x=1.0,
+            vmax_lin_y=0.5,
+            vmax_ang=1.0,   # rad/s
+            deadzone=0.05,
+            invert_left_vertical=False,
+            invert_right_vertical=False,
+            invert_left_left_right=True,
+            invert_right_left_right=True,  # set True if right horizontal feels flipped
+        )
                         
     # home_pos = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
     # ["FL_hip", "FL_thigh", "FL_calf", "FR_hip", "FR_thigh", "FR_calf", "RL_hip", "RL_thigh", "RL_calf", "RR_hip", "RR_thigh", "RR_calf"]
@@ -178,22 +185,26 @@ def main():
                 if key in ('q', 'Q'):
                     break
                 
-                print("Key pressed:", key)
-                if key in ('y', 'Y'):
-                    print("Jump!")
-                    is_jumping = True
-                    steps = 0
+                # print("Key pressed:", key)
+                # if key in ('y', 'Y'):
+                #     print("Jump!")
+                #     is_jumping = True
+                #     steps = 0
 
-                if steps < JUMP_STEPS and is_jumping:
-                    steps += 1
-                    print(f"Jump Step: {steps}/{JUMP_STEPS}")
-                else:
-                    is_jumping = False
+                # if steps < JUMP_STEPS and is_jumping:
+                #     steps += 1
+                #     print(f"Jump Step: {steps}/{JUMP_STEPS}")
+                # else:
+                #     is_jumping = False
                 
 
                 t1 = time.time()
-                # vx, vy, w = controller.step(timeout_ms=1)
-                vx, vy, w = controller.step(key=key)
+
+                if isinstance(controller, VelocityController):
+                    vx, vy, w = controller.step(key=key)
+                else:
+                    vx, vy, w = controller.step(timeout_ms=1)
+    
                 print("command", vx, vy, w)
 
                 command = np.array([vx, vy, w], dtype=np.float32)
