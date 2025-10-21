@@ -80,6 +80,10 @@ VEL_STEP = 0.1  # m/s per key press
 term = Terminal()
 time_step = 0.02
 
+JUMP_STEPS = 115
+
+
+
 pub = SimpleZmqPublisher()
 controller = VelocityController(vel_step=VEL_STEP, max_lin_x=1.0, max_lin_y=1.0, max_ang=1.0)
 # controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
@@ -132,7 +136,7 @@ def main():
         for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/more_range.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/param_jump.onnx'
     
 
 
@@ -158,10 +162,12 @@ def main():
     # "actuator_torques.csv", ACTUATOR_NAMES, robot.model.nu, flush_every=100
     # )
     
-
     def run_loop(viewer=None):
         vx, vy,w = 0.0, 0.0,0.0
 
+        steps = 0
+        is_jumping = False
+        
         gyro_integral = np.zeros(3)
 
         with term.cbreak(), term.hidden_cursor():
@@ -171,6 +177,19 @@ def main():
                 key = term.inkey(timeout=0.001)
                 if key in ('q', 'Q'):
                     break
+                
+                print("Key pressed:", key)
+                if key in ('y', 'Y'):
+                    print("Jump!")
+                    is_jumping = True
+                    steps = 0
+
+                if steps < JUMP_STEPS and is_jumping:
+                    steps += 1
+                    print(f"Jump Step: {steps}/{JUMP_STEPS}")
+                else:
+                    is_jumping = False
+                
 
                 t1 = time.time()
                 # vx, vy, w = controller.step(timeout_ms=1)
@@ -213,7 +232,7 @@ def main():
 
 
                 # obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
-                obs = policy.compute_obs(qpos, qvel, imu_quat, gyro, None, None)
+                obs = policy.compute_obs(is_jumping, qpos, qvel, imu_quat, gyro, None, None)
                 # print("Obs:", obs)
                 obs_arr.append(obs)
 

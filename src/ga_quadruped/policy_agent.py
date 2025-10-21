@@ -38,17 +38,18 @@ class PolicyAgent:
         gz = quat[0] * quat[0] - quat[1] * quat[1] - quat[2] * quat[2] + quat[3] * quat[3]
         return np.array([-gx, -gy, gz], dtype=np.float32)
     
-    def compute_obs(self, qpos,qvel,imu_quat,gyro,grav,linvel) -> np.ndarray:
+    def compute_obs(self, is_jumping, qpos,qvel,imu_quat,gyro,grav,linvel) -> np.ndarray:
         z_axis = self.compute_gravity_orientation(imu_quat)
 
         cos = np.cos(self.phase)
         sin = np.sin(self.phase)
         phase = np.concatenate([cos, sin], axis=0).astype(np.float32)
 
-
+        is_jumping = np.array([is_jumping])
         state = np.concatenate([
-            self.command,
-            phase,
+            is_jumping,
+            # self.command,
+            # phase,
             #linvel,
             qpos - self.initial_qpos,
             qvel,
