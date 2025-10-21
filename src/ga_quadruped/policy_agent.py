@@ -21,7 +21,11 @@ class PolicyAgent:
         dt = 0.02
         self.phase_dt = 2 * np.pi * dt * gait_freq
         self.phase = np.array([0,np.pi,np.pi,0])
+        self.jump_command = 0.0
 
+    def set_jump_command(self, jump_command: float):
+        """Set the jump command for the robot."""
+        self.jump_command = jump_command
 
     def set_initial_qpos(self, qpos: np.ndarray):
         """Set the initial position of the robot."""
@@ -46,10 +50,12 @@ class PolicyAgent:
         phase = np.concatenate([cos, sin], axis=0).astype(np.float32)
 
         is_jumping = np.array([is_jumping])
+        jump_command = np.array([self.jump_command])
         state = np.concatenate([
-            # is_jumping,
-            self.command,
-            phase,
+            is_jumping,
+            jump_command,
+            # self.command,
+            # phase,
             #linvel,
             qpos - self.initial_qpos,
             qvel,
