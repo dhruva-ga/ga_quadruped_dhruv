@@ -47,8 +47,8 @@ class PolicyAgent:
 
 
         state = np.concatenate([
-            # self.command,
-            # phase,
+            self.command,
+            phase,
             #linvel,
             qpos - self.initial_qpos,
             qvel,
