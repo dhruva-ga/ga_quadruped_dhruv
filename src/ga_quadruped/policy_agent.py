@@ -17,10 +17,10 @@ class PolicyAgent:
         self.last_act = np.array(initial_qpos.copy())
         self.initial_qpos = initial_qpos
         self.command = np.array([0.0, 0.0,0.0])  # forward, turn
-        gait_freq = 1.25
+        gait_freq = 2.0
         dt = 0.02
         self.phase_dt = 2 * np.pi * dt * gait_freq
-        self.phase = np.array([0,np.pi,np.pi,0])
+        self.phase = np.array([0,0.5 * np.pi,np.pi,1.5 * np.pi])
         self.jump_command = 0.0
 
     def set_jump_command(self, jump_command: float):
@@ -52,10 +52,10 @@ class PolicyAgent:
         is_jumping = np.array([is_jumping])
         jump_command = np.array([self.jump_command])
         state = np.concatenate([
-            is_jumping,
-            jump_command,
-            # self.command,
-            # phase,
+            # is_jumping,
+            # jump_command,
+            self.command,
+            phase,
             #linvel,
             qpos - self.initial_qpos,
             qvel,
