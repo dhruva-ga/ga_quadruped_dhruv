@@ -296,21 +296,22 @@
     <parent link="trunk" />
     <child link="FL_hip" />
     <axis xyz="-1.0 0.0 0.0" />
-    <limit lower="-0.785" upper="0.785" />
+    <limit lower="0" upper="6.28" />
   </joint>
   <joint name="RL_hip_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0.419 -0.098894 -0.00113" />
     <parent link="trunk" />
     <child link="RL_hip" />
     <axis xyz="1.0 -0.0 -0.0" />
-    <limit lower="-0.785" upper="0.785" />
+    <limit lower="0" upper="6.28" />
+
   </joint>
   <joint name="RR_hip_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0.419 0.101106 -0.00113" />
     <parent link="trunk" />
     <child link="RR_hip" />
     <axis xyz="1.0 -0.0 0.0" />
-    <limit lower="-0.785" upper="0.785" />
+    <limit lower="0" upper="6.28" />
   </joint>
   <joint name="FR_hip_joint" type="revolute">
     <origin rpy="0 0 0" xyz="-0.059 0.101106 -0.00113" />
