@@ -19,7 +19,7 @@ qpos = kinematics_data.angles
 # for i in range(50): 
 #     ctrl =diff*(i/50) + qpos 
 ctrl = default_pose
-param.set_ctrl(ctrl)
+#param.set_ctrl(ctrl)
 time.sleep(0.02)  # Adjust the sleep time as needed
 
 while True:

@@ -153,6 +153,9 @@ if __name__ == "__main__":
     ga_one.start()
     time.sleep(1)
 
+    print(ga_one.get_kinematics_data().angles)
+    # quit()
+
     ga_one._sit()
 
     if not args.zero:

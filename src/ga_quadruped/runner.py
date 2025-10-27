@@ -143,7 +143,7 @@ def main():
         for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/jump_command_10000.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/more_range_5k.onnx'
     
 
 
@@ -186,29 +186,29 @@ def main():
                     if key in ('q', 'Q'):
                         break
                     
-                    height = 0.6
-                    print("Key pressed:", key)
-                    if key in ('y', 'Y'):
-                        print("Jump!")
-                        is_jumping = True
-                        steps = 0
+                    # height = 0.6
+                    # print("Key pressed:", key)
+                    # if key in ('y', 'Y'):
+                    #     print("Jump!")
+                    #     is_jumping = True
+                    #     steps = 0
 
-                    if steps < JUMP_STEPS and is_jumping:
-                        steps += 1
-                        print(f"Jump Step: {steps}/{JUMP_STEPS}")
-                    else:
-                        is_jumping = False
+                    # if steps < JUMP_STEPS and is_jumping:
+                    #     steps += 1
+                    #     print(f"Jump Step: {steps}/{JUMP_STEPS}")
+                    # else:
+                    #     is_jumping = False
                     
 
                     t1 = time.time()
 
-                    # if isinstance(controller, VelocityController):
-                    #     vx, vy, w = controller.step(key=key)
-                    # else:
-                    #     vx, vy, w, quit = controller.step(timeout_ms=1)
+                    if isinstance(controller, VelocityController):
+                        vx, vy, w = controller.step(key=key)
+                    else:
+                        vx, vy, w, quit = controller.step(timeout_ms=1)
 
-                    #     if quit:
-                    #         break
+                        if quit:
+                            break
         
                     print("command", vx, vy, w)
 
@@ -218,7 +218,7 @@ def main():
                     # phase = 2 * np.pi * phase
                     # gait_phase = np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
                     policy.set_command(command)
-                    policy.set_jump_command(height)
+                    # policy.set_jump_command(height)
                     # policy.set_gait_command(gait_command)
 
                     if args.sim:
