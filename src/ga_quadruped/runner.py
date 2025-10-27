@@ -76,7 +76,7 @@ def limit_effort(effort, effort_limit):
     return np.clip(effort, -effort_limit, effort_limit)
 
 
-VEL_STEP = 0.1  # m/s per key press
+VEL_STEP = 0.3  # m/s per key press
 term = Terminal()
 time_step = 0.02
 
@@ -101,7 +101,7 @@ def main():
     # controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
     
     if args.controller == "velocity":
-        controller = VelocityController(vel_step=VEL_STEP, max_lin_x=1.0, max_lin_y=0.5, max_ang=1.0)
+        controller = VelocityController(vel_step=VEL_STEP, max_lin_x=2.0, max_lin_y=0.5, max_ang=1.0)
     else:
         controller = SbusVelocityController(
             vmax_lin_x=1.0,
@@ -143,7 +143,7 @@ def main():
         for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/gallop_4k.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/policy_6000.onnx'
     
 
 

@@ -20,7 +20,8 @@ class PolicyAgent:
         gait_freq = 2.0
         dt = 0.02
         self.phase_dt = 2 * np.pi * dt * gait_freq
-        self.phase = np.array([0,0.5 * np.pi,np.pi,1.5 * np.pi])
+        #self.phase = np.array([0,0.5 * np.pi,np.pi,1.5 * np.pi])
+        self.phase = np.array([0,np.pi,np.pi,0.0])
         self.jump_command = 0.0
 
     def set_jump_command(self, jump_command: float):
