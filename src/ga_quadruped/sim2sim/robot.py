@@ -426,17 +426,28 @@ if __name__ == "__main__":
     
     # HOME_POSE = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
     theta0 = 0.0
-    # FRONT legs thigh
-    theta3 = 0.32
-    # FRONT legs calf
-    theta4 = 1.24
-    theta1 = 0.41
-    theta2 = 1.21
-    HOME_POSE = [theta0, -theta3, theta4, -theta0, theta3, -theta4, theta0, -theta1, theta2, -theta0, theta1, -theta2]
+    theta1 = 0.4
+    theta2 = 1.2
+    
+    HOME_POSE = [           
+        theta0,
+        -theta1,
+        theta2,
+        -theta0,
+        theta1,
+        -theta2,
+        theta0,
+        -theta1,
+        theta2,
+        -theta0,
+        theta1,
+        -theta2,
+    ]
+
     robot = Robot(XML_PATH, randomisation=False,
                   default_joint_pos=HOME_POSE,
-                  init_pos=[0, 0, 0.3])
-
+                  init_pos=[0, 0, 0.5])
+    
     model = robot.model
     data = robot.data
     trunk_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "trunk")
@@ -445,13 +456,13 @@ if __name__ == "__main__":
 
     import time
 
-    with mjv.launch_passive(model, data) as viewer:
-        _sit(robot, viewer)
-        time.sleep(1.0)
-        _stand(robot, viewer)
-        time.sleep(1.0)
+    # with mjv.launch_passive(model, data) as viewer:
+    #     _sit(robot, viewer)
+    #     time.sleep(1.0)
+    #     _stand(robot, viewer)
+    #     time.sleep(1.0)
 
-    exit()
+    # exit()
 
     np.set_printoptions(precision=3, suppress=True)
     # Use MuJoCo's official viewer
