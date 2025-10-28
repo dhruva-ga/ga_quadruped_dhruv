@@ -17,7 +17,7 @@ class PolicyAgent:
         self.last_act = np.array(initial_qpos.copy())
         self.initial_qpos = initial_qpos
         self.command = np.array([0.0, 0.0,0.0])  # forward, turn
-        gait_freq = 2.0
+        gait_freq = 1.25
         dt = 0.02
         self.phase_dt = 2 * np.pi * dt * gait_freq
         #self.phase = np.array([0,0.5 * np.pi,np.pi,1.5 * np.pi])
