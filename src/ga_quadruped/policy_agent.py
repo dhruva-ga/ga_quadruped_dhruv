@@ -55,8 +55,8 @@ class PolicyAgent:
         state = np.concatenate([
             # is_jumping,
             # jump_command,
-            # self.command,
-            # phase,
+            self.command,
+            phase,
             #linvel,
             qpos - self.initial_qpos,
             qvel,
