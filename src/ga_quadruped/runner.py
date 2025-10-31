@@ -130,6 +130,9 @@ def main():
 
         XML_PATH = '/home/radon12/Documents/ga_quadruped/assets/param/scene.xml'
         robot = Robot(XML_PATH, randomisation=False, default_joint_pos=HOME_POSE, init_pos=[0, 0, 0.4]) # Go1
+
+        idx = 98
+        robot.fall_start(idx)
     else:
         robot = Param(default_joint_pos=np.array(HOME_POSE))  # Param
         robot.start()
@@ -143,7 +146,7 @@ def main():
         for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/low_height_2k.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/recovery_1k.onnx'
     
 
 
@@ -176,6 +179,9 @@ def main():
             steps = 0
             is_jumping = False
 
+            # TIME_STEPS = 350
+            # TOTAL_TIME_STEPS = 350
+
             gyro_integral = np.zeros(3)
 
             with term.cbreak(), term.hidden_cursor():
@@ -185,6 +191,13 @@ def main():
                     key = term.inkey(timeout=0.001)
                     if key in ('q', 'Q'):
                         break
+
+                    # TIME_STEPS -= 1
+                    # if TIME_STEPS <= 0:
+                    #     print("Time up!")
+                    #     break
+
+
                     
                     # height = 0.6
                     # print("Key pressed:", key)
@@ -324,6 +337,8 @@ def main():
                         time.sleep(time_step - (t2 - t1))
                     else:
                         print(f"Step time {t2 - t1:.4f} exceeded {time_step}")
+
+                    # time.sleep(1)
 
         if args.sim:
             from mujoco.viewer import launch_passive
