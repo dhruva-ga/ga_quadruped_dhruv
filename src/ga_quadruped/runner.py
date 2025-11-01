@@ -146,7 +146,7 @@ def main():
         for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/a2_gait.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/low_height_2k.onnx'
     
 
 
