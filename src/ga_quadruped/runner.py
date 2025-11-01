@@ -146,7 +146,7 @@ def main():
         for _ in tqdm(range(2), desc="Preparing", unit="s"):
             time.sleep(1)
         
-    ONNX_PATH = sys.path[0] + '/policy/low_height_2k.onnx'
+    ONNX_PATH = sys.path[0] + '/policy/a2_gait.onnx'
     
 
 
@@ -220,8 +220,9 @@ def main():
                     else:
                         vx, vy, w, quit = controller.step(timeout_ms=1)
 
-                        if quit:
-                            break
+                        # Fix controller
+                        # if quit:
+                        #     break
         
                     print("command", vx, vy, w)
 
