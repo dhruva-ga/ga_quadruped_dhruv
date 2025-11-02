@@ -23,10 +23,12 @@ from scipy.spatial.transform import Rotation as R
 from ga_can.core.ga_logging import get_logger
 from tqdm import tqdm
 from ga_quadruped.controller.accelerate_controller import AccelerateController  # noqa: F401 (left for discoverability)
+from ga_quadruped.controller.jump_controller import JumpController
 from ga_quadruped.controller.sbus_controller import SbusVelocityController
 from ga_quadruped.controller.velocity_controller import VelocityController
 from ga_quadruped.param.param import Param
 from ga_quadruped.plot.publisher import SimpleZmqPublisher
+from ga_quadruped.policy_agent.jump_policy_agent import JumpPolicyAgent
 from ga_quadruped.policy_agent.recovery_policy_agent import RecoveryPolicyAgent
 from ga_quadruped.policy_agent.velocity_policy_agent import VelocityPolicyAgent
 from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer
@@ -74,7 +76,9 @@ def run(args: argparse.Namespace) -> None:
     logger = get_logger("runner")
 
     # Controller selection
-    if args.controller == "velocity":
+    if args.jump:
+        controller = JumpController()
+    elif args.controller == "velocity":
         controller = VelocityController(vel_step=VEL_STEP, max_lin_x=1.0, max_lin_y=0.5, max_ang=1.0)
     elif args.controller == "remote":
         controller = SbusVelocityController(
@@ -132,13 +136,22 @@ def run(args: argparse.Namespace) -> None:
             default_qpos=HOME_POSE,
         )
     else:
-        policy_path = f"{sys.path[0]}/policy/{args.policy}"
-        policy = VelocityPolicyAgent(
-            controller=controller,
-            robot=robot,
-            onnx_path=policy_path, 
-            default_qpos=HOME_POSE
-        )
+        if args.jump:
+            policy_path = f"{sys.path[0]}/policy/jump_command_5000.onnx"
+            policy = JumpPolicyAgent(
+                controller=controller,
+                robot=robot,
+                onnx_path=policy_path,
+                default_qpos=HOME_POSE
+            )
+        else:
+            policy_path = f"{sys.path[0]}/policy/{args.policy}"
+            policy = VelocityPolicyAgent(
+                controller=controller,
+                robot=robot,
+                onnx_path=policy_path, 
+                default_qpos=HOME_POSE
+            )
 
 
 
@@ -267,6 +280,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--save-obs", dest="save_obs", type=str, default="", help="Optional CSV file to save observations")
     parser.add_argument("--recovery", action="store_true", help="Enable recovery behavior")
     parser.add_argument("--recovery_policy", type=str, default="recovery_1k.onnx", help="Recovery policy ONNX path")
+    parser.add_argument("--jump", action="store_true", help="Use jump controller (overrides --controller)")
     return parser.parse_args(argv)
 
 

@@ -13,9 +13,11 @@ class JumpPolicyAgent(PolicyAgentInterface):
         super().__init__(controller, robot, onnx_path, default_qpos, action_scale=action_scale)
         self.is_jumping = False
         self.jump_command = 0.0
+        self.jump_phase = 0.0
 
     def consume_control(self, out: ControlOutput) -> None:
-        self.is_jumping = bool(out.events.get("jump", False)) if getattr(out, "events", None) else False
+        self.is_jumping = bool(out.events.get("jump", False))
+        self.jump_phase = out.axes.get("jump_phase", 0.0)
 
     def compute_obs(self) -> np.ndarray:
         qpos, qvel, imu_quat, gyro = self._read_robot_signals()
@@ -31,5 +33,4 @@ class JumpPolicyAgent(PolicyAgentInterface):
             self.last_act,
         ], axis=0)
 
-        self.is_jumping = False
         return state.reshape(1, -1).astype(np.float32)
