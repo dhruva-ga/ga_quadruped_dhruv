@@ -8,6 +8,7 @@ from ga_can.devices.imu.imu import IMU
 import numpy as np
 
 from ga_quadruped.robot.base_robot import BaseRobot
+from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer
 
 
 CAN_ICM_GYRO = 0x102
@@ -128,38 +129,47 @@ if __name__ == "__main__":
     # args.add_argument('--stand', action='store_true', help='Stand')
     args = args.parse_args()
 
+        
     theta0 = 0.0
     # theta1 = 0.45
     theta1 = 0.4
     theta2 = 1.2
     # theta2 = 1.4
     HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
-    ga_one = Param(default_joint_pos=np.array(HOME_POSE))
     
-    time.sleep(1)
-    ga_one.start()
-    time.sleep(1)
+    robot = Param()
 
-    print(ga_one.get_kinematics_data().angles)
-    # quit()
+    quadraped_init = QuadrupedDefaultInitializer(
+        robot=robot,
+        stand_gait=np.array(HOME_POSE),
+        sit_gait=np.zeros(12),
+    )
 
-    ga_one._sit()
+    
+    robot.start()
+    time.sleep(0.1)
 
-    if not args.zero:
-        ga_one._stand()
+    if args.read:
+        print(robot.get_kinematics_data().angles)
+        exit()
+    else:
+        quadraped_init.sit()
+        time.sleep(1.0)
+        if not args.zero:
+            quadraped_init.stand()
 
     np.set_printoptions(precision=3, suppress=True)
     t = 1000
     total = 50 * t
     try:
         for i in range(total):
-            print(ga_one.get_kinematics_data())
+            print(robot.get_kinematics_data())
             time.sleep(0.02)  # Adjust the sleep time as needed
     except KeyboardInterrupt:
-        ga_one._sit()
+        quadraped_init.sit()
 
     time.sleep(2)
-    ga_one._sit()
+    quadraped_init.sit()
     
 
     # exit()
