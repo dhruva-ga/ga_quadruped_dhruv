@@ -43,7 +43,7 @@ class Param(BaseRobot):
         self.imu = IMU([CAN_BNO_GYRO, CAN_BNO_QUAT], self.manager2)
 
         self._ctrl_lock = Lock()
-        self._ctrl = None
+        self._ctrl = np.zeros(12, dtype=float)
 
         self._thread: Thread | None = None
 
