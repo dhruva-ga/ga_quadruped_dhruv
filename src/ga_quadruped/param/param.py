@@ -9,6 +9,7 @@ import numpy as np
 
 from ga_quadruped.robot.base_robot import BaseRobot
 from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer
+import time
 
 
 CAN_ICM_GYRO = 0x102
