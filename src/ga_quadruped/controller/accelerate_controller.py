@@ -1,5 +1,6 @@
 from logging import warning
 
+
 class AccelerateController:
     """
     RC-car style controller that integrates acceleration into speed/yaw-rate.
@@ -20,14 +21,14 @@ class AccelerateController:
 
     def __init__(
         self,
-        accel=2.0,           # m/s^2
-        steer_accel=2.5,     # rad/s^2
-        brake=6.0,           # m/s^2
-        drag=0.8,            # 1/s
-        ang_drag=1.5,        # 1/s
-        v_max=1.0,           # m/s
-        w_max=1.0,           # rad/s
-        default_dt=0.02,     # s
+        accel=2.0,  # m/s^2
+        steer_accel=2.5,  # rad/s^2
+        brake=6.0,  # m/s^2
+        drag=0.8,  # 1/s
+        ang_drag=1.5,  # 1/s
+        v_max=1.0,  # m/s
+        w_max=1.0,  # rad/s
+        default_dt=0.02,  # s
         passthrough_keys=("q", "Q"),  # keys your runner uses; won't warn
     ):
         self.accel = float(accel)
@@ -55,17 +56,23 @@ class AccelerateController:
         dt = self.default_dt if dt is None else float(dt)
 
         # commands for this frame
-        ax = 0.0       # longitudinal acceleration
-        alpha = 0.0    # yaw angular acceleration
+        ax = 0.0  # longitudinal acceleration
+        alpha = 0.0  # yaw angular acceleration
         braking = False
 
-        if (key is not None) and (key != ''):
-            if   key == 'w': ax += self.accel
-            elif key == 's': ax -= self.accel
-            elif key == 'a': alpha += self.steer_accel
-            elif key == 'd': alpha -= self.steer_accel
-            elif key == ' ': braking = True
-            elif key == 't': self.reset()
+        if (key is not None) and (key != ""):
+            if key == "w":
+                ax += self.accel
+            elif key == "s":
+                ax -= self.accel
+            elif key == "a":
+                alpha += self.steer_accel
+            elif key == "d":
+                alpha -= self.steer_accel
+            elif key == " ":
+                braking = True
+            elif key == "t":
+                self.reset()
             else:
                 if key not in self.passthrough_keys:
                     warning(f"AccelerateController: unrecognized key '{key}'")
@@ -96,12 +103,16 @@ class AccelerateController:
 
     @staticmethod
     def _clip(x, lim):
-        if x >  lim: return lim
-        if x < -lim: return -lim
+        if x > lim:
+            return lim
+        if x < -lim:
+            return -lim
         return x
 
     @staticmethod
     def _toward_zero(x, dx):
-        if x > 0.0:   return max(0.0, x - abs(dx))
-        if x < 0.0:   return min(0.0, x + abs(dx))
+        if x > 0.0:
+            return max(0.0, x - abs(dx))
+        if x < 0.0:
+            return min(0.0, x + abs(dx))
         return 0.0

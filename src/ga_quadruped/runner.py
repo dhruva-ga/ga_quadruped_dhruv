@@ -1,108 +1,82 @@
+"""
+Lightly cleaned runner script for GA quadruped.
+- Tidier imports & constants
+- CLI flags for simulation, controller type, XML/ONNX paths
+- Safer shutdown on exceptions/KeyboardInterrupt
+- Optional torque/temperature printing
+- Minimal comments for future readers
+
+Assumes project-local modules are importable.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import sys
+import time
+from typing import Callable, Tuple
+
+import numpy as np
+from blessed import Terminal
+from scipy.spatial.transform import Rotation as R
+
+from ga_can.core.ga_logging import get_logger
 from tqdm import tqdm
-# from ga_quadruped.go1.go_one import GoOne
-from ga_quadruped.controller.accelerate_controller import AccelerateController
+from ga_quadruped.controller.accelerate_controller import AccelerateController  # noqa: F401 (left for discoverability)
 from ga_quadruped.controller.sbus_controller import SbusVelocityController
 from ga_quadruped.controller.velocity_controller import VelocityController
 from ga_quadruped.param.param import Param
 from ga_quadruped.plot.publisher import SimpleZmqPublisher
-from ga_quadruped.policy_agent import PolicyAgent
-from ga_quadruped.sim2sim.robot import Robot
-from ga_can.core.ga_logging import get_logger
+from ga_quadruped.policy_agent.recovery_policy_agent import RecoveryPolicyAgent
+from ga_quadruped.policy_agent.velocity_policy_agent import VelocityPolicyAgent
+from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer
+from ga_quadruped.sim2sim.robot import SimRobot
 
-import time
-import numpy as np
-import matplotlib.pyplot as plt
+from mujoco.viewer import launch_passive
 
-from scipy.spatial.transform import Rotation as R
+# =====================
+# Constants & Defaults
+# =====================
 
-# import cv2
-import sys
-# import csv
-from blessed import Terminal
+VEL_STEP = 0.1           # m/s per key press
+DEFAULT_DT = 0.02        # s
+JUMP_STEPS = 120         # placeholder if jump is re-enabled
 
-
-ACTUATOR_NAMES = [
-    "hip_abduction_fl","thigh_rotation_fl","calf_fl",
-    "hip_abduction_fr","thigh_rotation_fr","calf_fr",
-    "hip_abduction_rl","thigh_rotation_rl","calf_rl",
-    "hip_abduction_rr","thigh_rotation_rr","calf_rr"
+# Default home pose (Go1-like ordering)
+_THETA0 = 0.0
+_THETA1 = 0.4
+_THETA2 = 1.2
+HOME_POSE = [
+    _THETA0, -_THETA1, _THETA2,
+    -_THETA0, _THETA1, -_THETA2,
+    _THETA0, -_THETA1, _THETA2,
+    -_THETA0, _THETA1, -_THETA2,
 ]
 
-def actuator_torque_logger(csv_path, actuator_names, nu, flush_every=100):
-    """
-    Creates a CSV logger for MuJoCo actuator efforts (data.actuator_force).
-    Returns (log_fn, close_fn). 
-    - log_fn(data, step): write a row for the current step.
-    - close_fn(): flush and close the CSV file.
-    """
-    if nu != len(actuator_names):
-        raise ValueError(f"Model has nu={nu} actuators, but {len(actuator_names)} names were provided.")
-    
-    f = open(csv_path, "w", newline="")
-    writer = csv.DictWriter(f, fieldnames=["step", "sim_time"] + actuator_names) 
-    writer.writeheader()
-    count = 0
+term = Terminal()
+pub = SimpleZmqPublisher()
 
-    def log(data, step):
-        nonlocal count
-        tau = data.actuator_force  # per-actuator effort
-        row = {"step": int(step), "sim_time": float(data.time)}
-        row.update({name: float(tau[j]) for j, name in enumerate(actuator_names)})
-        writer.writerow(row)
-        count += 1
-        if flush_every and (count % flush_every == 0):
-            f.flush()
-
-    def close():
-        f.flush()
-        f.close()
-
-    return log, close
-
-def save_obs_to_csv(obs, filename="obs_mujoco.csv"):
+# =====================
+# Utilities
+# =====================
+def save_obs_to_csv(obs: np.ndarray, filename: str = "obs_mujoco.csv") -> None:
     """Save 3D observation array to a CSV file (flattened per row)."""
     obs_np = np.array(obs)
-    print(obs_np.shape)
-    # Flatten each observation to 1D if needed
     obs_flat = obs_np.reshape(obs_np.shape[0], -1)
     np.savetxt(filename, obs_flat, delimiter=",")
 
-def pd_control(target_q, q, kp, target_dq, dq, kd):
-    """Calculates torques from position commands"""
-    return (target_q - q) * kp + (target_dq - dq) * kd
 
-def limit_effort(effort, effort_limit):
-    """Limit the effort to the specified limit."""
-    return np.clip(effort, -effort_limit, effort_limit)
+# =====================
+# Core Runner
+# =====================
 
-
-VEL_STEP = 0.1  # m/s per key press
-term = Terminal()
-time_step = 0.02
-
-JUMP_STEPS = 120
-
-
-
-pub = SimpleZmqPublisher()
-
-
-
-def main():
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--sim', action='store_true', help='Sim or real robot')
-    parser.add_argument("--controller", type=str, default="velocity", help="Type of controller to use")
-    args = parser.parse_args()
-
+def run(args: argparse.Namespace) -> None:
     logger = get_logger("runner")
 
-    # controller = AccelerateController(default_dt=time_step, passthrough_keys=("q", "Q"), accel=3.0, steer_accel=3.0)
-    
+    # Controller selection
     if args.controller == "velocity":
         controller = VelocityController(vel_step=VEL_STEP, max_lin_x=1.0, max_lin_y=0.5, max_ang=1.0)
-    else:
+    elif args.controller == "remote":
         controller = SbusVelocityController(
             vmax_lin_x=1.0,
             vmax_lin_y=0.5,
@@ -111,263 +85,192 @@ def main():
             invert_left_vertical=False,
             invert_right_vertical=False,
             invert_left_left_right=True,
-            invert_right_left_right=True,  # set True if right horizontal feels flipped
+            invert_right_left_right=True,
         )
-                        
-    # home_pos = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5]
-    # ["FL_hip", "FL_thigh", "FL_calf", "FR_hip", "FR_thigh", "FR_calf", "RL_hip", "RL_thigh", "RL_calf", "RR_hip", "RR_thigh", "RR_calf"]
-    theta0 = 0.0
-    # theta1 = 0.45
-    theta1 = 0.4
-    theta2 = 1.2
-    # theta2 = 1.4
-    HOME_POSE = [theta0, -theta1, theta2, -theta0, theta1, -theta2, theta0, -theta1, theta2, -theta0, theta1, -theta2]
-    # fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    # writer = cv2.VideoWriter(sys.path[0] + "/output.mp4", fourcc, 50, (1280,720))
-    # CAMERA_NAME = "render_cam"  # Name of the camera in the XML file
-    if args.sim:
-        import mujoco
-
-        XML_PATH = '/home/radon12/Documents/ga_quadruped/assets/param/scene.xml'
-        robot = Robot(XML_PATH, randomisation=False, default_joint_pos=HOME_POSE, init_pos=[0, 0, 0.4]) # Go1
-
-        # idx = 98
-        # robot.fall_start(idx)
     else:
-        robot = Param(default_joint_pos=np.array(HOME_POSE))  # Param
+        raise ValueError(f"Unknown controller: {args.controller}")
+
+    # Robot initialization
+    if args.sim:
+        robot = SimRobot(args.xml)
+    else:
+        robot = Param()
         robot.start()
         time.sleep(1)
-        robot._sit()
-        time.sleep(1)
+
+    viewer = None
+    if args.sim:
+        viewer = launch_passive(robot.model, robot.data)
+
+    quadraped_init = QuadrupedDefaultInitializer(
+        robot=robot,
+        stand_gait=np.array(HOME_POSE),
+        sit_gait=np.zeros(12),
+        viewer=viewer
+    )
+
+    if not args.recovery:
+        quadraped_init.sit()
+        time.sleep(0.5)
+
         print("Standing Up!")
-        time.sleep(1)
-        robot._stand()
+        quadraped_init.stand()
 
-        for _ in tqdm(range(2), desc="Preparing", unit="s"):
-            time.sleep(1)
-        
-    ONNX_PATH = sys.path[0] + '/policy/low_height_2k.onnx'
-    
+        # for _ in tqdm(range(2), desc="Preparing", unit="s"):
+        #     time.sleep(1)
 
+    if args.recovery and args.sim:
+        robot.fall_start(58)
+        viewer.sync()
 
-    # try:
-    #     cam_id = mujoco.mj_name2id(
-    #         robot.model,
-    #         mujoco.mjtObj.mjOBJ_CAMERA,
-    #         CAMERA_NAME
-    #     )
-    # except Exception as e:
-    #     raise RuntimeError(
-    #         f"Camera '{CAMERA_NAME}' not found in the XML. "
-    #     ) from e
-    # ctx = mujoco.GLContext(1280, 720)
-    # ctx.make_current()
-
-    # renderer = mujoco.Renderer(robot.model,height=480, width=640)
-    try:
-        policy = PolicyAgent(ONNX_PATH, initial_qpos=HOME_POSE)
-
-        obs_arr = []
-
-        # log_torque, close_torque = actuator_torque_logger(
-        # "actuator_torques.csv", ACTUATOR_NAMES, robot.model.nu, flush_every=100
-        # )
-        
-        def run_loop(viewer=None):
-            vx, vy,w = 0.0, 0.0,0.0
-
-            steps = 0
-            is_jumping = False
-
-            # TIME_STEPS = 350
-            # TOTAL_TIME_STEPS = 350
-
-            gyro_integral = np.zeros(3)
-
-            with term.cbreak(), term.hidden_cursor():
-                val = ''
-                for ixxxx in range(50 * 24 * 60 * 60):
-
-                    key = term.inkey(timeout=0.001)
-                    if key in ('q', 'Q'):
-                        break
-
-                    # TIME_STEPS -= 1
-                    # if TIME_STEPS <= 0:
-                    #     print("Time up!")
-                    #     break
+    if args.recovery:
+        policy_path = f"{sys.path[0]}/policy/{args.recovery_policy}"
+        policy = RecoveryPolicyAgent(
+            controller=None,
+            robot=robot,
+            onnx_path=policy_path,
+            default_qpos=HOME_POSE,
+        )
+    else:
+        policy_path = f"{sys.path[0]}/policy/{args.policy}"
+        policy = VelocityPolicyAgent(
+            controller=controller,
+            robot=robot,
+            onnx_path=policy_path, 
+            default_qpos=HOME_POSE
+        )
 
 
-                    
-                    # height = 0.6
-                    # print("Key pressed:", key)
-                    # if key in ('y', 'Y'):
-                    #     print("Jump!")
-                    #     is_jumping = True
-                    #     steps = 0
 
-                    # if steps < JUMP_STEPS and is_jumping:
-                    #     steps += 1
-                    #     print(f"Jump Step: {steps}/{JUMP_STEPS}")
-                    # else:
-                    #     is_jumping = False
-                    
+    obs_buffer = []
 
-                    t1 = time.time()
+    def run_loop(viewer=None) -> None:
+        with term.cbreak(), term.hidden_cursor():
+            for step_idx in range(int(50 * 24 * 60 * 60)):
+                t_start = time.time()
 
-                    if isinstance(controller, VelocityController):
-                        vx, vy, w = controller.step(key=key)
-                    else:
-                        vx, vy, w, quit = controller.step(timeout_ms=1)
+                # Keyboard → controller (still supports runner-level quit)
+                key = term.inkey(timeout=0.001)
+                key_str = str(key) if key else None
+                if key_str in ("q", "Q"):
+                    break
+                if key_str:
+                    try:
+                        controller.handle_event(key_str)
+                    except (AttributeError, NotImplementedError):
+                        pass
 
-                        # Fix controller
-                        # if quit:
-                        #     break
-        
+                # One policy tick: control ingest + obs + act + apply
+                out, obs, ctrl = policy.tick(control_timeout_ms=1)
+
+                # Honor controller-level quit (e.g., SBUS button)
+                if getattr(out, "events", None) and out.events.get("quit", False):
+                    break
+
+                # (Optional) command print if axes exist
+                if getattr(out, "axes", None):
+                    vx = float(out.axes.get("vx", 0.0))
+                    vy = float(out.axes.get("vy", 0.0))
+                    w  = float(out.axes.get("w",  0.0))
                     print("command", vx, vy, w)
 
-                    command = np.array([vx, vy, w], dtype=np.float32)
-                    # gait_command = np.array([1.5, 0.5, 0.5, 0.5, 0.0])
-                    # phase = np.remainder(time_step * gait_command[0] * ixxxx, 1.0)
-                    # phase = 2 * np.pi * phase
-                    # gait_phase = np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
-                    policy.set_command(command)
-                    # policy.set_jump_command(height)
-                    # policy.set_gait_command(gait_command)
+                # Telemetry
+                qpos = policy.last_signals["qpos"]
+                qvel = policy.last_signals["qvel"]
+                imu_quat = policy.last_signals["imu_quat"]
+                gyro = policy.last_signals["gyro"]
+                rpy = R.from_quat(imu_quat, scalar_first=True).as_euler('xyz', degrees=True)
 
-                    if args.sim:
-                        qpos = robot.get_position().copy()
-                        qvel = robot.get_velocity().copy()
-                        imu_quat = robot.get_imu_quat()
-                        gyro = robot.get_gyro().copy()
+                motor_torques = robot.get_motor_torques()
+                motor_temps = robot.get_motor_temps()
+                for k, v in motor_torques.items():
+                    print(f"{k}: {v:.2f}")
+                print()
+                
 
-                        rpy = R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi
+                pub.send({
+                    **motor_torques,
+                    **motor_temps,
+                    "GYRO_X": float(gyro[0]),
+                    "GYRO_Y": float(gyro[1]),
+                    "GYRO_Z": float(gyro[2]),
+                    "Roll": float(rpy[0]),
+                    "Pitch": float(rpy[1]),
+                    "Yaw": float(rpy[2]),
+                })
 
-                        # gyro = gyro  + np.random.uniform(-0.3, 0.3, size=3)  # add noise
-                    else:
-                        kinematics_data = robot.get_kinematics_data()
-                        imu_data = robot.get_imu_data()
+                # Logging
+                logger.log({
+                    "qpos": qpos,
+                    "qvel": qvel,
+                    "imu_quat": imu_quat,
+                    "gyro": gyro,
+                    "ctrl": ctrl,
+                    "command": np.array([
+                        float(out.axes.get("vx", 0.0)) if getattr(out, "axes", None) else 0.0,
+                        float(out.axes.get("vy", 0.0)) if getattr(out, "axes", None) else 0.0,
+                        float(out.axes.get("w",  0.0)) if getattr(out, "axes", None) else 0.0,
+                    ], dtype=np.float32),
+                })
 
-                        qpos = kinematics_data.angles
-                        qvel = kinematics_data.velocity
-                        imu_quat = imu_data.quat
-                        gyro = imu_data.gyro
+                # Sim advance
+                if viewer is not None:
+                    robot.step(nsteps=4)
+                    viewer.sync()
 
-                        motor_toque = kinematics_data.torque
-                        motor_temp = kinematics_data.motor_temp
-                        motor_name = kinematics_data.motor_name
+                # Timing
+                elapsed = time.time() - t_start
+                delay = DEFAULT_DT - elapsed
+                if delay > 0:
+                    time.sleep(delay)
+                else:
+                    print(f"Step time {elapsed:.4f}s exceeded {DEFAULT_DT}s")
 
-                        # print("Motor Torque:", motor_toque)
-                        # print("Motor Temp:", motor_temp)
-                        rpy = imu_data.rpy
-
-
-                    # obs, z_axis = policy.compute_obs(qpos, qvel, None, imu_quat, None, gyro, gait_phase)
-                    obs = policy.compute_obs(is_jumping, qpos, qvel, imu_quat, gyro, None, None)
-                    # print("Obs:", obs)
-                    obs_arr.append(obs)
-
-                    gyro_integral += gyro * time_step * 180 / np.pi
-
-                    if args.sim:
-                        motor_torques = robot.get_motor_torques()
-                        motor_temps = {}
-                    else:
-                        motor_torques = {
-                            "motor_torque_" + motor_name[i]: float(motor_toque[i]) for i in range(len(motor_name))
-                        }
-                        motor_temps = {
-                            "motor_temp_" + motor_name[i]: float(motor_temp[i]) for i in range(len(motor_name))
-                        }
-
-                    for k, v in motor_torques.items():
-                        print(f"{k}: {v:.2f}")
-                    # print(motor_torques)
-
-                    plot_data = {}
-                    plot_data ={
-                        **plot_data,
-                        **motor_torques,
-                        **motor_temps,
-                        # "Z_0": float(z_axis[0]),
-                        # "Z_1": float(z_axis[1]),
-                        # "Z_2": float(z_axis[2]),
-                        "GYRO_X": float(gyro[0]),
-                        "GYRO_Y": float(gyro[1]),
-                        "GYRO_Z": float(gyro[2]),
-                        "Roll": float(rpy[0]),
-                        "Pitch": float(rpy[1]),
-                        "Yaw": float(rpy[2]),
-                    }
-
-                    pub.send(plot_data)
-
-                    # if args.sim:
-                    #     print("current control", robot.data.ctrl)
-                    # else:
-                    #     print("current control", robot.get_ctrl())
-
-                    ctrl = policy.act(obs)
-                    # print("setting control", ctrl)
-                    # robot.set_ctrl(np.array(home_pos))
-                    robot.set_ctrl(ctrl)
-                    # print("Gyro:", gyro)
-                    # print("Gyro Integral:", gyro_integral)
-
-                    logger.log({
-                        "qpos": qpos,
-                        "qvel": qvel,
-                        "imu_quat": imu_quat,
-                        "gyro": gyro,
-                        # "gyro_integral": gyro_integral,
-                        # "rpy": rpy * 180 / np.pi,
-                        # "imu_quat_rpy": R.from_quat(imu_quat, scalar_first=True).as_euler('xyz') * 180 / np.pi,
-                        "ctrl": ctrl,
-                        "command": command,
-                        # "gait_command": gait_command,
-                        # "gait_phase": gait_phase,
-                    })
-
-                    # Need to manually step in sim
-                    if viewer is not None:
-                        robot.step(nsteps=4)
-                        viewer.sync()
-
-                    t2 = time.time()
-                    if t2 - t1 < time_step:
-                        time.sleep(time_step - (t2 - t1))
-                    else:
-                        print(f"Step time {t2 - t1:.4f} exceeded {time_step}")
-
-                    # time.sleep(1)
-
+    try:
         if args.sim:
-            from mujoco.viewer import launch_passive
-            with launch_passive(robot.model, robot.data) as viewer:
-                run_loop(viewer)
+            run_loop(viewer)
         else:
             run_loop()
-
-        if not args.sim:
-            print("Sitting Down!")
-            robot._sit()
-            time.sleep(1)
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt received. Sitting Down!")
+        quadraped_init.sit()
+        time.sleep(1)
+        raise
     except Exception as e:
         print("Exception occurred:", e)
         print("Sitting Down!")
-        robot._sit()
+        quadraped_init.sit()
         time.sleep(1)
-        raise e
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt received. Sitting Down!")
-        robot._sit()
+        raise
+    finally:
+        quadraped_init.sit()
         time.sleep(1)
-    
-    # close_torque()
-    # save_obs_to_csv(obs_arr)
-# writer.release()
+        # Example: persist observations if desired
+        if args.save_obs:
+            try:
+                save_obs_to_csv(np.array(obs_buffer), filename=args.save_obs)
+                print(f"Saved observations to {args.save_obs}")
+            except Exception as e:
+                print("Failed to save observations:", e)
+
+
+# =====================
+# Entrypoint
+# =====================
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="GA Quadruped runner")
+    parser.add_argument("--sim", action="store_true", help="Run in simulation (MuJoCo)")
+    parser.add_argument("--controller", choices=["velocity", "remote"], default="velocity", help="Controller type")
+    parser.add_argument("--xml", type=str, default="/home/radon12/Documents/workspace/mjx_rl/src/mjx_rl/assets/param/param_scene_full_collisions.xml", help="MuJoCo XML path (sim only)")
+    parser.add_argument("--policy", type=str, default=f"low_height_2k.onnx", help="Policy ONNX path")
+    parser.add_argument("--save-obs", dest="save_obs", type=str, default="", help="Optional CSV file to save observations")
+    parser.add_argument("--recovery", action="store_true", help="Enable recovery behavior")
+    parser.add_argument("--recovery_policy", type=str, default="recovery_1k.onnx", help="Recovery policy ONNX path")
+    return parser.parse_args(argv)
+
 
 if __name__ == "__main__":
     from ga_can.core.ga_logging import logging_session
-    with logging_session("param_stand") as session:
-        main()
+    with logging_session("param") as _session:
+        run(parse_args())

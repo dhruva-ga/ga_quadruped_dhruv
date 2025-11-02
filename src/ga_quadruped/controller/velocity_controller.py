@@ -1,110 +1,76 @@
 import warnings
 
-class VelocityController:
-    """
-    Keyboard-driven velocity controller (event-in, no polling).
+from ga_quadruped.controller.controller_interface import (
+    ControlOutput,
+    ControllerInterface,
+    velocity_spec,
+)
 
-    Keys:
-      w/s : +vx / -vx
-      a/d : +vy / -vy
-      g/h : +w  / -w
-      t   : reset (vx=vy=w=0)
-    """
-    def __init__(self, vel_step=0.05, max_lin_x=None, max_lin_y=None, max_ang=None, passthrough_keys=("q","Q")):
-        """
-        Args:
-            vel_step: increment per key press
-            max_lin: optional abs limit applied to vx, vy (None = no limit)
-            max_ang: optional abs limit applied to w (None = no limit)
-            passthrough_keys: keys to ignore without warning (runner-level controls)
-        """
+
+class VelocityController(ControllerInterface):
+    def __init__(
+        self,
+        vel_step=0.05,
+        max_lin_x=None,
+        max_lin_y=None,
+        max_ang=None,
+        passthrough_keys=("q", "Q"),
+    ):
+        self._spec = velocity_spec()
         self.vel_step = float(vel_step)
         self.max_lin_x = None if max_lin_x is None else float(max_lin_x)
         self.max_lin_y = None if max_lin_y is None else float(max_lin_y)
         self.max_ang = None if max_ang is None else float(max_ang)
         self.passthrough_keys = set(passthrough_keys)
-
-        self.vx = 0.0
-        self.vy = 0.0
-        self.w  = 0.0
-
-        # map keys to (attribute, delta_multiplier)
+        self.vx = self.vy = self.w = 0.0
         self._keymap = {
-            'w': ('vx', +1),
-            's': ('vx', -1),
-            'a': ('vy', +1),
-            'd': ('vy', -1),
-            'g': ('w',  +1),
-            'h': ('w',  -1),
+            "w": ("vx", +1),
+            "s": ("vx", -1),
+            "a": ("vy", +1),
+            "d": ("vy", -1),
+            "g": ("w", +1),
+            "h": ("w", -1),
         }
 
-    # --- public API ---------------------------------------------------------
+    @property
+    def spec(self):
+        return self._spec
 
-    def step(self, key=None):
-        """
-        Apply a single key event (if provided) and return (vx, vy, w).
-        If key is None, just returns current values.
-        """
-        if key is not None:
-            self.handle_key(key)
-        return self.vx, self.vy, self.w
+    def step(self, **kwargs) -> ControlOutput:
+        return ControlOutput(
+            self._spec,
+            axes={"vx": self.vx, "vy": self.vy, "w": self.w},
+            events={"quit": False},
+        )
 
-    def handle_key(self, key):
-        """Apply a single key event; warn on unrecognized keys (except passthrough)."""
-        if key == 't':  # reset
+    def get(self) -> ControlOutput:
+        return self.step()
+
+    def reset(self) -> None:
+        self.vx = self.vy = self.w = 0.0
+
+    def handle_event(self, key: str) -> None:
+        if key == "t":
             self.reset()
             return
-
         target = self._keymap.get(key)
         if target:
             attr, sign = target
-            if attr == 'vx':
-                new_val = getattr(self, attr) + sign * self.vel_step
-                setattr(self, attr, self._clip_lin_x(new_val))
-            elif attr == 'vy':
-                new_val = self.vy + sign * self.vel_step
-                self.vy = self._clip_lin_y(new_val)
-            elif attr == 'w':
-                new_val = self.w + sign * self.vel_step
-                self.w = self._clip_ang(new_val)
+            val = getattr(self, attr) + sign * self.vel_step
+            if attr == "vx":
+                self.vx = self._clip(val, self.max_lin_x)
+            elif attr == "vy":
+                self.vy = self._clip(val, self.max_lin_y)
+            elif attr == "w":
+                self.w = self._clip(val, self.max_ang)
         else:
             if key not in self.passthrough_keys:
-                warnings.warn(f"VelocityController: unrecognized key '{key}'", RuntimeWarning)
+                warnings.warn(
+                    f"VelocityController: unrecognized key '{key}'", RuntimeWarning
+                )
 
-    def get(self):
-        """Return current (vx, vy, w)."""
-        return self.vx, self.vy, self.w
-
-    def reset(self):
-        """Zero out all commands."""
-        self.vx = self.vy = self.w = 0.0
-
-    def set_step(self, vel_step):
-        """Change increment size on the fly."""
-        self.vel_step = float(vel_step)
-
-    # --- helpers ------------------------------------------------------------
-
-    def _clip_lin_x(self, x):
-        if self.max_lin_x is None:
+    @staticmethod
+    def _clip(x, lim):
+        if lim is None:
             return x
-        if x >  self.max_lin_x: return self.max_lin_x
-        if x < -self.max_lin_x: return -self.max_lin_x
-        return x
-
-    def _clip_lin_y(self, x):
-        if self.max_lin_y is None:
-            return x
-        if x >  self.max_lin_y: return self.max_lin_y
-        if x < -self.max_lin_y: return -self.max_lin_y
-        return x
-
-    def _clip_ang(self, x):
-        if self.max_ang is None:
-            return x
-        if x >  self.max_ang: return self.max_ang
-        if x < -self.max_ang: return -self.max_ang
-        return x
-
-    def __repr__(self):
-        return f"VelocityController(vx={self.vx:.3f}, vy={self.vy:.3f}, w={self.w:.3f}, step={self.vel_step})"
+        return max(-lim, min(lim, x))
