@@ -105,6 +105,15 @@ if __name__ == "__main__":
         )
 
         quadraped_init.stand()
+
+        for i in range(10000):
+            p_body = data.xpos[trunk_id].copy()           # body-frame origin (world)
+            p_com  = data.xipos[trunk_id].copy()          # CoM (inertial origin, world)
+    
+            print(f"trunk origin z = {p_body[2]:.3f} | CoM z = {p_com[2]:.3f} | Δz = {(p_com[2]-p_body[2]):.3f}")
+            robot.step()
+            viewer.sync()
+
         time.sleep(1.0)
         quadraped_init.sit() 
         time.sleep(1.0) 

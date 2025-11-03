@@ -177,15 +177,8 @@ def run(args: argparse.Namespace) -> None:
                 out, obs, ctrl = policy.tick(control_timeout_ms=1)
 
                 # Honor controller-level quit (e.g., SBUS button)
-                if getattr(out, "events", None) and out.events.get("quit", False):
-                    break
-
-                # (Optional) command print if axes exist
-                if getattr(out, "axes", None):
-                    vx = float(out.axes.get("vx", 0.0))
-                    vy = float(out.axes.get("vy", 0.0))
-                    w  = float(out.axes.get("w",  0.0))
-                    print("command", vx, vy, w)
+                # if getattr(out, "events", None) and out.events.get("quit", False):
+                #     break
 
                 # Telemetry
                 qpos = policy.last_signals["qpos"]
