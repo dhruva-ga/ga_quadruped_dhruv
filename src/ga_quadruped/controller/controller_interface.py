@@ -40,12 +40,7 @@ def velocity_spec() -> ControlSpec:
     )
 
 
-def jump_spec() -> ControlSpec:
-    return ControlSpec(
-        kind="jump",
-        axes=(),  # no continuous axes; it's a trigger-only controller
-        events=("jump", "quit"),
-    )
+
 
 
 # ---------- Output ----------

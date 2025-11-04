@@ -137,7 +137,7 @@ def run(args: argparse.Namespace) -> None:
         )
     else:
         if args.jump:
-            policy_path = f"{sys.path[0]}/policy/jump_command_5000.onnx"
+            policy_path = f"{sys.path[0]}/policy/jump_c_1k5.onnx"
             policy = JumpPolicyAgent(
                 controller=controller,
                 robot=robot,

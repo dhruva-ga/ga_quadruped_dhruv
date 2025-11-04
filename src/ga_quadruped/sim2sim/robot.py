@@ -38,6 +38,7 @@ class SimRobot(BaseRobot):
         p = self.data.qpos[7:].copy()
         # if self.random_extent["position"]:
             # p += np.random.normal(0.0, self.random_extent["position"], size=p.shape)
+        print(self.data.qpos[2])
         return p
 
     def get_velocity(self) -> np.ndarray:

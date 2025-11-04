@@ -16,13 +16,14 @@ class JumpPolicyAgent(PolicyAgentInterface):
         self.jump_phase = 0.0
 
     def consume_control(self, out: ControlOutput) -> None:
-        self.is_jumping = bool(out.events.get("jump", False))
-        self.jump_phase = out.axes.get("jump_phase", 0.0)
+        self.is_jumping = bool(out.events.get("jump"))
+        self.jump_phase = out.axes.get("jump_phase")
+        self.jump_command = out.axes.get("jump_height")
 
     def compute_obs(self) -> np.ndarray:
         qpos, qvel, imu_quat, gyro = self._read_robot_signals()
         z_axis = self.compute_gravity_orientation(imu_quat)
-        header = np.array([float(self.is_jumping), float(self.jump_command)], dtype=np.float32)
+        header = np.array([float(self.is_jumping), float(self.jump_command), self.jump_phase], dtype=np.float32)
 
         state = np.concatenate([
             header,
