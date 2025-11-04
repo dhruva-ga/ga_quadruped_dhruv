@@ -137,7 +137,7 @@ def run(args: argparse.Namespace) -> None:
         )
     else:
         if args.jump:
-            policy_path = f"{sys.path[0]}/policy/jump_c_1k5.onnx"
+            policy_path = f"{sys.path[0]}/policy/{args.jump_policy}"
             policy = JumpPolicyAgent(
                 controller=controller,
                 robot=robot,
@@ -275,6 +275,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--recovery", action="store_true", help="Enable recovery behavior")
     parser.add_argument("--recovery_policy", type=str, default="recovery_1k.onnx", help="Recovery policy ONNX path")
     parser.add_argument("--jump", action="store_true", help="Use jump controller (overrides --controller)")
+    parser.add_argument("--jump_policy", type=str, default="jump_command_5000.onnx", help="Jump policy ONNX path")
     parser.add_argument("--freq",type=float,default=1.25,help="Gait frequency")
     parser.add_argument("--max_vel",type=float,default=1.0,help="Max linear velocity")
     return parser.parse_args(argv)
