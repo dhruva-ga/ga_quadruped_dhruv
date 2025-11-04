@@ -23,7 +23,7 @@ class QuadrupedDefaultInitializer:
         self._interp_to(self._sit_gait, seconds)
 
     def _interp_to(self, target: np.ndarray, seconds: float = 2.0) -> None:
-        start = self.robot.get_ctrl()
+        start = self.robot.get_position()
         steps = max(int(50 * seconds), 1)
         for i in range(steps):
             rate = (i + 1) / steps

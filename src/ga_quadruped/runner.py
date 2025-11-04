@@ -120,8 +120,8 @@ def run(args: argparse.Namespace) -> None:
         print("Standing Up!")
         quadraped_init.stand()
 
-        # for _ in tqdm(range(2), desc="Preparing", unit="s"):
-        #     time.sleep(1)
+        for _ in tqdm(range(2), desc="Preparing", unit="s"):
+            time.sleep(1)
 
     if args.recovery and args.sim:
         robot.fall_start(58)
