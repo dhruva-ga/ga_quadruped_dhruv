@@ -24,7 +24,7 @@ class SbusVelocityController(ControllerInterface):
         invert_left_left_right=False,
         invert_right_left_right=False,
         button_threshold=0.5,
-        conflate=False,
+        conflate=True,
     ):
         self._spec = velocity_spec()
         self.vmax_lin_x = float(vmax_lin_x)
@@ -44,20 +44,34 @@ class SbusVelocityController(ControllerInterface):
         if conflate:
             self._sub.setsockopt(zmq.CONFLATE, 1)
         self._sub.connect(endpoint)
-        self._sub.setsockopt(zmq.SUBSCRIBE, topic)
+        self._sub.setsockopt(zmq.SUBSCRIBE, b"")
 
     @property
     def spec(self):
         return self._spec
 
     def step(self, **kwargs) -> ControlOutput:
-        try:
-            frames = self._sub.recv_multipart(flags=zmq.DONTWAIT)
-        except zmq.Again:
-            frames = None
-        if frames:
-            payload = frames[-1] if len(frames) >= 2 else b""
-            self._apply_payload(payload)
+        poller = getattr(self, "_poller", None)
+        if poller is None:
+            poller = zmq.Poller()
+            poller.register(self._sub, zmq.POLLIN)
+            self._poller = poller
+        socks = dict(poller.poll(20))  # ~1 ms; tune as needed
+        if self._sub in socks:
+            try:
+                frames = self._sub.recv_multipart()  # safe after poll
+                payload = frames[0]
+                self._apply_payload(payload)
+            except Exception as e:
+                pass
+        #try:
+        #    frames = self._sub.recv_multipart(flags=zmq.DONTWAIT)
+        #except zmq.Again:
+        #    frames = None
+        #if frames:
+        #    payload = frames[-1] if len(frames) >= 2 else b""
+        #    self._apply_payload(payload)
+        #    print("Frames",self.vx,self.vy,self.w)
         quit_now = self._quit_latch
         return ControlOutput(
             self._spec,
@@ -118,6 +132,6 @@ if __name__ == "__main__":
     )
 
     while True:
-        vx, vy, w = ctrl.step(timeout_ms=0)  # non-blocking-ish
-        print(vx, vy, w)
+        ctrl.step(timeout_ms=0)  # non-blocking-ish
+        print(ctrl.vx, ctrl.vy, ctrl.w)
         time.sleep(0.02)

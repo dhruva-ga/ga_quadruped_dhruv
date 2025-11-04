@@ -79,10 +79,10 @@ def run(args: argparse.Namespace) -> None:
     if args.jump:
         controller = JumpController()
     elif args.controller == "velocity":
-        controller = VelocityController(vel_step=VEL_STEP, max_lin_x=1.0, max_lin_y=0.5, max_ang=1.0)
+        controller = VelocityController(vel_step=VEL_STEP, max_lin_x=args.max_vel, max_lin_y=0.5, max_ang=1.0)
     elif args.controller == "remote":
         controller = SbusVelocityController(
-            vmax_lin_x=1.0,
+            vmax_lin_x=args.max_vel,
             vmax_lin_y=0.5,
             vmax_ang=1.0,   # rad/s
             deadzone=0.05,
@@ -142,7 +142,7 @@ def run(args: argparse.Namespace) -> None:
                 controller=controller,
                 robot=robot,
                 onnx_path=policy_path,
-                default_qpos=HOME_POSE
+                default_qpos=HOME_POSE,
             )
         else:
             policy_path = f"{sys.path[0]}/policy/{args.policy}"
@@ -150,7 +150,8 @@ def run(args: argparse.Namespace) -> None:
                 controller=controller,
                 robot=robot,
                 onnx_path=policy_path, 
-                default_qpos=HOME_POSE
+                default_qpos=HOME_POSE,
+                gait_freq=args.freq
             )
 
 
@@ -189,9 +190,9 @@ def run(args: argparse.Namespace) -> None:
 
                 motor_torques = robot.get_motor_torques()
                 motor_temps = robot.get_motor_temps()
-                for k, v in motor_torques.items():
-                    print(f"{k}: {v:.2f}")
-                print()
+                #for k, v in motor_torques.items():
+                #    print(f"{k}: {v:.2f}")
+                #print()
                 
 
                 pub.send({
@@ -274,6 +275,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--recovery", action="store_true", help="Enable recovery behavior")
     parser.add_argument("--recovery_policy", type=str, default="recovery_1k.onnx", help="Recovery policy ONNX path")
     parser.add_argument("--jump", action="store_true", help="Use jump controller (overrides --controller)")
+    parser.add_argument("--freq",type=float,default=1.25,help="Gait frequency")
+    parser.add_argument("--max_vel",type=float,default=1.0,help="Max linear velocity")
     return parser.parse_args(argv)
 
 
