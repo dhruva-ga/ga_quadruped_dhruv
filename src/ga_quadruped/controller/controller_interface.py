@@ -27,7 +27,7 @@ class ControlSpec:
     events: Tuple[str, ...] = ()
 
 
-# Convenience makers
+# ---------- Output ----------
 def velocity_spec() -> ControlSpec:
     return ControlSpec(
         kind="velocity",
@@ -38,13 +38,6 @@ def velocity_spec() -> ControlSpec:
         ),
         events=("quit",),
     )
-
-
-
-
-
-# ---------- Output ----------
-
 
 @dataclass(frozen=True)
 class ControlOutput:

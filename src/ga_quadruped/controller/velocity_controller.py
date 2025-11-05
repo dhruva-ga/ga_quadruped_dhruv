@@ -1,11 +1,12 @@
 import warnings
 
 from ga_quadruped.controller.controller_interface import (
+    AxisSpec,
     ControlOutput,
+    ControlSpec,
     ControllerInterface,
     velocity_spec,
 )
-
 
 class VelocityController(ControllerInterface):
     def __init__(

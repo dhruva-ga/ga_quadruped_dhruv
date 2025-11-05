@@ -80,6 +80,48 @@ class SimRobot(BaseRobot):
         self.data.qpos = init_pos 
         mj.mj_forward(self.model, self.data)
 
+    def _unit_vector_on_sphere(self, rng):
+        v = rng.normal(size=3)
+        n = np.linalg.norm(v)
+        return v / (n + 1e-9)
+
+    def _sample_in_cone_about_x(self, rng, half_angle_rad):
+        """
+        Returns a unit vector in the robot's LOCAL frame, uniformly distributed
+        inside a cone around +X with half-angle = half_angle_rad.
+        """
+        # Uniform in cone: cos(theta) ~ U[cos(a), 1]
+        u1 = rng.random()
+        u2 = rng.random()
+        ca = np.cos(half_angle_rad)
+        cos_theta = 1.0 - u1 * (1.0 - ca)
+        sin_theta = np.sqrt(max(0.0, 1.0 - cos_theta**2))
+        phi = 2.0 * np.pi * u2
+        # Local coordinates: x is the cone axis
+        return np.array([cos_theta, sin_theta * np.cos(phi), sin_theta * np.sin(phi)])
+
+    def push(
+        self,
+        mag=0.5,                       # lower bound of push magnitude
+    ):
+        """
+        Randomizes direction and magnitude of a velocity kick to the root body.
+        Scales self.data.qvel[:3] (linear velocity in world frame).
+
+        Tip: If you're using a Gym/Gymnasium-style env, pass self.np_random as rng for reproducibility.
+        """
+        # Orientation (w, x, y, z) in MuJoCo; scalar_first=True is correct
+        quat = self.data.qpos[3:7]
+        rot = R.from_quat(quat, scalar_first=True).as_matrix()
+
+        rng = np.random.default_rng()
+        
+        # Sample direction (world frame)
+        direction_world = self._unit_vector_on_sphere(rng)
+
+        # Apply as a velocity kick to the root's linear velocity (world frame)
+        self.data.qvel[:3] += direction_world * mag
+
 
 if __name__ == "__main__":
     XML_PATH = "/home/radon12/Documents/ga_quadruped/assets/param/scene.xml" 
@@ -108,11 +150,15 @@ if __name__ == "__main__":
         quadraped_init.stand()
 
         for i in range(10000):
+            if i % 200 == 0:
+                robot.push()
+        
             p_body = data.xpos[trunk_id].copy()           # body-frame origin (world)
             p_com  = data.xipos[trunk_id].copy()          # CoM (inertial origin, world)
     
             print(f"trunk origin z = {p_body[2]:.3f} | CoM z = {p_com[2]:.3f} | Δz = {(p_com[2]-p_body[2]):.3f}")
             robot.step()
+
             viewer.sync()
 
         time.sleep(1.0)
