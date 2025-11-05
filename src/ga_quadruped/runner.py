@@ -161,9 +161,9 @@ def run(args: argparse.Namespace) -> None:
 
                 motor_torques = robot.get_motor_torques()
                 motor_temps = robot.get_motor_temps()
-                #for k, v in motor_torques.items():
-                #    print(f"{k}: {v:.2f}")
-                #print()
+                for k, v in motor_torques.items():
+                   print(f"{k}: {v:.2f}")
+                print()
                 
 
                 pub.send({
