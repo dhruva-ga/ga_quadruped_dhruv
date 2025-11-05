@@ -127,36 +127,7 @@ def run(args: argparse.Namespace) -> None:
         robot.fall_start(58)
         viewer.sync()
 
-    if args.recovery:
-        policy_path = f"{sys.path[0]}/policy/{args.recovery_policy}"
-        policy = RecoveryPolicyAgent(
-            controller=None,
-            robot=robot,
-            onnx_path=policy_path,
-            default_qpos=HOME_POSE,
-        )
-    else:
-        if args.jump:
-            policy_path = f"{sys.path[0]}/policy/{args.jump_policy}"
-            policy = JumpPolicyAgent(
-                controller=controller,
-                robot=robot,
-                onnx_path=policy_path,
-                default_qpos=HOME_POSE,
-            )
-        else:
-            policy_path = f"{sys.path[0]}/policy/{args.policy}"
-            policy = VelocityPolicyAgent(
-                controller=controller,
-                robot=robot,
-                onnx_path=policy_path, 
-                default_qpos=HOME_POSE,
-                gait_freq=args.freq
-            )
 
-
-
-    obs_buffer = []
 
     def run_loop(viewer=None) -> None:
         with term.cbreak(), term.hidden_cursor():
@@ -234,6 +205,35 @@ def run(args: argparse.Namespace) -> None:
                     print(f"Step time {elapsed:.4f}s exceeded {DEFAULT_DT}s")
 
     try:
+        if args.recovery:
+            policy_path = f"{sys.path[0]}/policy/{args.recovery_policy}"
+            policy = RecoveryPolicyAgent(
+                controller=None,
+                robot=robot,
+                onnx_path=policy_path,
+                default_qpos=HOME_POSE,
+            )
+        else:
+            if args.jump:
+                policy_path = f"{sys.path[0]}/policy/{args.jump_policy}"
+                policy = JumpPolicyAgent(
+                    controller=controller,
+                    robot=robot,
+                    onnx_path=policy_path,
+                    default_qpos=HOME_POSE,
+                )
+            else:
+                policy_path = f"{sys.path[0]}/policy/{args.policy}"
+                policy = VelocityPolicyAgent(
+                    controller=controller,
+                    robot=robot,
+                    onnx_path=policy_path, 
+                    default_qpos=HOME_POSE,
+                    gait_freq=args.freq
+                )
+
+        obs_buffer = []
+    
         if args.sim:
             run_loop(viewer)
         else:
