@@ -45,3 +45,7 @@ class BaseRobot(ABC):
     def start(self) -> None:
         """Start any background threads/loops if needed."""
         return None
+    
+    def stop(self) -> None:
+        """Stop any background threads/loops if needed."""
+        return None

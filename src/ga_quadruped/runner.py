@@ -197,6 +197,41 @@ class StandState(State):
             fsm.transition(VelocityState())
 
 
+# class SafetyStopState(State):
+#     """
+#     Safety interlock state reached when sway exceeds threshold.
+#     Robot is commanded to sit and await a human decision:
+#       - 's' → StandState (will perform sit→stand pre-roll)
+#       - 'r' → RecoveryState (policy-led self-righting)
+#       - 'q' → ShutdownState
+#     """
+#     name = "SafetyStop"
+
+#     def on_enter(self, fsm: FSM) -> None:
+#         print("SAFETY STOP: Excessive sway detected. Daming the motors and awaiting input (s=Stand, r=Recovery, q=Quit)…")
+#         try:
+#             fsm.ctx.robot.stop()
+#         except Exception as e:
+#             logging.warning({"safety_stop_sit_failed": str(e)})
+
+#     def handle(self, fsm: FSM, ev: Event, data: Optional[object] = None) -> None:
+#         key = str(data)
+#         if ev == Event.KEY:
+#             if key in ("q", "Q"):
+#                 fsm.transition(ShutdownState())
+#                 return
+#             if key in ("s", "S"):
+#                 fsm.transition(StandState())
+#                 return
+#             if key in ("r", "R", "3"):
+#                 fsm.transition(RecoveryState())
+#                 return
+#             # Ignore other keys in safety stop
+#         # No control outputs on tick; remain passive and safe
+#         if ev == Event.TICK:
+#             pass
+
+
 def _key_common(fsm: FSM, key) -> None:
     # Simulation-specific push injection
     if fsm.ctx.push_controller is not None:

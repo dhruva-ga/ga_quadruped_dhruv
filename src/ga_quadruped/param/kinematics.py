@@ -1,3 +1,4 @@
+from typing import List
 from ga_can.devices.motor.motor import Motor,MotorType
 import numpy as np
 from dataclasses import dataclass
@@ -15,7 +16,7 @@ class KinematicsData:
 class ParamLegsKinematics:
     def __init__(self,manager):
         self.manager = manager
-        self.motors = []
+        self.motors: List[Motor] = []
 
         x8_90_hip_stiffness = 80.0
         x8_90_hip_damping = 2.0

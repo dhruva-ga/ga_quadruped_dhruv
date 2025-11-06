@@ -24,6 +24,8 @@ class SimRobot(BaseRobot):
         self.model.dof_armature[6:] = [0.01] * len(self.default_joint_qpos)
         mj.mj_forward(self.model, self.data)
 
+        self.kps = self.model.actuator_gainprm[:, 0].copy()
+
     # ----- BaseRobot API -----
     def step(self, nsteps: int = 1) -> None:
         mj.mj_step(self.model, self.data, nstep=nsteps)
@@ -84,6 +86,11 @@ class SimRobot(BaseRobot):
         v = rng.normal(size=3)
         n = np.linalg.norm(v)
         return v / (n + 1e-9)
+    
+    def stop(self) -> None:
+        robot.model.actuator_gainprm[:, 0] = 0
+        mj.mj_forward(self.model, self.data)
+            
 
     def _sample_in_cone_about_x(self, rng, half_angle_rad):
         """
@@ -151,7 +158,8 @@ if __name__ == "__main__":
 
         for i in range(10000):
             if i % 200 == 0:
-                robot.push()
+                # robot.push()
+                robot.model.actuator_gainprm[:, :] = 0
         
             p_body = data.xpos[trunk_id].copy()           # body-frame origin (world)
             p_com  = data.xipos[trunk_id].copy()          # CoM (inertial origin, world)
