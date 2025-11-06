@@ -87,8 +87,12 @@ class SimRobot(BaseRobot):
         n = np.linalg.norm(v)
         return v / (n + 1e-9)
     
+    def start(self) -> None:
+        self.data.ctrl[:] = self.data.qpos[7:]
+        self.model.actuator_gainprm[:, 0] = self.kps
+
     def stop(self) -> None:
-        robot.model.actuator_gainprm[:, 0] = 0
+        self.model.actuator_gainprm[:, 0] = 0
         mj.mj_forward(self.model, self.data)
             
 
@@ -142,6 +146,7 @@ if __name__ == "__main__":
     data = robot.data 
     trunk_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "trunk") 
     
+    flag = True
 
     import mujoco.viewer as mjv 
     import time 
@@ -159,7 +164,12 @@ if __name__ == "__main__":
         for i in range(10000):
             if i % 200 == 0:
                 # robot.push()
-                robot.model.actuator_gainprm[:, :] = 0
+                if flag:
+                    robot.stop()
+                else:
+                    robot.start()
+                flag = not flag
+
         
             p_body = data.xpos[trunk_id].copy()           # body-frame origin (world)
             p_com  = data.xipos[trunk_id].copy()          # CoM (inertial origin, world)

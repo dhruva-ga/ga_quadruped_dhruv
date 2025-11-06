@@ -124,3 +124,7 @@ class ParamLegsKinematics:
         for i in range(len(self.motors)):
             self.motors[i].set_pid_position(angles[i])
             # self.motors[i].set_direct_position(radians = angles[i], speed=15)
+
+    def actuators(self, damp: bool = False):
+        for i in range(len(self.motors)):
+            self.motors[i].enable(damp)

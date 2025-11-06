@@ -95,6 +95,7 @@ class Param(BaseRobot):
         return self.kinematics.read_data()
 
     def start(self) -> None:
+        self.kinematics.actuators(damp=False)
         if self._thread is not None:
             return
         self._thread = Thread(target=self._run, daemon=True)
@@ -116,6 +117,9 @@ class Param(BaseRobot):
             t2 = time.time()
             if t2 - t1 < 0.01:
                 time.sleep(0.01 - (t2 - t1))
+
+    def stop(self):
+        self.kinematics.actuators(damp=True)
 
 
 

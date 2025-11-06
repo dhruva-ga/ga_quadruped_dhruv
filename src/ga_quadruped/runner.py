@@ -55,7 +55,7 @@ from mujoco.viewer import launch_passive
 # =====================
 VEL_STEP = 0.1
 DEFAULT_DT = 0.02
-SWAY_THRESHOLD_DEG = 45.0
+SWAY_THRESHOLD_DEG = 60.0
 
 # Default home pose (Go1-like ordering)
 _THETA0 = 0.0
@@ -150,8 +150,8 @@ class FSM:
         if abs(roll) > SWAY_THRESHOLD_DEG or abs(pitch) > SWAY_THRESHOLD_DEG:
             logging.info({"event": "SWAY", "roll": float(roll), "pitch": float(pitch)})
             # Only auto-enter recovery if not already there
-            if not isinstance(self.state, RecoveryState):
-                self.transition(RecoveryState())
+            if not isinstance(self.state, SafetyStopState):
+                self.transition(SafetyStopState())
 
 
 # =====================
@@ -197,39 +197,40 @@ class StandState(State):
             fsm.transition(VelocityState())
 
 
-# class SafetyStopState(State):
-#     """
-#     Safety interlock state reached when sway exceeds threshold.
-#     Robot is commanded to sit and await a human decision:
-#       - 's' → StandState (will perform sit→stand pre-roll)
-#       - 'r' → RecoveryState (policy-led self-righting)
-#       - 'q' → ShutdownState
-#     """
-#     name = "SafetyStop"
+class SafetyStopState(State):
+    """
+    Safety interlock state reached when sway exceeds threshold.
+    Robot is commanded to sit and await a human decision:
+      - 's' → StandState (will perform sit→stand pre-roll)
+      - 'r' → RecoveryState (policy-led self-righting)
+      - 'q' → ShutdownState
+    """
+    name = "SafetyStop"
 
-#     def on_enter(self, fsm: FSM) -> None:
-#         print("SAFETY STOP: Excessive sway detected. Daming the motors and awaiting input (s=Stand, r=Recovery, q=Quit)…")
-#         try:
-#             fsm.ctx.robot.stop()
-#         except Exception as e:
-#             logging.warning({"safety_stop_sit_failed": str(e)})
+    def on_enter(self, fsm: FSM) -> None:
+        print("SAFETY STOP: Excessive sway detected. Daming the motors and awaiting input (s=Stand, r=Recovery, q=Quit)…")
+        try:
+            fsm.ctx.robot.stop()
+        except Exception as e:
+            logging.warning({"safety_stop_sit_failed": str(e)})
 
-#     def handle(self, fsm: FSM, ev: Event, data: Optional[object] = None) -> None:
-#         key = str(data)
-#         if ev == Event.KEY:
-#             if key in ("q", "Q"):
-#                 fsm.transition(ShutdownState())
-#                 return
-#             if key in ("s", "S"):
-#                 fsm.transition(StandState())
-#                 return
-#             if key in ("r", "R", "3"):
-#                 fsm.transition(RecoveryState())
-#                 return
-#             # Ignore other keys in safety stop
-#         # No control outputs on tick; remain passive and safe
-#         if ev == Event.TICK:
-#             pass
+    def handle(self, fsm: FSM, ev: Event, data: Optional[object] = None) -> None:
+        fsm.ctx.robot.start()
+        key = str(data)
+        if ev == Event.KEY:
+            if key in ("q", "Q"):
+                fsm.transition(ShutdownState())
+                return
+            if key in ("s", "S"):
+                fsm.transition(StandState())
+                return
+            if key in ("r", "R", "3"):
+                fsm.transition(RecoveryState())
+                return
+            # Ignore other keys in safety stop
+        # No control outputs on tick; remain passive and safe
+        if ev == Event.TICK:
+            pass
 
 
 def _key_common(fsm: FSM, key) -> None:
@@ -416,11 +417,8 @@ class RecoveryState(State):
             if key in ("q", "Q"):
                 fsm.transition(ShutdownState())
                 return
-            if key in ("1", "v", "V"):
-                fsm.transition(VelocityState())
-                return
-            if key in ("2", "j", "J"):
-                fsm.transition(JumpState())
+            if key in ("s", "S"):
+                fsm.transition(StandState())
                 return
             
             _key_common(fsm, key)
@@ -442,10 +440,10 @@ class RecoveryState(State):
                 "Yaw": float(rpy[2]),
             })
 
-            # If we returned upright, bounce to last non-recovery or velocity as default
+            # # If we returned upright, bounce to last non-recovery or velocity as default
             if abs(rpy[0]) < SWAY_THRESHOLD_DEG * 0.5 and abs(rpy[1]) < SWAY_THRESHOLD_DEG * 0.5:
-                next_state = StandState()
-                fsm.transition(type(next_state)())
+                print("Recovered upright!")
+                print("(s=Stand, q=Quit)")
 
 
 class ShutdownState(State):
