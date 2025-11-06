@@ -45,7 +45,7 @@ from ga_quadruped.plot.publisher import SimpleZmqPublisher
 from ga_quadruped.policy_agent.jump_policy_agent import JumpPolicyAgent
 from ga_quadruped.policy_agent.recovery_policy_agent import RecoveryPolicyAgent
 from ga_quadruped.policy_agent.velocity_policy_agent import VelocityPolicyAgent
-from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer
+from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer, QuadrupedDropInInitializer
 from ga_quadruped.sim2sim.robot import SimRobot
 
 from mujoco.viewer import launch_passive
@@ -321,7 +321,7 @@ class VelocityState(State):
         self.agent = VelocityPolicyAgent(
             controller=self.controller,
             robot=fsm.ctx.robot,
-            onnx_path=policy_path(args.policy),
+            onnx_path=args.policy,
             default_qpos=HOME_POSE,
             gait_freq=args.freq,
         )
@@ -369,7 +369,7 @@ class JumpState(State):
         self.agent = JumpPolicyAgent(
             controller=self.controller,
             robot=fsm.ctx.robot,
-            onnx_path=policy_path(args.jump_policy),
+            onnx_path=args.jump_policy,
             default_qpos=HOME_POSE,
         )
 
@@ -406,7 +406,7 @@ class RecoveryState(State):
         self.agent = RecoveryPolicyAgent(
             controller=None,
             robot=fsm.ctx.robot,
-            onnx_path=policy_path(args.recovery_policy),
+            onnx_path=args.recovery_policy,
             default_qpos=HOME_POSE,
         )
         print("Entering recovery mode…")
@@ -472,12 +472,23 @@ def run(args: argparse.Namespace) -> None:
         time.sleep(1)
 
     viewer = launch_passive(robot.model, robot.data) if args.sim else None
-    quad_init = QuadrupedDefaultInitializer(
-        robot=robot,
-        stand_gait=np.array(HOME_POSE),
-        sit_gait=np.zeros(12),
-        viewer=viewer,
-    )
+
+    if args.sim and args.drop_in:
+        quad_init = QuadrupedDropInInitializer(
+            robot=robot,
+            stand_gait=np.array(HOME_POSE),
+            sit_gait=np.zeros(12),
+            drop_height=0.1,
+            viewer=viewer,
+        )
+        quad_init.drop_in()
+    else:
+        quad_init = QuadrupedDefaultInitializer(
+            robot=robot,
+            stand_gait=np.array(HOME_POSE),
+            sit_gait=np.zeros(12),
+            viewer=viewer,
+        )
 
     push_controller = PushController() if args.sim else None
 
@@ -547,14 +558,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="/home/radon12/Documents/workspace/mjx_rl/src/mjx_rl/assets/param/param_scene_full_collisions.xml",
         help="MuJoCo XML path (sim only)",
     )
-    parser.add_argument("--policy", type=str, default="low_height_2k.onnx", help="Policy ONNX path")
+    parser.add_argument("--policy", type=str, default="src/ga_quadruped/policy/low_height_2k.onnx", help="Policy ONNX path")
     parser.add_argument("--recovery", action="store_true", help="Start directly in recovery mode")
-    parser.add_argument("--recovery_policy", type=str, default="recovery_1k.onnx", help="Recovery policy ONNX path")
+    parser.add_argument("--recovery_policy", type=str, default="src/ga_quadruped/policy/recovery_1k.onnx", help="Recovery policy ONNX path")
     parser.add_argument("--jump", action="store_true", help="Start directly in jump mode")
-    parser.add_argument("--jump_policy", type=str, default="jump_command_5000.onnx", help="Jump policy ONNX path")
+    parser.add_argument("--jump_policy", type=str, default="src/ga_quadruped/policy/jump_command_5000.onnx", help="Jump policy ONNX path")
     parser.add_argument("--freq", type=float, default=1.25, help="Gait frequency")
     parser.add_argument("--max_vel", type=float, default=1.0, help="Max linear velocity")
     parser.add_argument("--save-obs", dest="save_obs", type=str, default="", help="Optional CSV to save observations")
+    parser.add_argument("--drop-in", action="store_true", help="Drop-in initializer (sim only)")
     return parser.parse_args(argv)
 
 

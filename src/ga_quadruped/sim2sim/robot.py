@@ -4,7 +4,6 @@ import numpy as np
 
 from scipy.spatial.transform import Rotation as R
 from ga_quadruped.robot.base_robot import BaseRobot
-from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer
 
 class SimRobot(BaseRobot):
     def __init__(self, xml_path: str):
@@ -135,6 +134,8 @@ class SimRobot(BaseRobot):
 
 
 if __name__ == "__main__":
+    from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer
+
     XML_PATH = "/home/radon12/Documents/ga_quadruped/assets/param/scene.xml" 
     # HOME_POSE = [0.1, 0.8, -1.5, -0.1, 0.8, -1.5, 0.1, 1, -1.5, -0.1, 1.0, -1.5] 
     theta0 = 0.0 

@@ -8,7 +8,6 @@ from ga_can.devices.imu.imu import IMU
 import numpy as np
 
 from ga_quadruped.robot.base_robot import BaseRobot
-from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer
 import time
 
 
@@ -126,6 +125,8 @@ class Param(BaseRobot):
 if __name__ == "__main__":
     import argparse
     import time
+    from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer
+
 
     args = argparse.ArgumentParser()
     args.add_argument('--zero', action='store_true', help='Start with zero joint positions')

@@ -1,6 +1,7 @@
 import time
 import numpy as np
 from ga_quadruped.robot.base_robot import BaseRobot
+from ga_quadruped.sim2sim.robot import SimRobot
 
 
 class QuadrupedDefaultInitializer:
@@ -33,3 +34,20 @@ class QuadrupedDefaultInitializer:
             if self.viewer is not None:
                 self.viewer.sync()
             time.sleep(0.01)
+
+
+class QuadrupedDropInInitializer(QuadrupedDefaultInitializer):
+    def __init__(self,
+                 robot: SimRobot,
+                 stand_gait: np.ndarray,
+                 sit_gait: np.ndarray,
+                 drop_height: float = 0.5,
+                 viewer=None
+    ):
+        super().__init__(robot, stand_gait, sit_gait, viewer)
+        self._drop_height = drop_height
+
+    def drop_in(self, seconds: float = 2.0) -> None:
+        # Set initial position higher
+        self.robot.data.qpos[2] += self._drop_height
+        self.robot.data.qpos[7:] = self._stand_gait
