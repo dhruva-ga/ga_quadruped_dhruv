@@ -275,6 +275,10 @@ def _tick_common(fsm: FSM, agent) -> None:
         "Yaw": float(rpy[2]),
     })
 
+    for k, v in motor_torques.items():
+        print(f"{k}: {v:.2f} ", end="\n")
+    print()
+
     # Logging
     fsm.ctx.logger.log({
         "qpos": qpos,
