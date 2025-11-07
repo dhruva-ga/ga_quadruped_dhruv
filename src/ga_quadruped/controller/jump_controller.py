@@ -17,8 +17,8 @@ class JumpController(ControllerInterface):
       - axes['jump_height'] in [0.55, 1.2]; 'w' increases, 's' decreases (clamped).
     """
 
-    MIN_JUMP = 0.55
-    MAX_JUMP = 1.2
+    MIN_JUMP = 0.6
+    MAX_JUMP = 0.9
 
     def __init__(self, n_jump_steps: int = 60, height_step: float = 0.05):
         self._spec = jump_spec()
