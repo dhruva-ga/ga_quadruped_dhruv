@@ -6,7 +6,7 @@ import onnxruntime as ort
 import time
 from ga_quadruped.controller.controller_interface import ControlOutput, ControllerInterface
 from ga_quadruped.robot.base_robot import BaseRobot
-import torch
+#import torch
 class PolicyAgentInterface(ABC):
     def __init__(
         self,
@@ -18,11 +18,11 @@ class PolicyAgentInterface(ABC):
     ):
         self.controller = controller
         self.robot = robot
-        # self.session = ort.InferenceSession(
-        #     onnx_path, providers=["CPUExecutionProvider"]
-        # )
-        self.device = torch.device('cuda')
-        self.policy_infer = self.model = torch.jit.load(onnx_path, map_location=self.device).to(self.device)
+        self.session = ort.InferenceSession(
+            onnx_path, providers=["CPUExecutionProvider"]
+        )
+        #self.device = torch.device('cuda')
+        #self.policy_infer = self.model = torch.jit.load(onnx_path, map_location=self.device).to(self.device)
         self.default_qpos = default_qpos.copy()  # RENAMED
         self.last_act = default_qpos.copy()  # keep same init behavior
         self.action_scale = float(action_scale)
@@ -63,17 +63,19 @@ class PolicyAgentInterface(ABC):
     def compute_obs(self) -> np.ndarray: ...
 
     def act(self, obs: np.ndarray) -> np.ndarray:
-        # output = (
-        #     self.session.run(None, {"obs": obs.reshape(1, -1)})[0]
-        #     .flatten()
-        #     .astype(np.float32)
-        # )
         st = time.time()
-        output = self.policy_infer(torch.tensor(obs).to(self.device)).detach().cpu().numpy()[0]
+        output = (
+            self.session.run(None, {"obs": obs.reshape(1, -1)})[0]
+            .flatten()
+            .astype(np.float32)
+        )
+        
+        #output = self.policy_infer(torch.tensor(obs).to(self.device)).detach().cpu().numpy()[0]
         print('inference time', time.time()-st, self.action_scale, output)
         self.last_act = output.clip(-10.0, 10.0).copy()
         mjc_act = np.zeros(12, dtype=np.float32)
         mjc_act[self.joint_ids] = output.reshape(-1)
+        print(self.default_qpos)
         return self.default_qpos + self.action_scale * mjc_act
 
     def tick(self, control_timeout_ms: int = 1):

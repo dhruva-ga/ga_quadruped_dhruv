@@ -647,7 +647,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="/home/dhruva/ga_quadruped/assets/param/param_scene.xml",
         help="MuJoCo XML path (sim only)",
     )
-    parser.add_argument("--policy", type=str, default="policy.pt", help="Policy ONNX path")
+    parser.add_argument("--policy", type=str, default="policy.onnx", help="Policy ONNX path")
     parser.add_argument("--recovery", action="store_true", help="Start directly in recovery mode")
     parser.add_argument("--recovery_policy", type=str, default="recovery_1k.onnx", help="Recovery policy ONNX path")
     parser.add_argument("--jump", action="store_true", help="Start directly in jump mode")
