@@ -3,10 +3,10 @@ from abc import ABC, abstractmethod
 from typing import Optional, Tuple, Dict, Any
 import numpy as np
 import onnxruntime as ort
-
+import time
 from ga_quadruped.controller.controller_interface import ControlOutput, ControllerInterface
 from ga_quadruped.robot.base_robot import BaseRobot
-
+import torch
 class PolicyAgentInterface(ABC):
     def __init__(
         self,
@@ -14,13 +14,15 @@ class PolicyAgentInterface(ABC):
         robot: BaseRobot,
         onnx_path: str,
         default_qpos: np.ndarray,  # RENAMED
-        action_scale: float = 0.5,
+        action_scale: float = 0.25,
     ):
         self.controller = controller
         self.robot = robot
-        self.session = ort.InferenceSession(
-            onnx_path, providers=["CPUExecutionProvider"]
-        )
+        # self.session = ort.InferenceSession(
+        #     onnx_path, providers=["CPUExecutionProvider"]
+        # )
+        self.device = torch.device('cuda')
+        self.policy_infer = self.model = torch.jit.load(onnx_path, map_location=self.device).to(self.device)
         self.default_qpos = default_qpos.copy()  # RENAMED
         self.last_act = default_qpos.copy()  # keep same init behavior
         self.action_scale = float(action_scale)
@@ -61,13 +63,18 @@ class PolicyAgentInterface(ABC):
     def compute_obs(self) -> np.ndarray: ...
 
     def act(self, obs: np.ndarray) -> np.ndarray:
-        output = (
-            self.session.run(None, {"input": obs.reshape(1, -1)})[0]
-            .flatten()
-            .astype(np.float32)
-        )
-        self.last_act = output.copy()
-        return self.default_qpos + self.action_scale * output
+        # output = (
+        #     self.session.run(None, {"obs": obs.reshape(1, -1)})[0]
+        #     .flatten()
+        #     .astype(np.float32)
+        # )
+        st = time.time()
+        output = self.policy_infer(torch.tensor(obs).to(self.device)).detach().cpu().numpy()[0]
+        print('inference time', time.time()-st, self.action_scale, output)
+        self.last_act = output.clip(-10.0, 10.0).copy()
+        mjc_act = np.zeros(12, dtype=np.float32)
+        mjc_act[self.joint_ids] = output.reshape(-1)
+        return self.default_qpos + self.action_scale * mjc_act
 
     def tick(self, control_timeout_ms: int = 1):
         out = self.pull_control(timeout_ms=control_timeout_ms)

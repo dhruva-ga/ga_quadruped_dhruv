@@ -1,11 +1,12 @@
 """
-Finite State Machine (FSM) runner for GA quadruped.
+Finite State Machine (FSM) runner for GA quadruped with video recording.
 
 Key changes vs. the original script:
 - Clear state machine with runtime policy switching (Velocity ⟷ Jump ⟷ Recovery)
 - Safer lifecycle (on_enter/on_exit), unified telemetry, and clean shutdown
 - Same CLI surface with small additions to key bindings
 - Keeps support for simulation (MuJoCo) and hardware Param robot
+- Video recording support for simulation mode
 
 Default key bindings (terminal):
   q      : quit & sit
@@ -29,6 +30,8 @@ from enum import Enum, auto
 from typing import Optional, Tuple
 
 import numpy as np
+import cv2
+import mujoco
 from blessed import Terminal
 from scipy.spatial.transform import Rotation as R
 
@@ -45,17 +48,15 @@ from ga_quadruped.plot.publisher import SimpleZmqPublisher
 from ga_quadruped.policy_agent.jump_policy_agent import JumpPolicyAgent
 from ga_quadruped.policy_agent.recovery_policy_agent import RecoveryPolicyAgent
 from ga_quadruped.policy_agent.velocity_policy_agent import VelocityPolicyAgent
-from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer, QuadrupedDropInInitializer
 from ga_quadruped.sim2sim.robot import SimRobot
-
-from mujoco.viewer import launch_passive
-
+from ga_quadruped.robot.quadruped_init import QuadrupedDefaultInitializer
 # =====================
 # Constants & Defaults
 # =====================
 VEL_STEP = 0.1
 DEFAULT_DT = 0.02
 SWAY_THRESHOLD_DEG = 60.0
+CAMERA_NAME = "pelvis_cam"  # Default camera name, can be overridden via CLI
 
 # Default home pose (Go1-like ordering)
 _THETA0 = 0.0
@@ -104,6 +105,11 @@ class Ctx:
     push_controller: Optional[PushController]
     logger: object
     obs_buffer: list = field(default_factory=list)
+    # Video recording components
+    video_writer: Optional[cv2.VideoWriter] = None
+    renderer: Optional[mujoco.Renderer] = None
+    camera_id: Optional[int] = None
+    frame_count: int = 0
 
 
 class State:
@@ -166,8 +172,7 @@ class BootState(State):
         if args.recovery and args.sim:
             try:
                 fsm.ctx.robot.fall_start(58)
-                if fsm.ctx.viewer is not None:
-                    fsm.ctx.viewer.sync()
+                # No viewer sync needed for video recording
             except Exception as e:
                 logging.warning({"boot_fall_start_failed": str(e)})
 
@@ -275,10 +280,6 @@ def _tick_common(fsm: FSM, agent) -> None:
         "Yaw": float(rpy[2]),
     })
 
-    for k, v in motor_torques.items():
-        print(f"{k}: {v:.2f} ", end="\n")
-    print()
-
     # Logging
     fsm.ctx.logger.log({
         "qpos": qpos,
@@ -325,7 +326,7 @@ class VelocityState(State):
         self.agent = VelocityPolicyAgent(
             controller=self.controller,
             robot=fsm.ctx.robot,
-            onnx_path=args.policy,
+            onnx_path=policy_path(args.policy),
             default_qpos=HOME_POSE,
             gait_freq=args.freq,
         )
@@ -373,7 +374,7 @@ class JumpState(State):
         self.agent = JumpPolicyAgent(
             controller=self.controller,
             robot=fsm.ctx.robot,
-            onnx_path=args.jump_policy,
+            onnx_path=policy_path(args.jump_policy),
             default_qpos=HOME_POSE,
         )
 
@@ -410,7 +411,7 @@ class RecoveryState(State):
         self.agent = RecoveryPolicyAgent(
             controller=None,
             robot=fsm.ctx.robot,
-            onnx_path=args.recovery_policy,
+            onnx_path=policy_path(args.recovery_policy),
             default_qpos=HOME_POSE,
         )
         print("Entering recovery mode…")
@@ -463,6 +464,87 @@ class ShutdownState(State):
 
 
 # =====================
+# Video Recording Setup
+# =====================
+def setup_video_recording(ctx: Ctx) -> None:
+    """Initialize video recording components for simulation."""
+    if not ctx.args.sim or not ctx.args.record_video:
+        return
+    
+    try:
+        # Get camera ID
+        cam_id = mujoco.mj_name2id(
+            ctx.robot.model, 
+            mujoco.mjtObj.mjOBJ_CAMERA, 
+            ctx.args.camera_name
+        )
+        ctx.camera_id = cam_id
+        
+        # Use smaller dimensions that fit within default offscreen buffer
+        video_width = 640
+        video_height = 480
+        
+        # Initialize OpenGL context first
+        gl_ctx = mujoco.GLContext(video_width, video_height)
+        gl_ctx.make_current()
+        
+        # Initialize renderer with compatible dimensions
+        ctx.renderer = mujoco.Renderer(ctx.robot.model, height=video_height, width=video_width)
+        
+        # Initialize video writer
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        output_path = ctx.args.video_output
+        ctx.video_writer = cv2.VideoWriter(output_path, fourcc, 50, (video_width, video_height))
+        
+        print(f"Video recording initialized: {output_path}")
+        print(f"Resolution: {video_width}x{video_height}")
+        print(f"Using camera: {ctx.args.camera_name}")
+        
+    except Exception as e:
+        print(f"Warning: Failed to initialize video recording: {e}")
+        ctx.video_writer = None
+        ctx.renderer = None
+        ctx.camera_id = None
+
+
+def record_frame(ctx: Ctx) -> None:
+    """Capture and write a frame to video."""
+    if ctx.video_writer is None or ctx.renderer is None or ctx.camera_id is None:
+        return
+    
+    try:
+        # Render frame
+        ctx.renderer.update_scene(ctx.robot.data, camera=ctx.camera_id)
+        rgb_frame = ctx.renderer.render()
+        bgr_frame = cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2BGR)
+        
+        # Add info overlay
+        cv2.rectangle(bgr_frame, (5, 5), (280, 80), (0, 0, 0), -1)
+        cv2.rectangle(bgr_frame, (5, 5), (280, 80), (0, 255, 0), 2)
+        
+        y_pos = 25
+        cv2.putText(bgr_frame, f"Time: {ctx.robot.data.time:.2f}s", 
+                   (15, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        y_pos += 25
+        cv2.putText(bgr_frame, f"Frame: {ctx.frame_count}", 
+                   (15, y_pos), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        
+        ctx.video_writer.write(bgr_frame)
+        ctx.frame_count += 1
+        
+    except Exception as e:
+        logging.warning({"video_frame_error": str(e)})
+
+
+def cleanup_video(ctx: Ctx) -> None:
+    """Release video writer resources."""
+    if ctx.video_writer is not None:
+        ctx.video_writer.release()
+        print(f"\nVideo saved: {ctx.args.video_output}")
+        print(f"Total frames: {ctx.frame_count}")
+
+
+# =====================
 # Runner
 # =====================
 
@@ -475,24 +557,15 @@ def run(args: argparse.Namespace) -> None:
         robot.start()
         time.sleep(1)
 
-    viewer = launch_passive(robot.model, robot.data) if args.sim else None
-
-    if args.sim and args.drop_in:
-        quad_init = QuadrupedDropInInitializer(
-            robot=robot,
-            stand_gait=np.array(HOME_POSE),
-            sit_gait=np.zeros(12),
-            drop_height=0.1,
-            viewer=viewer,
-        )
-        quad_init.drop_in()
-    else:
-        quad_init = QuadrupedDefaultInitializer(
-            robot=robot,
-            stand_gait=np.array(HOME_POSE),
-            sit_gait=np.zeros(12),
-            viewer=viewer,
-        )
+    # No viewer for video recording mode
+    viewer = None
+   
+    quad_init = QuadrupedDefaultInitializer(
+        robot=robot,
+        stand_gait=np.array(HOME_POSE),
+        sit_gait=np.zeros(12),
+        viewer=viewer,
+    )
 
     push_controller = PushController() if args.sim else None
 
@@ -507,6 +580,9 @@ def run(args: argparse.Namespace) -> None:
         logger=logger,
         obs_buffer=[],
     )
+
+    # Setup video recording if requested
+    setup_video_recording(ctx)
 
     fsm = FSM(ctx, BootState())
 
@@ -525,10 +601,11 @@ def run(args: argparse.Namespace) -> None:
             # one control/policy tick
             fsm.state.handle(fsm, Event.TICK)
 
-            # Sim advance
-            if ctx.viewer is not None and fsm.running():
+            # Sim advance and video recording
+            if args.sim and fsm.running():
                 ctx.robot.step(nsteps=4)
-                ctx.viewer.sync()
+                # Record frame instead of syncing viewer
+                record_frame(ctx)
 
             # Timing control
             elapsed = time.time() - t0
@@ -538,6 +615,9 @@ def run(args: argparse.Namespace) -> None:
             else:
                 print(f"Step time {elapsed:.4f}s exceeded {DEFAULT_DT}s")
 
+    # Cleanup
+    cleanup_video(ctx)
+    
     # Finalize / sit in finally-equivalent manner
     try:
         ctx.quad_init.sit()
@@ -550,8 +630,13 @@ def run(args: argparse.Namespace) -> None:
 # Entrypoint & CLI
 # =====================
 
+
+# =====================
+# Entrypoint & CLI
+# =====================
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="GA Quadruped FSM runner")
+    parser = argparse.ArgumentParser(description="GA Quadruped FSM runner with video recording")
     parser.add_argument("--sim", action="store_true", help="Run in simulation (MuJoCo)")
     parser.add_argument(
         "--controller", choices=["velocity", "remote"], default="velocity", help="Controller type"
@@ -559,18 +644,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--xml",
         type=str,
-        default="/home/radon12/Documents/workspace/mjx_rl/src/mjx_rl/assets/param/param_scene_full_collisions.xml",
+        default="/home/dhruva/ga_quadruped/assets/param/param_scene.xml",
         help="MuJoCo XML path (sim only)",
     )
-    parser.add_argument("--policy", type=str, default="src/ga_quadruped/policy/low_height_2k.onnx", help="Policy ONNX path")
+    parser.add_argument("--policy", type=str, default="policy.pt", help="Policy ONNX path")
     parser.add_argument("--recovery", action="store_true", help="Start directly in recovery mode")
-    parser.add_argument("--recovery_policy", type=str, default="src/ga_quadruped/policy/recovery_1k.onnx", help="Recovery policy ONNX path")
+    parser.add_argument("--recovery_policy", type=str, default="recovery_1k.onnx", help="Recovery policy ONNX path")
     parser.add_argument("--jump", action="store_true", help="Start directly in jump mode")
-    parser.add_argument("--jump_policy", type=str, default="src/ga_quadruped/policy/jump_command_5000.onnx", help="Jump policy ONNX path")
-    parser.add_argument("--freq", type=float, default=1.25, help="Gait frequency")
+    parser.add_argument("--jump_policy", type=str, default="jump_command_5000.onnx", help="Jump policy ONNX path")
+    parser.add_argument("--freq", type=float, default=2.0, help="Gait frequency")
     parser.add_argument("--max_vel", type=float, default=1.0, help="Max linear velocity")
     parser.add_argument("--save-obs", dest="save_obs", type=str, default="", help="Optional CSV to save observations")
-    parser.add_argument("--drop-in", action="store_true", help="Drop-in initializer (sim only)")
+    
+    # Video recording arguments
+    parser.add_argument("--record-video", action="store_true", default=True,help="Record video output (sim only)")
+    parser.add_argument("--video-output", type=str, default=f"{sys.path[0]}/o.mp4", 
+                       help="Video output path")
+    parser.add_argument("--camera-name", type=str, default=CAMERA_NAME, 
+                       help="MuJoCo camera name for video recording")
+    
     return parser.parse_args(argv)
 
 
